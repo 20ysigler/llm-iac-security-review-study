@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat_mut__iam.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:36Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly broad IAM permissions",
+      "description": "The deployment user is granted full administrative action sets for EC2, S3, Lambda, and CloudWatch against every resource. This violates least privilege and can enable broad data access, infrastructure modification, and privilege escalation through those services.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the deployment user rather than using temporary federated credentials or an IAM role. Such credentials remain valid until manually rotated or revoked and are susceptible to theft and reuse.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "exposed credential material",
+      "description": "The access key secret material is exported as a Terraform output. Even though it is represented as encrypted_secret, the output is not marked sensitive and can be exposed through Terraform output displays, state consumers, CI logs, or other users with state access.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1782,
+  "output_tokens": 269,
+  "latency_s": 3.49,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly broad IAM permissions\",\"description\":\"The deployment user is granted full administrative action sets for EC2, S3, Lambda, and CloudWatch against every resource. This violates least privilege and can enable broad data access, infrastructure modification, and privilege escalation through those services.\",\"severity\":\"high\",\"cwe\":\"CWE-269\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"long-lived static credentials\",\"description\":\"A static IAM access key is created for the deployment user rather than using temporary federated credentials or an IAM role. Such credentials remain valid until manually rotated or revoked and are susceptible to theft and reuse.\",\"severity\":\"medium\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"exposed credential material\",\"description\":\"The access key secret material is exported as a Terraform output. Even though it is represented as encrypted_secret, the output is not marked sensitive and can be exposed through Terraform output displays, state consumers, CI logs, or other users with state access.\",\"severity\":\"high\",\"cwe\":\"CWE-200\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1782,
+      "output_tokens": 269,
+      "latency_s": 3.49,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.006792
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.006792
+}

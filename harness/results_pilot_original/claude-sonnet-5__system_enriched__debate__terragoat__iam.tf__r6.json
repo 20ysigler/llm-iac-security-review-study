@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__iam.tf__r6",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 6,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:52:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and allowing broad, account-wide access to create, modify, or delete resources across these services if the credentials are compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static IAM credentials",
+      "description": "A long-lived programmatic access key is created for an IAM user rather than relying on roles or temporary credentials, increasing the risk of credential leakage and misuse since the key does not expire or rotate automatically, especially combined with the excessively permissive attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standalone IAM user with excess privileges",
+      "description": "A standalone IAM user is created and directly attached to an overly permissive wildcard policy instead of relying on scoped IAM roles, increasing the blast radius if this identity's credentials are compromised.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "sensitive value exposed via output",
+      "description": "The encrypted_secret attribute of the IAM access key is exposed through an output block, which can cause the value to be persisted in plan/state output or CI logs, increasing the risk of credential disclosure.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7920,
+  "output_tokens": 1715,
+  "latency_s": 16.421,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and allowing broad, account-wide access to create, modify, or delete resources across these services if the credentials are compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static IAM credentials\", \"description\": \"A long-lived programmatic access key is created for an IAM user rather than relying on roles or temporary credentials, increasing the risk of credential leakage and misuse since the key does not expire or rotate automatically, especially combined with the excessively permissive attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standalone IAM user with excess privileges\", \"description\": \"A standalone IAM user is created and directly attached to an overly permissive wildcard policy instead of relying on scoped IAM roles, increasing the blast radius if this identity's credentials are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"sensitive value exposed via output\", \"description\": \"The encrypted_secret attribute of the IAM access key is exposed through an output block, which can cause the value to be persisted in plan/state output or CI logs, increasing the risk of credential disclosure.\", \"severity\": \"low\", \"cwe\": \"CWE-200\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2265,
+      "output_tokens": 512,
+      "latency_s": 4.98,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00965
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2265,
+      "output_tokens": 500,
+      "latency_s": 5.165,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00953
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3390,
+      "output_tokens": 703,
+      "latency_s": 6.276,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.01381
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.03299
+}

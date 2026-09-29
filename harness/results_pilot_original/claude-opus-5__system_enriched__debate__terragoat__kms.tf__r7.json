@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__kms.tf__r7",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 7,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:20:04Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "KMS key rotation disabled",
+      "description": "The CMK protecting the logs bucket omits enable_key_rotation, which defaults to false, so the same key material is used indefinitely. Long-lived key material widens the exposure window and blast radius if it is ever compromised, and fails common compliance baselines (CIS/PCI) requiring annual rotation of customer-managed keys.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "Overly permissive default key policy",
+      "description": "No policy argument is supplied, so AWS attaches the default key policy granting kms:* to the account root, which delegates key use and administration to any IAM principal in the account holding KMS permissions. For a key encrypting log/audit data this provides no separation between log producers, log readers, and key administrators, and no least-privilege restriction on decryption.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 6737,
+  "output_tokens": 972,
+  "latency_s": 15.408,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"KMS key rotation disabled\", \"description\": \"The CMK protecting the logs bucket omits enable_key_rotation, which defaults to false, so the same key material is used indefinitely. Long-lived key material widens the exposure window and blast radius if it is ever compromised, and fails common compliance baselines (CIS/PCI) requiring annual rotation of customer-managed keys.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"Overly permissive default key policy\", \"description\": \"No policy argument is supplied, so AWS attaches the default key policy granting kms:* to the account root, which delegates key use and administration to any IAM principal in the account holding KMS permissions. For a key encrypting log/audit data this provides no separation between log producers, log readers, and key administrators, and no least-privilege restriction on decryption.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1999,
+      "output_tokens": 379,
+      "latency_s": 5.992,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.01947
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1999,
+      "output_tokens": 199,
+      "latency_s": 3.642,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.01497
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2739,
+      "output_tokens": 394,
+      "latency_s": 5.774,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.023545
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.057985
+}

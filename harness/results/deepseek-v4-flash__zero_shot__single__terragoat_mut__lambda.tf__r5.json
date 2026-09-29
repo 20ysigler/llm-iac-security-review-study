@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__lambda.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function's environment variables contain a hardcoded AWS access key ID and secret access key in plaintext. These values are stored unencrypted in the function configuration and Terraform state, and are readable by anyone with describe-function permission, exposing long-lived credentials that grant access to whatever the key authorizes.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "No KMS key is configured for the Lambda environment variables (no kms_key_arn), so the secrets are only protected by default service keys and are visible in plaintext to any principal that can read the function configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches, leaving known vulnerabilities unpatched in the execution environment.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "overly permissive trust policy",
+      "description": "The assume-role policy allows sts:AssumeRole by lambda.amazonaws.com without an sts:ExternalId or SourceArn/Audience condition, so any Lambda function in any AWS account can potentially assume the role if the account ID is known.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1002,
+  "output_tokens": 433,
+  "latency_s": 2.823,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function's environment variables contain a hardcoded AWS access key ID and secret access key in plaintext. These values are stored unencrypted in the function configuration and Terraform state, and are readable by anyone with describe-function permission, exposing long-lived credentials that grant access to whatever the key authorizes.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"No KMS key is configured for the Lambda environment variables (no kms_key_arn), so the secrets are only protected by default service keys and are visible in plaintext to any principal that can read the function configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches, leaving known vulnerabilities unpatched in the execution environment.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"overly permissive trust policy\", \"description\": \"The assume-role policy allows sts:AssumeRole by lambda.amazonaws.com without an sts:ExternalId or SourceArn/Audience condition, so any Lambda function in any AWS account can potentially assume the role if the account ID is known.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1002,
+      "output_tokens": 433,
+      "latency_s": 2.823,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000262
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000262
+}

@@ -1,0 +1,115 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__ec2.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:53:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows SSH (port 22) ingress from 0.0.0.0/0, exposing the management port of the instance to the entire internet, and also allows HTTP from 0.0.0.0/0 without any compensating controls (e.g. no HTTPS/TLS).",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The security group's egress rule permits all outbound traffic on all ports/protocols to 0.0.0.0/0, providing an unrestricted data exfiltration path.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "AWS access key and secret access key are hardcoded in plaintext within the instance's user_data script, which is readable by anyone with DescribeInstanceAttribute permissions and is stored in plaintext in the Terraform state/config.",
+      "severity": "critical",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true nor specify a KMS key, leaving the data at rest unencrypted by default.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving sensitive network flow data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access control / public access block",
+      "description": "The bucket has no public access block, versioning, or bucket policy restricting access, and force_destroy is enabled, increasing risk of accidental exposure or deletion of audit log data.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet has map_public_ip_on_launch set to true, automatically assigning public IP addresses to instances launched here, increasing exposure of the web server and any future instances.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet has map_public_ip_on_launch set to true, automatically assigning public IP addresses to any instances launched in this subnet, expanding the attack surface unnecessarily.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "missing IMDSv2 enforcement",
+      "description": "The instance does not configure metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.",
+      "severity": "high",
+      "cwe": "CWE-918"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "Root/attached volume lacks a customer-managed KMS key configuration, meaning even if encryption were enabled it would rely on default keys rather than explicit key management controls.",
+      "severity": "low",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 5412,
+  "output_tokens": 1360,
+  "latency_s": 11.181,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows SSH (port 22) ingress from 0.0.0.0/0, exposing the management port of the instance to the entire internet, and also allows HTTP from 0.0.0.0/0 without any compensating controls (e.g. no HTTPS/TLS).\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group's egress rule permits all outbound traffic on all ports/protocols to 0.0.0.0/0, providing an unrestricted data exfiltration path.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"AWS access key and secret access key are hardcoded in plaintext within the instance's user_data script, which is readable by anyone with DescribeInstanceAttribute permissions and is stored in plaintext in the Terraform state/config.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true nor specify a KMS key, leaving the data at rest unencrypted by default.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving sensitive network flow data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing access control / public access block\", \"description\": \"The bucket has no public access block, versioning, or bucket policy restricting access, and force_destroy is enabled, increasing risk of accidental exposure or deletion of audit log data.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"The subnet has map_public_ip_on_launch set to true, automatically assigning public IP addresses to instances launched here, increasing exposure of the web server and any future instances.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"The subnet has map_public_ip_on_launch set to true, automatically assigning public IP addresses to any instances launched in this subnet, expanding the attack surface unnecessarily.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"missing IMDSv2 enforcement\", \"description\": \"The instance does not configure metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.\", \"severity\": \"high\", \"cwe\": \"CWE-918\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Root/attached volume lacks a customer-managed KMS key configuration, meaning even if encryption were enabled it would rely on default keys rather than explicit key management controls.\", \"severity\": \"low\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5412,
+      "output_tokens": 1360,
+      "latency_s": 11.181,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.024424
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.024424
+}

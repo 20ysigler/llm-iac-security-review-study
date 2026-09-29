@@ -1,0 +1,71 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__ec2.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:45:46Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "secrets in user data",
+      "description": "Plain-text AWS access key ID and secret access key are embedded in the EC2 user data script. Anyone with describe access to the instance can read the credentials, and the secrets are committed in source control, so they must be treated as compromised.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without encryption enabled, leaving data at rest unencrypted on the underlying storage.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot created from an unencrypted volume carries no encryption, so snapshots of the data are stored unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group permits inbound SSH (port 22) from 0.0.0.0/0, granting the entire internet access to the instance's SSH service, enabling brute-force and unauthorized remote access.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The security group permits inbound HTTP (port 80) from 0.0.0.0/0; while the web port is typically public, combined with the config it exposes the instance broadly. This admission of the entire internet to the web port broadens attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The security group allows all outbound traffic (protocol -1, ports 0-0, cidr 0.0.0.0/0), providing an unrestricted egress path that can be used for data exfiltration or command-and-control communications.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5216,
+  "output_tokens": 590,
+  "latency_s": 5.669,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"secrets in user data\", \"description\": \"Plain-text AWS access key ID and secret access key are embedded in the EC2 user data script. Anyone with describe access to the instance can read the credentials, and the secrets are committed in source control, so they must be treated as compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without encryption enabled, leaving data at rest unencrypted on the underlying storage.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot created from an unencrypted volume carries no encryption, so snapshots of the data are stored unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group permits inbound SSH (port 22) from 0.0.0.0/0, granting the entire internet access to the instance's SSH service, enabling brute-force and unauthorized remote access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The security group permits inbound HTTP (port 80) from 0.0.0.0/0; while the web port is typically public, combined with the config it exposes the instance broadly. This admission of the entire internet to the web port broadens attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group allows all outbound traffic (protocol -1, ports 0-0, cidr 0.0.0.0/0), providing an unrestricted egress path that can be used for data exfiltration or command-and-control communications.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000895
+}

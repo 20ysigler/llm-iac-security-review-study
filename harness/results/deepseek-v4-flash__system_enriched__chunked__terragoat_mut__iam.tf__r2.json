@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:41Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants the deploy user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", i.e. full administrative control over those services across the entire account, including the ability to read every S3 object, terminate instances, and modify Lambda functions. Actions such as iam:PassRole-adjacent escalation via lambda:UpdateFunctionConfiguration and data exfiltration via s3:GetObject follow directly from this grant. It should be scoped to specific resource ARNs and the minimum action set.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static, non-rotating access key and secret are created for the svc_deploy user. Long-lived IAM user credentials have no automatic expiry, are frequently committed to CI systems or scripts, and are difficult to revoke at scale; this materially raises the blast radius if leaked. Prefer short-lived credentials via an assumed role or OIDC federation.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed as output",
+      "description": "The generated access key is written as a Terraform output without the sensitive flag, so the value is rendered in plain text in plan/apply console output, CI logs, and (if a remote backend is used) the state file. Anyone with read access to these artefacts obtains the deploy user's credentials.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user identity",
+      "description": "The deploy identity is a standalone IAM user rather than a role with temporary credentials, which is the credential pattern that makes the accompanying static access key and its exfiltration risk possible. Combining force_destroy = true with this identity also permits the user to be deleted, destroying audit evidence, without additional safeguards.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1384,
+  "output_tokens": 554,
+  "latency_s": 3.581,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants the deploy user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", i.e. full administrative control over those services across the entire account, including the ability to read every S3 object, terminate instances, and modify Lambda functions. Actions such as iam:PassRole-adjacent escalation via lambda:UpdateFunctionConfiguration and data exfiltration via s3:GetObject follow directly from this grant. It should be scoped to specific resource ARNs and the minimum action set.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static, non-rotating access key and secret are created for the svc_deploy user. Long-lived IAM user credentials have no automatic expiry, are frequently committed to CI systems or scripts, and are difficult to revoke at scale; this materially raises the blast radius if leaked. Prefer short-lived credentials via an assumed role or OIDC federation.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed as output\", \"description\": \"The generated access key is written as a Terraform output without the sensitive flag, so the value is rendered in plain text in plan/apply console output, CI logs, and (if a remote backend is used) the state file. Anyone with read access to these artefacts obtains the deploy user's credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user identity\", \"description\": \"The deploy identity is a standalone IAM user rather than a role with temporary credentials, which is the credential pattern that makes the accompanying static access key and its exfiltration risk possible. Combining force_destroy = true with this identity also permits the user to be deleted, destroying audit evidence, without additional safeguards.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1384,
+      "output_tokens": 554,
+      "latency_s": 3.581,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000349
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.000349
+}

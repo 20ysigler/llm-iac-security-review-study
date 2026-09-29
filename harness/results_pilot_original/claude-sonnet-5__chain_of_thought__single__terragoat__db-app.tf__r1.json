@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:50:28Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to compromise if the underlying disks are accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database username is hardcoded to 'admin' and the password is passed via variable and also embedded in plaintext in the EC2 user_data script, risking credential leakage through instance metadata, console logs, or Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all traffic (protocol -1, all ports) to 0.0.0.0/0, allowing the RDS security group to send data anywhere, increasing the risk of data exfiltration if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy attached to the EC2 role grants full wildcard access (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the EC2 instance to perform any action on these services if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 instance's user_data script embeds the database password and other connection details in plaintext, which can be retrieved by anyone with access to the instance metadata service or console, exposing credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled backup retention affecting recovery",
+      "description": "backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, in combination with skip_final_snapshot = true this also means no recovery point exists if data is tampered with or destroyed during an incident.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7134,
+  "output_tokens": 1085,
+  "latency_s": 10.306,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to compromise if the underlying disks are accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database username is hardcoded to 'admin' and the password is passed via variable and also embedded in plaintext in the EC2 user_data script, risking credential leakage through instance metadata, console logs, or Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all traffic (protocol -1, all ports) to 0.0.0.0/0, allowing the RDS security group to send data anywhere, increasing the risk of data exfiltration if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy attached to the EC2 role grants full wildcard access (s3:*, ec2:*, rds:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the EC2 instance to perform any action on these services if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 instance's user_data script embeds the database password and other connection details in plaintext, which can be retrieved by anyone with access to the instance metadata service or console, exposing credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled backup retention affecting recovery\", \"description\": \"backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, in combination with skip_final_snapshot = true this also means no recovery point exists if data is tampered with or destroyed during an incident.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.025118
+}

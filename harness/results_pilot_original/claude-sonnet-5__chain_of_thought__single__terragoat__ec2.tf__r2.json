@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__ec2.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:51:33Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "AWS access key ID and secret access key are hardcoded in plaintext in the instance user_data script, exposing long-lived credentials to anyone with access to the instance metadata, API, or console describe-instance-attribute calls.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "unencrypted storage volume",
+      "description": "The EBS volume does not set encrypted = true, meaning data at rest on this volume is stored unencrypted and vulnerable to exposure if the underlying storage is compromised or snapshots are shared.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot",
+      "description": "The EBS snapshot is created from an unencrypted volume and does not specify encryption, so the snapshot itself is unencrypted and could be shared or exposed without protection of data at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing SSH access to the entire internet and creating a significant attack surface for brute force or credential attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The security group allows inbound TCP port 80 from 0.0.0.0/0, which combined with unrestricted egress and open SSH substantially increases the exposed attack surface of the host, though this is expected for a public web server it should be reviewed alongside the other open rules.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all traffic (protocol -1) to any destination (0.0.0.0/0), which is overly permissive and could facilitate data exfiltration if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IP addresses to instances launched in this subnet, increasing internet-facing exposure of resources including the EC2 instance with open SSH.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IP addresses to instances launched in this subnet, increasing internet-facing exposure of resources launched here.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption and public access controls",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, risking unauthorized access to or unencrypted storage of sensitive network flow log data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6264,
+  "output_tokens": 1427,
+  "latency_s": 11.867,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"AWS access key ID and secret access key are hardcoded in plaintext in the instance user_data script, exposing long-lived credentials to anyone with access to the instance metadata, API, or console describe-instance-attribute calls.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"unencrypted storage volume\", \"description\": \"The EBS volume does not set encrypted = true, meaning data at rest on this volume is stored unencrypted and vulnerable to exposure if the underlying storage is compromised or snapshots are shared.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"The EBS snapshot is created from an unencrypted volume and does not specify encryption, so the snapshot itself is unencrypted and could be shared or exposed without protection of data at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing SSH access to the entire internet and creating a significant attack surface for brute force or credential attacks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The security group allows inbound TCP port 80 from 0.0.0.0/0, which combined with unrestricted egress and open SSH substantially increases the exposed attack surface of the host, though this is expected for a public web server it should be reviewed alongside the other open rules.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all traffic (protocol -1) to any destination (0.0.0.0/0), which is overly permissive and could facilitate data exfiltration if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IP addresses to instances launched in this subnet, increasing internet-facing exposure of resources including the EC2 instance with open SSH.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IP addresses to instances launched in this subnet, increasing internet-facing exposure of resources launched here.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption and public access controls\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, risking unauthorized access to or unencrypted storage of sensitive network flow log data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.026798
+}

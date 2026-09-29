@@ -1,0 +1,98 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:18Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full administrative control over compute, storage, and serverless services account-wide. Wildcard actions on wildcard resources defeat least privilege and permit data exfiltration, resource destruction, and privilege escalation (e.g. creating policies or passing roles).",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the user that holds the wildcard administrative policy. The key never expires and is not scoped to a session, so compromise of this single credential yields unrestricted account-wide access until manually revoked.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "sensitive output exposure",
+      "description": "The output publishes the access key secret material. Terraform outputs are persisted in plaintext in state and rendered in plan/apply and CI logs, so anyone with state or log read access can retrieve credentials to the account.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "insecure credential destruction",
+      "description": "force_destroy = true allows the user to be deleted along with its access key and attached policies without safeguards, which can be triggered by an errant or malicious apply and remove the account's IAM audit trail for this identity. It weakens change control over a privileged credential-bearing principal.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4655,
+  "output_tokens": 1222,
+  "latency_s": 7.622,
+  "attempts": 1,
+  "schema_problems": [
+    "reviewer_a: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name",
+    "reconciler: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full administrative control over compute, storage, and serverless services account-wide. Wildcard actions on wildcard resources defeat least privilege and permit data exfiltration, resource destruction, and privilege escalation (e.g. creating policies or passing roles).\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the user that holds the wildcard administrative policy. The key never expires and is not scoped to a session, so compromise of this single credential yields unrestricted account-wide access until manually revoked.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"sensitive output exposure\", \"description\": \"The output publishes the access key secret material. Terraform outputs are persisted in plaintext in state and rendered in plan/apply and CI logs, so anyone with state or log read access can retrieve credentials to the account.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"insecure credential destruction\", \"description\": \"force_destroy = true allows the user to be deleted along with its access key and attached policies without safeguards, which can be triggered by an errant or malicious apply and remove the account's IAM audit trail for this identity. It weakens change control over a privileged credential-bearing principal.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1271,
+      "output_tokens": 351,
+      "latency_s": 2.375,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000276
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1271,
+      "output_tokens": 395,
+      "latency_s": 2.374,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000289
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2113,
+      "output_tokens": 476,
+      "latency_s": 2.873,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000429
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.000994
+}

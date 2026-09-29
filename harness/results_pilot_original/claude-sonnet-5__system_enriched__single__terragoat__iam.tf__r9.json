@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__iam.tf__r9",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 9,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:22:53Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived IAM access key",
+      "description": "A long-lived programmatic access key is created for an IAM user with excessive permissions, increasing the blast radius if the key is leaked since it does not expire or rotate and is tied to a static credential model rather than short-lived roles.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standing IAM user with broad privileges",
+      "description": "An IAM user (rather than a role) is created and attached to a wildcard-permission policy, creating a persistent high-privilege identity with static credentials instead of using scoped, temporary role-based access.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "secret exposure via output",
+      "description": "The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be displayed in plaintext in CLI output, state files, or CI/CD logs, increasing the risk of credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-312"
+    }
+  ],
+  "input_tokens": 2265,
+  "output_tokens": 627,
+  "latency_s": 6.477,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived IAM access key\", \"description\": \"A long-lived programmatic access key is created for an IAM user with excessive permissions, increasing the blast radius if the key is leaked since it does not expire or rotate and is tied to a static credential model rather than short-lived roles.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standing IAM user with broad privileges\", \"description\": \"An IAM user (rather than a role) is created and attached to a wildcard-permission policy, creating a persistent high-privilege identity with static credentials instead of using scoped, temporary role-based access.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.secret\", \"issue_category\": \"secret exposure via output\", \"description\": \"The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be displayed in plaintext in CLI output, state files, or CI/CD logs, increasing the risk of credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\"}]}",
+  "cost_usd": 0.0108
+}

@@ -1,0 +1,141 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:34Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, so the database receives a public IP/DNS name reachable from the internet, greatly expanding the attack surface for brute-force and exploitation of the MySQL listener.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the database volume and its snapshots unencrypted, so anyone with access to the underlying storage or a snapshot can read the data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded secrets in user_data",
+      "description": "The instance user_data embeds the database password (${var.password}) into a world-readable bootstrap script; user_data is retrievable via the EC2 metadata service and DescribeInstanceAttribute by anyone with those permissions, exposing the DB credential.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials in instance user data",
+      "description": "The startup script writes the database password in cleartext into /var/www/inc/dbinfo.inc and renders it in plaintext user data, so the credential is readable from the instance metadata and the running instance, violating the guidance against embedding secrets in instance startup scripts.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "wildcard action and resource",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\", which is effectively administrative access over storage, compute and databases and permits privilege escalation and broad data access if the role is assumed.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0), providing an unrestricted exfiltration and command-and-control channel from the database subnet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "Inbound MySQL (3306) is allowed from the entire VPC CIDR rather than a specific application security group, so any host in the VPC \u2014 including compromised or unrelated instances \u2014 can reach the database, contradicting zero-trust traffic flow within network layers.",
+      "severity": "high",
+      "cwe": "CWE-923",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "default administrative username",
+      "description": "The master username is the well-known default \"admin\", which default administrative account names should not survive into deployed infrastructure as it aids credential-guessing attacks.",
+      "severity": "medium",
+      "cwe": "CWE-1392",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "plaintext password in state/config",
+      "description": "password = var.password stores the master credential in Terraform state and configuration with lifecycle ignore_changes, meaning the cleartext secret persists in the state file and is not rotated; managed secrets should be used instead.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "The EC2 instance does not set metadata_options to enforce IMDSv2 (http_tokens = \"required\"), so the legacy instance metadata service remains available and a server-side request forgery in the PHP application can retrieve instance credentials.",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.catalog_app_public_dns",
+      "issue_category": "sensitive data exposure in output",
+      "description": "The output exposes the application server's public DNS name (implied by assigning a public IP/subnet placement) and the catalog_db_endpoint output discloses the database endpoint, aiding external reconnaissance and enabling direct targeting of a publicly accessible database.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database monitoring disabled",
+      "description": "monitoring_interval = 0 disables Enhanced Monitoring for the database, removing the audit/telemetry source needed to detect access or modification of the stored data.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 4389,
+  "output_tokens": 1158,
+  "latency_s": 5.901,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, so the database receives a public IP/DNS name reachable from the internet, greatly expanding the attack surface for brute-force and exploitation of the MySQL listener.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the database volume and its snapshots unencrypted, so anyone with access to the underlying storage or a snapshot can read the data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded secrets in user_data\", \"description\": \"The instance user_data embeds the database password (${var.password}) into a world-readable bootstrap script; user_data is retrievable via the EC2 metadata service and DescribeInstanceAttribute by anyone with those permissions, exposing the DB credential.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials in instance user data\", \"description\": \"The startup script writes the database password in cleartext into /var/www/inc/dbinfo.inc and renders it in plaintext user data, so the credential is readable from the instance metadata and the running instance, violating the guidance against embedding secrets in instance startup scripts.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"wildcard action and resource\", \"description\": \"The policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", which is effectively administrative access over storage, compute and databases and permits privilege escalation and broad data access if the role is assumed.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0), providing an unrestricted exfiltration and command-and-control channel from the database subnet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"Inbound MySQL (3306) is allowed from the entire VPC CIDR rather than a specific application security group, so any host in the VPC \u2014 including compromised or unrelated instances \u2014 can reach the database, contradicting zero-trust traffic flow within network layers.\", \"severity\": \"high\", \"cwe\": \"CWE-923\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"default administrative username\", \"description\": \"The master username is the well-known default \\\"admin\\\", which default administrative account names should not survive into deployed infrastructure as it aids credential-guessing attacks.\", \"severity\": \"medium\", \"cwe\": \"CWE-1392\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"plaintext password in state/config\", \"description\": \"password = var.password stores the master credential in Terraform state and configuration with lifecycle ignore_changes, meaning the cleartext secret persists in the state file and is not rotated; managed secrets should be used instead.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"The EC2 instance does not set metadata_options to enforce IMDSv2 (http_tokens = \\\"required\\\"), so the legacy instance metadata service remains available and a server-side request forgery in the PHP application can retrieve instance credential",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 4389,
+      "output_tokens": 1158,
+      "latency_s": 5.901,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.000939
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000939
+}

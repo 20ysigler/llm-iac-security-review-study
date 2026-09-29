@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__chain_of_thought__single__terragoat_mut__db-app.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:57Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public network address. Although its current security-group ingress is VPC-scoped, this unnecessarily exposes the database to internet routing and increases attack surface if security-group rules change or are bypassed.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance explicitly sets storage_encrypted = false, leaving database storage, snapshots, and automated backups unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The application instance role grants s3:*, ec2:*, and rds:* against every resource. Compromise of the application instance or its role credentials would permit broad control and data access across these AWS services.",
+      "severity": "critical",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2960,
+  "output_tokens": 247,
+  "latency_s": 2.915,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, assigning it a public network address. Although its current security-group ingress is VPC-scoped, this unnecessarily exposes the database to internet routing and increases attack surface if security-group rules change or are bypassed.\",\"severity\":\"high\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The RDS instance explicitly sets storage_encrypted = false, leaving database storage, snapshots, and automated backups unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The application instance role grants s3:*, ec2:*, and rds:* against every resource. Compromise of the application instance or its role credentials would permit broad control and data access across these AWS services.\",\"severity\":\"critical\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2960,
+      "output_tokens": 247,
+      "latency_s": 2.915,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.008884
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.008884
+}

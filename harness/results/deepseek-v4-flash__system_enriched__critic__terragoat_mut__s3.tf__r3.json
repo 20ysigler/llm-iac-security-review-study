@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "unrestricted canned ACL exposure",
+      "description": "The audit_trail bucket is created with acl = \"log-delivery-write\", a canned ACL that grants the S3 log delivery group WRITE and READ_ACP on every object in the bucket, not just on the prefix used for logs. Any AWS account can in principle invoke the log delivery mechanism, so write access to this bucket contents is not restricted to the intended logging pipeline. Combined with its role as the central audit repository, this widens the blast radius for tampering with the audit trail.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "cross bucket logging reference",
+      "description": "The logging block targets aws_s3_bucket.audit_trail.id, i.e. the audit bucket itself, for storage of model_artifacts access logs. Log records are written into the same bucket that is intended to be the trusted audit sink, meaning the logging destination shares a trust and access domain with the bucket whose ACL grants the log delivery group write access. This is a design weakness in the audit chain rather than a purely operational concern.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 3820,
+  "output_tokens": 951,
+  "latency_s": 5.619,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"unrestricted canned ACL exposure\", \"description\": \"The audit_trail bucket is created with acl = \\\"log-delivery-write\\\", a canned ACL that grants the S3 log delivery group WRITE and READ_ACP on every object in the bucket, not just on the prefix used for logs. Any AWS account can in principle invoke the log delivery mechanism, so write access to this bucket contents is not restricted to the intended logging pipeline. Combined with its role as the central audit repository, this widens the blast radius for tampering with the audit trail.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"cross bucket logging reference\", \"description\": \"The logging block targets aws_s3_bucket.audit_trail.id, i.e. the audit bucket itself, for storage of model_artifacts access logs. Log records are written into the same bucket that is intended to be the trusted audit sink, meaning the logging destination shares a trust and access domain with the bucket whose ACL grants the log delivery group write access. This is a design weakness in the audit chain rather than a purely operational concern.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1538,
+      "output_tokens": 613,
+      "latency_s": 2.857,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000387
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2282,
+      "output_tokens": 338,
+      "latency_s": 2.762,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000414
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.000801
+}

@@ -1,0 +1,78 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:40Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving svc_deploy full control over those services across the whole account, including reading and modifying every S3 object and rewriting or deleting Lambda functions. Compromise of this principal yields broad account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived static access key is issued for svc_deploy with no rotation or expiry mechanism. Static keys cannot be scoped to a session or automatically expired, so leaked key material grants persistent access, and it is compounded here by the wildcard policy on the same user.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed as Terraform output",
+      "description": "The access key secret is emitted as a Terraform output without sensitive = true, so it is rendered in plan/apply output and CI logs and stored in state; anyone with state or log read access obtains the credential.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3009,
+  "output_tokens": 736,
+  "latency_s": 4.999,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving svc_deploy full control over those services across the whole account, including reading and modifying every S3 object and rewriting or deleting Lambda functions. Compromise of this principal yields broad account compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived static access key is issued for svc_deploy with no rotation or expiry mechanism. Static keys cannot be scoped to a session or automatically expired, so leaked key material grants persistent access, and it is compounded here by the wildcard policy on the same user.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed as Terraform output\", \"description\": \"The access key secret is emitted as a Terraform output without sensitive = true, so it is rendered in plan/apply output and CI logs and stored in state; anyone with state or log read access obtains the credential.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 376,
+      "latency_s": 2.664,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000283
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1738,
+      "output_tokens": 360,
+      "latency_s": 2.335,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000344
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.000627
+}

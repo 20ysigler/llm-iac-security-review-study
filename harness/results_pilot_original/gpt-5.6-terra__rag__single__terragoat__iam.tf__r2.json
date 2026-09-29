@@ -1,0 +1,47 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__iam.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:41:47Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "This creates a long-lived IAM access key for a user rather than using federated, temporary credentials. If the key or its decrypted secret is exposed, it remains usable until manually disabled or rotated."
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly broad IAM permissions",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-250",
+      "description": "The policy grants all EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and can enable broad data access, infrastructure modification, and potential privilege escalation through service features."
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "access-key secret output",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-200",
+      "description": "The access key's encrypted secret is exported through the `secret` Terraform output without marking it sensitive. Terraform outputs can be displayed in CLI output and retained in state, exposing credential material to users or systems able to read them."
+    }
+  ],
+  "input_tokens": 1889,
+  "output_tokens": 255,
+  "latency_s": 3.115,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"This creates a long-lived IAM access key for a user rather than using federated, temporary credentials. If the key or its decrypted secret is exposed, it remains usable until manually disabled or rotated.\"},{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly broad IAM permissions\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-250\",\"description\":\"The policy grants all EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and can enable broad data access, infrastructure modification, and potential privilege escalation through service features.\"},{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"access-key secret output\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-200\",\"description\":\"The access key's encrypted secret is exported through the `secret` Terraform output without marking it sensitive. Terraform outputs can be displayed in CLI output and retained in state, exposing credential material to users or systems able to read them.\"}]}",
+  "cost_usd": 0.006838
+}

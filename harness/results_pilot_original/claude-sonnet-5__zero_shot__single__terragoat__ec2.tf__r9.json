@@ -1,0 +1,87 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__ec2.tf__r9",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 9,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:14:21Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "AWS access key and secret key are hardcoded in plaintext within the EC2 user_data script, which is visible to anyone with access to the instance metadata or Terraform state, risking credential leakage and account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "unencrypted storage volume",
+      "description": "The EBS volume does not have the encrypted attribute set to true, meaning data at rest on this volume is stored unencrypted, exposing it to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot",
+      "description": "The EBS snapshot inherits encryption status from the unencrypted source volume, resulting in an unencrypted snapshot that could expose sensitive data at rest, including if the snapshot is shared or leaked.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress SSH",
+      "description": "The security group allows inbound SSH (port 22) access from 0.0.0.0/0, exposing the instance to brute-force and unauthorized access attempts from any host on the internet.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress HTTP",
+      "description": "The security group allows inbound HTTP (port 80) traffic from 0.0.0.0/0. While intended for a public web server, combined with the broad open SSH rule this widens the overall attack surface unnecessarily allowing unfiltered global access.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption and public access controls",
+      "description": "The S3 bucket used for VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, potentially exposing sensitive network flow log data to unauthorized read/write access.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unintended public IP assignment",
+      "description": "The subnet has map_public_ip_on_launch set to true, causing any instance launched within it to automatically receive a public IP address, increasing exposure to external attackers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unintended public IP assignment",
+      "description": "The subnet has map_public_ip_on_launch set to true, causing any instance launched within it to automatically receive a public IP address, increasing exposure to external attackers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6088,
+  "output_tokens": 1252,
+  "latency_s": 10.107,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"AWS access key and secret key are hardcoded in plaintext within the EC2 user_data script, which is visible to anyone with access to the instance metadata or Terraform state, risking credential leakage and account compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"unencrypted storage volume\", \"description\": \"The EBS volume does not have the encrypted attribute set to true, meaning data at rest on this volume is stored unencrypted, exposing it to unauthorized access if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"The EBS snapshot inherits encryption status from the unencrypted source volume, resulting in an unencrypted snapshot that could expose sensitive data at rest, including if the snapshot is shared or leaked.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress SSH\", \"description\": \"The security group allows inbound SSH (port 22) access from 0.0.0.0/0, exposing the instance to brute-force and unauthorized access attempts from any host on the internet.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress HTTP\", \"description\": \"The security group allows inbound HTTP (port 80) traffic from 0.0.0.0/0. While intended for a public web server, combined with the broad open SSH rule this widens the overall attack surface unnecessarily allowing unfiltered global access.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption and public access controls\", \"description\": \"The S3 bucket used for VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, potentially exposing sensitive network flow log data to unauthorized read/write access.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"The subnet has map_public_ip_on_launch set to true, causing any instance launched within it to automatically receive a public IP address, increasing exposure to external attackers.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"The subnet has map_public_ip_on_launch set to true, causing any instance launched within it to automatically receive a public IP address, increasing exposure to external attackers.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.024696
+}

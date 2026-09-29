@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__s3.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:35:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default, risking exposure of sensitive report data at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block",
+      "description": "No acl attribute or aws_s3_bucket_public_access_block is set for this bucket, leaving access control at the provider/account default rather than explicitly enforcing private access and blocking public ACLs/policies.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores financial ledger export data but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket despite storing model artifacts, exposing them to unauthorized access if the bucket or underlying storage is ever exposed.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data (which may contain internal infrastructure details or credentials) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption at rest",
+      "description": "The object is uploaded without specifying server_side_encryption or kms_key_id and is placed into a bucket (reports_archive) that itself lacks default encryption, so this potentially sensitive vendor roster file is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 9700,
+  "output_tokens": 2728,
+  "latency_s": 21.013,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default, risking exposure of sensitive report data at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No acl attribute or aws_s3_bucket_public_access_block is set for this bucket, leaving access control at the provider/account default rather than explicitly enforcing private access and blocking public ACLs/policies.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores financial ledger export data but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket despite storing model artifacts, exposing them to unauthorized access if the bucket or underlying storage is ever exposed.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data (which may contain internal infrastructure details or credentials) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The object is uploaded without specifying server_side_encryption or kms_key_id and is placed into a bucket (reports_archive) that itself lacks default encryption, so this potentially sensitive vendor roster file is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2560,
+      "output_tokens": 999,
+      "latency_s": 8.158,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.01511
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2560,
+      "output_tokens": 806,
+      "latency_s": 6.177,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.01318
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4580,
+      "output_tokens": 923,
+      "latency_s": 6.678,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.01839
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.04668
+}

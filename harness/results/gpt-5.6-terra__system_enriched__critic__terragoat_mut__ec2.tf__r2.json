@@ -1,0 +1,102 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__critic__terragoat_mut__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:22Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses by default and is associated with an Internet-gateway default route. Workloads launched here can be Internet-reachable if their security groups permit ingress.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses by default and is associated with an Internet-gateway default route. The portal server is launched here, giving it public network reachability in combination with its security group.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not explicitly enable encryption. Its data can be stored unencrypted unless encryption is imposed by an external account-level default.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "User data embeds an AWS access key ID and secret access key. These credentials can be exposed through source control, Terraform state, logs, or instance/user-data access and permit use of the associated IAM principal's permissions.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group permits TCP/22 from 0.0.0.0/0 and is attached to an instance with public addressing in an Internet-routable subnet, exposing SSH to arbitrary Internet sources.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing bucket encryption",
+      "description": "The bucket that stores VPC flow logs has no server-side encryption configuration. Flow-log data may therefore be stored without encryption at rest unless an external account policy enforces it.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5031,
+  "output_tokens": 1019,
+  "latency_s": 11.281,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_subnet.portal_subnet_b\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet assigns public IPv4 addresses by default and is associated with an Internet-gateway default route. Workloads launched here can be Internet-reachable if their security groups permit ingress.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.portal_subnet_a\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet assigns public IPv4 addresses by default and is associated with an Internet-gateway default route. The portal server is launched here, giving it public network reachability in combination with its security group.\",\"severity\":\"high\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not explicitly enable encryption. Its data can be stored unencrypted unless encryption is imposed by an external account-level default.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"User data embeds an AWS access key ID and secret access key. These credentials can be exposed through source control, Terraform state, logs, or instance/user-data access and permit use of the associated IAM principal's permissions.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"The security group permits TCP/22 from 0.0.0.0/0 and is attached to an instance with public addressing in an Internet-routable subnet, exposing SSH to arbitrary Internet sources.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing bucket encryption\",\"description\":\"The bucket that stores VPC flow logs has no server-side encryption configuration. Flow-log data may therefore be stored without encryption at rest unless an external account policy enforces it.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2118,
+      "output_tokens": 564,
+      "latency_s": 6.736,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.011004
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2913,
+      "output_tokens": 455,
+      "latency_s": 4.545,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.011286
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.02229
+}

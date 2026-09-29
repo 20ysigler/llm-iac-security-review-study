@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r8",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 8,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:19:23Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing sensitive data if the storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and dramatically increasing its attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credential handling",
+      "description": "The master username is 'admin' and the password is passed via var.password with no indication of secrets-manager integration; the password is also embedded in plaintext within the EC2 user_data script, exposing it to anyone with EC2 metadata/console access.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which weakens network segmentation and could facilitate data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource '*', violating least privilege. This role is attached to a publicly reachable EC2 instance, so compromise of that instance would grant near full control over S3, EC2, and RDS resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext (via var.password and aws_db_instance.default.username), which is retrievable by anyone with access to the instance metadata service or EC2 console/API describe-instance-attribute calls.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "public IP exposure of application server",
+      "description": "The instance's public_dns is exported as an output and the instance is deployed in a web subnet without explicit restriction, indicating the EC2 instance is internet facing, increasing exposure of the embedded database credentials and application to external attackers.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "outdated/incorrect engine version pragma",
+      "description": "The comment claims '8.0' is the latest major version but does not pin a specific minor version, and combined with publicly_accessible and unencrypted storage, this reflects an insecure default configuration for a production-facing database.",
+      "severity": "low",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1201,
+  "latency_s": 11.558,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing sensitive data if the storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and dramatically increasing its attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credential handling\", \"description\": \"The master username is 'admin' and the password is passed via var.password with no indication of secrets-manager integration; the password is also embedded in plaintext within the EC2 user_data script, exposing it to anyone with EC2 metadata/console access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which weakens network segmentation and could facilitate data exfiltration.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource '*', violating least privilege. This role is attached to a publicly reachable EC2 instance, so compromise of that instance would grant near full control over S3, EC2, and RDS resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext (via var.password and aws_db_instance.default.username), which is retrievable by anyone with access to the instance metadata service or EC2 console/API describe-instance-attribute calls.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"public IP exposure of application server\", \"description\": \"The instance's public_dns is exported as an output and the instance is deployed in a web subnet without explicit restriction, indicating the EC2 instance is internet facing, increasing exposure of the embedded database credentials and application to external attackers.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"outdated/incorrect engine version pragma\", \"description\": \"The comment claims '8.0' is the latest major version but does not pin a specific minor version, and combined with publicly_accessible and unencrypted storage, this reflects an insecure default configuration for a production-facing database.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\"}]}",
+  "cost_usd": 0.02677
+}

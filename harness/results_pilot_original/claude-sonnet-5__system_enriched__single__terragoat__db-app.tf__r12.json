@@ -1,0 +1,72 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r12",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 12,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:20:07Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS database instance directly to the internet rather than restricting it to the private VPC network, significantly increasing the attack surface for the database.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The database master username is hard-coded to 'admin' and the password is passed via a variable without any indication of secrets management (e.g., Secrets Manager or SSM Parameter Store), and is later embedded directly into EC2 user data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database password (var.password) and username in plaintext within a PHP config file, exposing credentials to anyone with access to instance metadata, console logs, or the compiled Terraform plan/state.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and enabling potential data exfiltration from the RDS security group if compromised.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy attached to the EC2 role grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: *), violating least privilege and allowing the EC2 instance (which is exposed via user data secrets and potentially public network access) to perform virtually any action against S3, EC2, and RDS services.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled backup retention weakening recovery from compromise",
+      "description": "backup_retention_period is set to 0, combined with skip_final_snapshot = true, meaning no automated backups or final snapshot are retained, which removes a recovery path in case of ransomware, data corruption or unauthorized deletion (a security-relevant availability control, not merely operational).",
+      "severity": "low",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1112,
+  "latency_s": 11.077,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS database instance directly to the internet rather than restricting it to the private VPC network, significantly increasing the attack surface for the database.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The database master username is hard-coded to 'admin' and the password is passed via a variable without any indication of secrets management (e.g., Secrets Manager or SSM Parameter Store), and is later embedded directly into EC2 user data in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database password (var.password) and username in plaintext within a PHP config file, exposing credentials to anyone with access to instance metadata, console logs, or the compiled Terraform plan/state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and enabling potential data exfiltration from the RDS security group if compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy attached to the EC2 role grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: *), violating least privilege and allowing the EC2 instance (which is exposed via user data secrets and potentially public network access) to perform virtually any action against S3, EC2, and RDS services.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled backup retention weakening recovery from compromise\", \"description\": \"backup_retention_period is set to 0, combined with skip_final_snapshot = true, meaning no automated backups or final snapshot are retained, which removes a recovery path in case of ransomware, data corruption or unauthorized deletion (a security-relevant availability control, not merely operational).\", \"severity\": \"low\", \"cwe\": \"CWE-1104\"}]}",
+  "cost_usd": 0.02588
+}

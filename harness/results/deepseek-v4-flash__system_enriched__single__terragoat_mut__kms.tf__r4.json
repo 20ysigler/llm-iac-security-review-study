@@ -1,0 +1,59 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__kms.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key policy",
+      "description": "The KMS key has no key_policy defined, so it falls back to the permissive account-level default policy (full kms:* to the root principal, delegated via IAM). Any principal in the account with an identity policy granting KMS actions on \"*\" can use this key, which defeats the intended access boundary for the audit bucket key. An explicit least-privilege key policy is expected for a regulated audit-trail key.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "enable_key_rotation is not set, so automatic annual key rotation is disabled. The same key material protects the audit trail indefinitely, increasing the impact of any key compromise and weakening the key's cryptographic lifecycle.",
+      "severity": "low",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1100,
+  "output_tokens": 250,
+  "latency_s": 2.611,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key policy\", \"description\": \"The KMS key has no key_policy defined, so it falls back to the permissive account-level default policy (full kms:* to the root principal, delegated via IAM). Any principal in the account with an identity policy granting KMS actions on \\\"*\\\" can use this key, which defeats the intended access boundary for the audit bucket key. An explicit least-privilege key policy is expected for a regulated audit-trail key.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"enable_key_rotation is not set, so automatic annual key rotation is disabled. The same key material protects the audit trail indefinitely, increasing the impact of any key compromise and weakening the key's cryptographic lifecycle.\", \"severity\": \"low\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1100,
+      "output_tokens": 250,
+      "latency_s": 2.611,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000224
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000224
+}

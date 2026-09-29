@@ -1,0 +1,76 @@
+{
+  "run_id": "claude-opus-5__few_shot__single__terragoat_mut__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:19:58Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded cloud credentials in source",
+      "description": "The Lambda function embeds a static AWS access key ID and secret access key as plaintext environment variables in the Terraform configuration. These credentials are committed to version control, stored unencrypted in Terraform state, and visible to anyone with lambda:GetFunctionConfiguration, allowing credential theft and impersonation of the associated IAM principal.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is set, so the Lambda environment variables (which hold secrets here) are protected only by the default AWS-managed key rather than a customer-managed CMK with restricted key policy and audit trail.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "outdated end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, which eases data exfiltration if the function code is compromised.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2242,
+  "output_tokens": 603,
+  "latency_s": 7.262,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded cloud credentials in source\", \"description\": \"The Lambda function embeds a static AWS access key ID and secret access key as plaintext environment variables in the Terraform configuration. These credentials are committed to version control, stored unencrypted in Terraform state, and visible to anyone with lambda:GetFunctionConfiguration, allowing credential theft and impersonation of the associated IAM principal.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is set, so the Lambda environment variables (which hold secrets here) are protected only by the default AWS-managed key rather than a customer-managed CMK with restricted key policy and audit trail.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"outdated end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, which eases data exfiltration if the function code is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2242,
+      "output_tokens": 603,
+      "latency_s": 7.262,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.026285
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026285
+}

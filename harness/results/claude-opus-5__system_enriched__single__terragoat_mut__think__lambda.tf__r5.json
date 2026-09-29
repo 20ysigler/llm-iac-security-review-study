@@ -1,0 +1,69 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__lambda.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:37:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "The function's environment block embeds a literal AWS access key ID and secret access key (access_key / secret_key). These are stored in plaintext in the Terraform source and state, are visible in the Lambda console, and are retrievable by any principal with lambda:GetFunctionConfiguration, giving an attacker directly usable long-lived AWS credentials. The function already has an execution role and should use its ambient role credentials instead.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing customer-managed key encryption",
+      "description": "No kms_key_arn is specified, so the environment variables, which in this configuration carry secret credential material, are encrypted only with the default AWS-managed key. There is no key policy boundary or independent CloudTrail key-usage audit trail restricting who can decrypt the secrets.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime version",
+      "description": "The function runs on nodejs12.x, which is past end-of-life in AWS Lambda and upstream Node.js. It no longer receives security patches, leaving known vulnerabilities in the runtime and its bundled OpenSSL/libuv components unaddressed.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 1953,
+  "output_tokens": 1329,
+  "latency_s": 16.841,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in configuration\", \"description\": \"The function's environment block embeds a literal AWS access key ID and secret access key (access_key / secret_key). These are stored in plaintext in the Terraform source and state, are visible in the Lambda console, and are retrievable by any principal with lambda:GetFunctionConfiguration, giving an attacker directly usable long-lived AWS credentials. The function already has an execution role and should use its ambient role credentials instead.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing customer-managed key encryption\", \"description\": \"No kms_key_arn is specified, so the environment variables, which in this configuration carry secret credential material, are encrypted only with the default AWS-managed key. There is no key policy boundary or independent CloudTrail key-usage audit trail restricting who can decrypt the secrets.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime version\", \"description\": \"The function runs on nodejs12.x, which is past end-of-life in AWS Lambda and upstream Node.js. It no longer receives security patches, leaving known vulnerabilities in the runtime and its bundled OpenSSL/libuv components unaddressed.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1953,
+      "output_tokens": 1329,
+      "latency_s": 16.841,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.04299
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.04299
+}

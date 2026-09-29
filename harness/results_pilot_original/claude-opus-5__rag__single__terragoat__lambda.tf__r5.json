@@ -1,0 +1,71 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__lambda.tf__r5",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:37:41Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are stored in plain text in the Lambda function's environment variables, readable by anyone with lambda:GetFunctionConfiguration and committed to source control.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption for env variables",
+      "description": "The Lambda environment variables are not encrypted with a customer-managed KMS key (no kms_key_arn set), so sensitive values rely only on the service default key and are exposed in the console/API in plaintext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "function not in private VPC",
+      "description": "No vpc_config is specified, so the function runs outside a VPC with unrestricted outbound internet access and no network-layer egress controls, providing a data exfiltration path.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing code signing validation",
+      "description": "The function has no code_signing_config_arn, so deployment packages are not signature-validated and tampering between build and deployment would go undetected.",
+      "severity": "low",
+      "cwe": "CWE-345",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing permissions boundary",
+      "description": "The Lambda execution role is created without a permissions_boundary, so there is no guardrail limiting the maximum privileges that can be attached to this role.",
+      "severity": "low",
+      "cwe": "CWE-269",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3881,
+  "output_tokens": 795,
+  "latency_s": 9.237,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are stored in plain text in the Lambda function's environment variables, readable by anyone with lambda:GetFunctionConfiguration and committed to source control.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption for env variables\", \"description\": \"The Lambda environment variables are not encrypted with a customer-managed KMS key (no kms_key_arn set), so sensitive values rely only on the service default key and are exposed in the console/API in plaintext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"function not in private VPC\", \"description\": \"No vpc_config is specified, so the function runs outside a VPC with unrestricted outbound internet access and no network-layer egress controls, providing a data exfiltration path.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing code signing validation\", \"description\": \"The function has no code_signing_config_arn, so deployment packages are not signature-validated and tampering between build and deployment would go undetected.\", \"severity\": \"low\", \"cwe\": \"CWE-345\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The Lambda execution role is created without a permissions_boundary, so there is no guardrail limiting the maximum privileges that can be attached to this role.\", \"severity\": \"low\", \"cwe\": \"CWE-269\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.03928
+}

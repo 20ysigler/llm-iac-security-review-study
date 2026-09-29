@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:10:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this user full administrative control across four services. This includes the ability to read/modify every S3 object, alter IAM-adjacent compute config, and destroy data, so any compromise of this identity is effectively an account-wide breach (privilege escalation / broken access control).",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure in output",
+      "description": "This output emits access key material for the svc_deploy user and is not marked sensitive = true, so the value is rendered in CLI output and stored in plaintext in Terraform state/logs. Combined with the wildcard policy attached to this user, disclosure of this value yields broad account access.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM user access key is created (with no PGP encryption of the secret, so the plaintext secret is also persisted in state). Static keys tied to a user with wildcard permissions do not rotate and provide a durable, non-expiring credential for an over-privileged identity; temporary role credentials would be the secure alternative.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 1345,
+  "latency_s": 6.767,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this user full administrative control across four services. This includes the ability to read/modify every S3 object, alter IAM-adjacent compute config, and destroy data, so any compromise of this identity is effectively an account-wide breach (privilege escalation / broken access control).\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure in output\", \"description\": \"This output emits access key material for the svc_deploy user and is not marked sensitive = true, so the value is rendered in CLI output and stored in plaintext in Terraform state/logs. Combined with the wildcard policy attached to this user, disclosure of this value yields broad account access.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM user access key is created (with no PGP encryption of the secret, so the plaintext secret is also persisted in state). Static keys tied to a user with wildcard permissions do not rotate and provide a durable, non-expiring credential for an over-privileged identity; temporary role credentials would be the secure alternative.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 1345,
+      "latency_s": 6.767,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000557
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000557
+}

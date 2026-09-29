@@ -1,0 +1,78 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "Overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this single identity full control over compute, storage, serverless execution, and monitoring. This permits privilege escalation (e.g. running arbitrary EC2 user data, modifying Lambda functions) and broad data access; any compromise of the identity means account-wide takeover of those services.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Long-lived static access key",
+      "description": "A static, non-rotating IAM access key is created for a user that carries the wildcard administrative policy above. The credential can be exfiltrated and used indefinitely without MFA or session scoping, making it a persistent account-wide credential.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user instead of federated role",
+      "description": "Privileged deployment access is modelled as a long-lived IAM user with static keys rather than an assumable role with short-lived credentials, increasing credential lifetime and removing the session-scoping and audit benefits of role assumption.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3156,
+  "output_tokens": 887,
+  "latency_s": 5.401,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"Overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this single identity full control over compute, storage, serverless execution, and monitoring. This permits privilege escalation (e.g. running arbitrary EC2 user data, modifying Lambda functions) and broad data access; any compromise of the identity means account-wide takeover of those services.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Long-lived static access key\", \"description\": \"A static, non-rotating IAM access key is created for a user that carries the wildcard administrative policy above. The credential can be exfiltrated and used indefinitely without MFA or session scoping, making it a persistent account-wide credential.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user instead of federated role\", \"description\": \"Privileged deployment access is modelled as a long-lived IAM user with static keys rather than an assumable role with short-lived credentials, increasing credential lifetime and removing the session-scoping and audit benefits of role assumption.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 513,
+      "latency_s": 3.164,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000322
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1885,
+      "output_tokens": 374,
+      "latency_s": 2.237,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000369
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.00069
+}

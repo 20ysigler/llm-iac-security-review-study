@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__db-app.tf__r7",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 7,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:12:29Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is set to false, meaning the RDS instance's data at rest is not encrypted, exposing sensitive data if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via a variable and also embedded in plaintext into EC2 user data, and the username is the default 'admin', increasing risk of credential exposure and brute force attacks.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which is overly permissive and can facilitate data exfiltration if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance to perform virtually any action against these services.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext, which is stored unencrypted in instance metadata and could be retrieved by anyone with access to the instance or its metadata service.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded default username",
+      "description": "The database uses the default administrative username 'admin', making credential guessing and brute-force attacks easier.",
+      "severity": "low",
+      "cwe": "CWE-798",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 6958,
+  "output_tokens": 996,
+  "latency_s": 8.338,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is set to false, meaning the RDS instance's data at rest is not encrypted, exposing sensitive data if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via a variable and also embedded in plaintext into EC2 user data, and the username is the default 'admin', increasing risk of credential exposure and brute force attacks.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which is overly permissive and can facilitate data exfiltration if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance to perform virtually any action against these services.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext, which is stored unencrypted in instance metadata and could be retrieved by anyone with access to the instance or its metadata service.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded default username\", \"description\": \"The database uses the default administrative username 'admin', making credential guessing and brute-force attacks easier.\", \"severity\": \"low\", \"cwe\": \"CWE-798\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.023876
+}

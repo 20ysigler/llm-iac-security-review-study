@@ -1,0 +1,118 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:13:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger exports bucket, which holds financial ledger data, defines no server_side_encryption_configuration and therefore does not apply customer-managed KMS encryption to stored objects. Data written here relies solely on AWS defaults rather than an explicit encryption policy.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports bucket has no server_side_encryption_configuration block, so reports (including the uploaded vendor-roster.xlsx) are not encrypted with an explicit KMS key at rest. This is the destination for the seed object and lacks any stated encryption policy.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model artifacts bucket defines versioning and access logging but no server_side_encryption_configuration, leaving stored model data without customer-managed KMS encryption.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops runbooks bucket enables versioning and sets a private ACL but provides no server_side_encryption_configuration, so objects are not encrypted with an explicit KMS key at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the audit bucket, so there is no guardrail preventing a future bucket policy or ACL from making audit logs public; the acl = \"log-delivery-write\" grants the log delivery group write access and should be constrained by an explicit public-access block.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the ledger bucket, leaving no explicit control that prevents the bucket or its objects from being made public in the future.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the reports bucket, so accidental or malicious public exposure of report data is not blocked at the bucket level.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the model artifacts bucket, leaving no explicit control preventing future public exposure of stored artifacts.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the ops runbooks bucket, so there is no guardrail enforcing that the bucket remains private.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1558,
+  "output_tokens": 8314,
+  "latency_s": 36.831,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger exports bucket, which holds financial ledger data, defines no server_side_encryption_configuration and therefore does not apply customer-managed KMS encryption to stored objects. Data written here relies solely on AWS defaults rather than an explicit encryption policy.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports bucket has no server_side_encryption_configuration block, so reports (including the uploaded vendor-roster.xlsx) are not encrypted with an explicit KMS key at rest. This is the destination for the seed object and lacks any stated encryption policy.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model artifacts bucket defines versioning and access logging but no server_side_encryption_configuration, leaving stored model data without customer-managed KMS encryption.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops runbooks bucket enables versioning and sets a private ACL but provides no server_side_encryption_configuration, so objects are not encrypted with an explicit KMS key at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the audit bucket, so there is no guardrail preventing a future bucket policy or ACL from making audit logs public; the acl = \\\"log-delivery-write\\\" grants the log delivery group write access and should be constrained by an explicit public-access block.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the ledger bucket, leaving no explicit control that prevents the bucket or its objects from being made public in the future.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the reports bucket, so accidental or malicious public exposure of report data is not blocked at the bucket level.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the model artifacts bucket, leaving no explicit control preventing future public exposure of stored artifacts.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the ops runbooks bucket, so there is no guardrail enforcing that the bucket remains private.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1558,
+      "output_tokens": 8314,
+      "latency_s": 36.831,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.002546
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.002546
+}

@@ -1,0 +1,47 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__lambda.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:44:29Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded secrets in environment variables",
+      "description": "The Lambda function embeds plaintext AWS access key (AKIAIOSFODNN7EXAMPLE) and secret key (wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY) directly in the environment variables. These credentials are visible in plaintext in the Terraform configuration and the deployed function configuration, leaking secrets to anyone with read access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated/runtime without encryption",
+      "description": "The Lambda function uses nodejs12.x runtime, which is deprecated and no longer receives security updates, leaving the function vulnerable to unpatched runtime vulnerabilities.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing environment encryption",
+      "description": "The Lambda environment variables are not configured with KMS encryption (no kms_key_arn set), so the variables are protected only by the AWS default Lambda encryption, and the hard-coded secret keys are not encrypted at rest with a customer-managed key.",
+      "severity": "low",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1599,
+  "output_tokens": 357,
+  "latency_s": 4.504,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded secrets in environment variables\", \"description\": \"The Lambda function embeds plaintext AWS access key (AKIAIOSFODNN7EXAMPLE) and secret key (wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY) directly in the environment variables. These credentials are visible in plaintext in the Terraform configuration and the deployed function configuration, leaking secrets to anyone with read access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated/runtime without encryption\", \"description\": \"The Lambda function uses nodejs12.x runtime, which is deprecated and no longer receives security updates, leaving the function vulnerable to unpatched runtime vulnerabilities.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing environment encryption\", \"description\": \"The Lambda environment variables are not configured with KMS encryption (no kms_key_arn set), so the variables are protected only by the AWS default Lambda encryption, and the hard-coded secret keys are not encrypted at rest with a customer-managed key.\", \"severity\": \"low\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000324
+}

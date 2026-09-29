@@ -1,0 +1,65 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__lambda.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:54:47Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "The function's environment variables contain a literal AWS access key ID (`AKIAIOSFODNN7EXAMPLE`) and secret access key in cleartext. These are readable by any principal with lambda:GetFunctionConfiguration or lambda:ListFunctions, appear in plaintext in Terraform state, and are committed to source control, allowing credential theft and lateral movement as the associated IAM identity.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing customer-managed encryption key",
+      "description": "No `kms_key_arn` is specified, so environment variables are encrypted only with the AWS-managed default Lambda key, which is implicitly decryptable by principals in the account. With secrets stored in those variables there is no key policy providing a separate authorization boundary around the sensitive material.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function targets the `nodejs12.x` runtime, which is past AWS end-of-support and no longer receives security patches for the Node.js interpreter or the underlying runtime libraries, leaving known unpatched vulnerabilities exploitable in the execution environment.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "no VPC network isolation",
+      "description": "No `vpc_config` block is defined, so the function executes in the shared Lambda-managed network with unrestricted outbound internet access and no security group or subnet controls. Combined with the embedded static credentials, this provides an unmonitored egress path for exfiltrating secrets or data.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing code signing enforcement",
+      "description": "No `code_signing_config_arn` is attached, so the deployment package is not validated against a trusted signing profile. Any principal able to call lambda:UpdateFunctionCode can replace the function's code with arbitrary logic that executes under the attached IAM role.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    }
+  ],
+  "input_tokens": 2381,
+  "output_tokens": 1605,
+  "latency_s": 23.005,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"The function's environment variables contain a literal AWS access key ID (`AKIAIOSFODNN7EXAMPLE`) and secret access key in cleartext. These are readable by any principal with lambda:GetFunctionConfiguration or lambda:ListFunctions, appear in plaintext in Terraform state, and are committed to source control, allowing credential theft and lateral movement as the associated IAM identity.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing customer-managed encryption key\", \"description\": \"No `kms_key_arn` is specified, so environment variables are encrypted only with the AWS-managed default Lambda key, which is implicitly decryptable by principals in the account. With secrets stored in those variables there is no key policy providing a separate authorization boundary around the sensitive material.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function targets the `nodejs12.x` runtime, which is past AWS end-of-support and no longer receives security patches for the Node.js interpreter or the underlying runtime libraries, leaving known unpatched vulnerabilities exploitable in the execution environment.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"no VPC network isolation\", \"description\": \"No `vpc_config` block is defined, so the function executes in the shared Lambda-managed network with unrestricted outbound internet access and no security group or subnet controls. Combined with the embedded static credentials, this provides an unmonitored egress path for exfiltrating secrets or data.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing code signing enforcement\", \"description\": \"No `code_signing_config_arn` is attached, so the deployment package is not validated against a trusted signing profile. Any principal able to call lambda:UpdateFunctionCode can replace the function's code with arbitrary logic that executes under the attached IAM role.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}]}",
+  "cost_usd": 0.05203
+}

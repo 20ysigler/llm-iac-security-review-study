@@ -1,0 +1,49 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__think__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:37:45Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "excessive wildcard permissions",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against Resource \"*\", which is effectively administrative access across those services and violates least privilege. Any compromise of the paired access key grants an attacker broad control over compute, storage, and logging infrastructure.",
+      "severity": "high",
+      "cwe": "CWE-272",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "The configuration creates a long-lived static IAM access key instead of using identity federation or short-lived temporary credentials. Static keys persist until manually rotated and, combined with the over-permissive policy, form a standing credential-compromise risk.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The secret value is emitted as a Terraform output, making it visible in CLI output, saved in the state file, and potentially captured in CI/CD logs accessible to a wider audience than the key's intended holders.",
+      "severity": "low",
+      "cwe": "CWE-532",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2278,
+  "output_tokens": 1459,
+  "latency_s": 11.591,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"excessive wildcard permissions\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against Resource \\\"*\\\", which is effectively administrative access across those services and violates least privilege. Any compromise of the paired access key grants an attacker broad control over compute, storage, and logging infrastructure.\", \"severity\": \"high\", \"cwe\": \"CWE-272\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"The configuration creates a long-lived static IAM access key instead of using identity federation or short-lived temporary credentials. Static keys persist until manually rotated and, combined with the over-permissive policy, form a standing credential-compromise risk.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The secret value is emitted as a Terraform output, making it visible in CLI output, saved in the state file, and potentially captured in CI/CD logs accessible to a wider audience than the key's intended holders.\", \"severity\": \"low\", \"cwe\": \"CWE-532\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000727
+}

@@ -1,0 +1,113 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__s3.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:12:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket defines no server_side_encryption_configuration and no default bucket encryption. It also stores the vendor-roster workbook object, which is likely to contain vendor/PII data, so objects are persisted in plaintext and readable by anyone with storage access.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket has no server_side_encryption_configuration, so financial ledger exports are written unencrypted. Ledger data is highly sensitive and this fails encryption-at-rest requirements for regulated data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts sets versioning and logging but no server_side_encryption_configuration, so the stored model artifacts are left unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks sets versioning but no server_side_encryption_configuration. Runbooks commonly contain internal environment and access details, which are left unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, so account/bucket-level Block Public Access safeguards are not enforced. A later policy or ACL change could expose this data-bearing bucket publicly without a preventive control in place.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, so Block Public Access is not enforced and a future ACL or policy misconfiguration could expose sensitive ledger data.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, leaving no defense-in-depth guard against accidental public exposure of the stored artifacts.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, so a subsequent ACL/policy change could expose runbook contents that describe internal systems.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with the audit log bucket. The bucket also uses the canned log-delivery-write ACL, and without Block Public Access there is no safeguard preventing accidental public exposure of audit data.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1558,
+  "output_tokens": 7224,
+  "latency_s": 32.888,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket defines no server_side_encryption_configuration and no default bucket encryption. It also stores the vendor-roster workbook object, which is likely to contain vendor/PII data, so objects are persisted in plaintext and readable by anyone with storage access.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket has no server_side_encryption_configuration, so financial ledger exports are written unencrypted. Ledger data is highly sensitive and this fails encryption-at-rest requirements for regulated data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts sets versioning and logging but no server_side_encryption_configuration, so the stored model artifacts are left unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks sets versioning but no server_side_encryption_configuration. Runbooks commonly contain internal environment and access details, which are left unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, so account/bucket-level Block Public Access safeguards are not enforced. A later policy or ACL change could expose this data-bearing bucket publicly without a preventive control in place.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, so Block Public Access is not enforced and a future ACL or policy misconfiguration could expose sensitive ledger data.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, leaving no defense-in-depth guard against accidental public exposure of the stored artifacts.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, so a subsequent ACL/policy change could expose runbook contents that describe internal systems.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with the audit log bucket. The bucket also uses the canned log-delivery-write ACL, and without Block Public Access there is no safeguard preventing accidental public exposure of audit data.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1558,
+      "output_tokens": 7224,
+      "latency_s": 32.888,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.002241
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.002241
+}

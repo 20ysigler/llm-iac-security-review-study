@@ -1,0 +1,181 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__s3.tf__r8",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 8,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:53:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "publicly accessible S3 bucket",
+      "description": "The bucket has no ACL restriction, no public access block, and no bucket policy restricting access; the inline comment confirms it is intended to be public. Any object placed in it \u2014 including the customer master data uploaded by aws_s3_bucket_object.data_object \u2014 is readable by anonymous internet users.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects containing customer data are stored without enforced SSE-KMS encryption.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing bucket access logging",
+      "description": "No logging block is configured, so unauthorized access to this public bucket would leave no audit trail for detection or forensics.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-778"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "versioning disabled allows destructive overwrite",
+      "description": "Versioning is not enabled and force_destroy is true, so objects can be silently overwritten or deleted by an attacker with write access (which is unrestricted here) with no recovery path.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data in public bucket",
+      "description": "A file named customer-master.xlsx, likely containing sensitive customer records, is uploaded into aws_s3_bucket.data, which is publicly accessible and unencrypted. No kms_key_id is specified for object-level encryption.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for a bucket holding financial data, leaving objects unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing bucket access logging",
+      "description": "No logging block is configured, so access to financial data is not auditable.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-778"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, so a future ACL or bucket policy change could expose it publicly without any account-level guardrail.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "versioning disabled allows destructive overwrite",
+      "description": "Versioning is disabled while force_destroy is true, so financial objects can be overwritten or deleted irrecoverably, defeating tamper-evidence controls.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is present, so operational data is stored without enforced server-side encryption.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing bucket access logging",
+      "description": "No logging block is configured, leaving no audit record of object access for this bucket.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-778"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing public access block",
+      "description": "No public access block is attached, so there is no account guardrail preventing a later ACL or policy change from exposing the bucket.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so data science datasets are stored unencrypted at rest despite logging and versioning being enabled.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block resource restricts this bucket, leaving it without a guardrail against accidental public ACLs or policies.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_s3_bucket.logs",
+      "issue_category": "missing public access block on log bucket",
+      "description": "The centralized log bucket has no public access block; a misapplied ACL or policy could expose access logs, which reveal internal object names and request patterns useful to an attacker.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_s3_bucket.logs",
+      "issue_category": "log integrity weakened by force_destroy",
+      "description": "force_destroy is true on the audit log bucket, allowing all log objects to be deleted on destroy and undermining the integrity of the audit trail.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.logs",
+      "issue_category": "no TLS-only bucket policy",
+      "description": "Neither this bucket nor any other in the file enforces aws:SecureTransport via a bucket policy, so data including logs may be transmitted over unencrypted HTTP.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 3802,
+  "output_tokens": 1971,
+  "latency_s": 20.631,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"publicly accessible S3 bucket\", \"description\": \"The bucket has no ACL restriction, no public access block, and no bucket policy restricting access; the inline comment confirms it is intended to be public. Any object placed in it \\u2014 including the customer master data uploaded by aws_s3_bucket_object.data_object \\u2014 is readable by anonymous internet users.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects containing customer data are stored without enforced SSE-KMS encryption.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing bucket access logging\", \"description\": \"No logging block is configured, so unauthorized access to this public bucket would leave no audit trail for detection or forensics.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-778\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"versioning disabled allows destructive overwrite\", \"description\": \"Versioning is not enabled and force_destroy is true, so objects can be silently overwritten or deleted by an attacker with write access (which is unrestricted here) with no recovery path.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-693\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"sensitive data in public bucket\", \"description\": \"A file named customer-master.xlsx, likely containing sensitive customer records, is uploaded into aws_s3_bucket.data, which is publicly accessible and unencrypted. No kms_key_id is specified for object-level encryption.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for a bucket holding financial data, leaving objects unencrypted at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing bucket access logging\", \"description\": \"No logging block is configured, so access to financial data is not auditable.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-778\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, so a future ACL or bucket policy change could expose it publicly without any account-level guardrail.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"versioning disabled allows destructive overwrite\", \"description\": \"Versioning is disabled while force_destroy is true, so financial objects can be overwritten or deleted irrecoverably, defeating tamper-evidence controls.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-693\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is present, so operational data is stored without enforced server-side encryption.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing bucket access logging\", \"description\": \"No logging block is configured, leaving no audit record of object access for this bucket.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-778\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing public access block\", \"description\": \"No public access block is attached, so there is no account guardrail preventing a later ACL or policy change from exposing the bucket.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"a",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3802,
+      "output_tokens": 1971,
+      "latency_s": 20.631,
+      "n_findings": 17,
+      "error": "",
+      "cost_usd": 0.068285
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.068285
+}

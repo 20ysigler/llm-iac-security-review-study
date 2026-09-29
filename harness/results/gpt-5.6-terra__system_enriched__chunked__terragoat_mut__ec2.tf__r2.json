@@ -1,0 +1,127 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__chunked__terragoat_mut__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses to every instance launched into it. Because it is associated with a route table containing a 0.0.0.0/0 route through an Internet Gateway, workloads placed here are Internet-routable unless separately constrained by security groups and network ACLs.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses to every instance launched into it. Its association with the route table that has a default route through the Internet Gateway makes launched workloads externally routable unless separately constrained by controls not visible in this excerpt.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or provide a KMS key. Its encryption therefore depends on an account-level default not established in this excerpt, risking storage of attached portal-server data in plaintext at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User-data is stored in instance metadata/configuration and may be accessible to users or processes on the instance, exposing long-lived credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group permits TCP/22 from 0.0.0.0/0. Because it is attached to portal_server in a subnet identified as public and the configuration includes an Internet gateway, this exposes SSH to any Internet host when routing/public addressing are present.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound access",
+      "description": "The security group permits all protocols and ports to 0.0.0.0/0. Attached to the portal instance, this removes egress network restriction and permits unrestricted outbound communications, including data exfiltration or command-and-control traffic.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used as the VPC flow-log destination has no server-side encryption configuration. Flow logs can contain sensitive network metadata and are not explicitly protected with bucket-level encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing snapshot encryption",
+      "description": "The snapshot resource does not configure encryption and the excerpt does not establish that the source EBS volume is encrypted. A snapshot of an unencrypted source volume can retain sensitive disk data without encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4244,
+  "output_tokens": 712,
+  "latency_s": 9.436,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"missing snapshot encryption\",\"description\":\"The snapshot resource does not configure encryption and the excerpt does not establish that the source EBS volume is encrypted. A snapshot of an unencrypted source volume can retain sensitive disk data without encryption at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1479,
+      "output_tokens": 277,
+      "latency_s": 3.661,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.006282
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 1687,
+      "output_tokens": 340,
+      "latency_s": 4.028,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.007454
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1078,
+      "output_tokens": 95,
+      "latency_s": 1.747,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.003296
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.017032
+}

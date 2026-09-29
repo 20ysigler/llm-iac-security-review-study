@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__iam.tf__r14",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 14,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:50:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against Resource \"*\", with no conditions or scoping. Any compromise of this user's long-lived access key yields near-administrative control over compute, storage and serverless resources, including privilege escalation via lambda function creation/modification.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is generated for a human-style IAM user rather than using role assumption or temporary credentials. No PGP key is supplied, so Terraform stores the plaintext secret in state; combined with the wildcard policy this is a high-value standing credential with no rotation mechanism.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret material in Terraform state",
+      "description": "Because no pgp_key argument is set, the access key id and secret access key are persisted in cleartext in the Terraform state file, exposing credentials to anyone with read access to the state backend.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user without MFA or group scoping",
+      "description": "The IAM user is created with a directly attached wildcard inline policy and a programmatic access key, with no MFA condition enforced anywhere in the policy. Permissions are granted directly to the user instead of via a group or assumable role, defeating least privilege and centralised permission management.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2197,
+  "output_tokens": 664,
+  "latency_s": 8.996,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against Resource \\\"*\\\", with no conditions or scoping. Any compromise of this user's long-lived access key yields near-administrative control over compute, storage and serverless resources, including privilege escalation via lambda function creation/modification.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is generated for a human-style IAM user rather than using role assumption or temporary credentials. No PGP key is supplied, so Terraform stores the plaintext secret in state; combined with the wildcard policy this is a high-value standing credential with no rotation mechanism.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret material in Terraform state\", \"description\": \"Because no pgp_key argument is set, the access key id and secret access key are persisted in cleartext in the Terraform state file, exposing credentials to anyone with read access to the state backend.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user without MFA or group scoping\", \"description\": \"The IAM user is created with a directly attached wildcard inline policy and a programmatic access key, with no MFA condition enforced anywhere in the policy. Permissions are granted directly to the user instead of via a group or assumable role, defeating least privilege and centralised permission management.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2197,
+      "output_tokens": 664,
+      "latency_s": 8.996,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027585
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.027585
+}

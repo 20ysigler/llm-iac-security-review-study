@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this deploy user full control over compute, storage, and functions across the whole account. A compromised access key would allow data exfiltration, privilege escalation (e.g. via iam:PassRole-adjacent lambda/ec2 abuse), and destruction of resources.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user and its secret is exposed via Terraform outputs, meaning secret material is stored in state and output files. Static keys never expire and cannot be rotated automatically; the user should use short-lived credentials (IAM Roles / OIDC) instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure in outputs",
+      "description": "The access key secret (encrypted_secret) is written to a Terraform output, persisting the credential in state files, plan files, and CI logs, and making it readable by anyone with access to those artifacts.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "no MFA and no permission boundary",
+      "description": "The deploy user has no MFA enforcement and no permissions boundary, and force_destroy = true allows the user to be deleted along with any attached policies without protection. Combined with the wildcard policy, this weakens access control on a highly privileged identity.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    }
+  ],
+  "input_tokens": 1010,
+  "output_tokens": 487,
+  "latency_s": 2.918,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this deploy user full control over compute, storage, and functions across the whole account. A compromised access key would allow data exfiltration, privilege escalation (e.g. via iam:PassRole-adjacent lambda/ec2 abuse), and destruction of resources.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user and its secret is exposed via Terraform outputs, meaning secret material is stored in state and output files. Static keys never expire and cannot be rotated automatically; the user should use short-lived credentials (IAM Roles / OIDC) instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure in outputs\", \"description\": \"The access key secret (encrypted_secret) is written to a Terraform output, persisting the credential in state files, plan files, and CI logs, and making it readable by anyone with access to those artifacts.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"no MFA and no permission boundary\", \"description\": \"The deploy user has no MFA enforcement and no permissions boundary, and force_destroy = true allows the user to be deleted along with any attached policies without protection. Combined with the wildcard policy, this weakens access control on a highly privileged identity.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1010,
+      "output_tokens": 487,
+      "latency_s": 2.918,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000278
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000278
+}

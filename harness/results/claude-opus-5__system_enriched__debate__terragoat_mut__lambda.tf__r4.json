@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__lambda.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:17:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables and therefore committed to source control. Anyone with repository access, console read access, or lambda:GetFunctionConfiguration can retrieve them and impersonate the associated IAM principal.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is supplied, so the environment variables, which here hold secrets, are protected only by the default AWS-managed Lambda key and are visible in cleartext to any principal that can describe the function. A customer-managed key would add a key-policy boundary around the secret material.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function targets the nodejs12.x runtime, which has reached end of life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unaddressed.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config block, so it executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet boundary. Combined with the static credentials it carries, this provides an unmonitored exfiltration and command-and-control egress path.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing confused-deputy protection",
+      "description": "The trust policy allows the lambda.amazonaws.com service principal to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the role grant is not scoped to functions in this account and is exposed to service-principal confused-deputy abuse.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 7895,
+  "output_tokens": 2233,
+  "latency_s": 26.752,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables and therefore committed to source control. Anyone with repository access, console read access, or lambda:GetFunctionConfiguration can retrieve them and impersonate the associated IAM principal.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is supplied, so the environment variables, which here hold secrets, are protected only by the default AWS-managed Lambda key and are visible in cleartext to any principal that can describe the function. A customer-managed key would add a key-policy boundary around the secret material.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function targets the nodejs12.x runtime, which has reached end of life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unaddressed.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config block, so it executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet boundary. Combined with the static credentials it carries, this provides an unmonitored exfiltration and command-and-control egress path.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing confused-deputy protection\", \"description\": \"The trust policy allows the lambda.amazonaws.com service principal to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the role grant is not scoped to functions in this account and is exposed to service-principal confused-deputy abuse.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2079,
+      "output_tokens": 656,
+      "latency_s": 8.582,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.026795
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2079,
+      "output_tokens": 750,
+      "latency_s": 9.815,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.029145
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3737,
+      "output_tokens": 827,
+      "latency_s": 8.355,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03936
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.0953
+}

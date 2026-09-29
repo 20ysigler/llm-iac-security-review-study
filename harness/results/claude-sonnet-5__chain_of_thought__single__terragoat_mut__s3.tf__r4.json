@@ -1,0 +1,100 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat_mut__s3.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:26:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so objects stored in it (including the seeded vendor roster file) are not encrypted at rest by default, risking data exposure if underlying storage or backups are compromised.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block / ACL not set",
+      "description": "The bucket has no acl attribute set and no aws_s3_bucket_public_access_block resource associated with it, leaving it reliant on AWS defaults and potentially exposed to public access if defaults change or bucket policies are later misconfigured.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores ledger export data but has no server_side_encryption_configuration block, meaning sensitive financial data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so proprietary model artifacts are stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive internal procedures or credentials) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "insecure destroy configuration",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted without recovery, and combined with lack of versioning, any object (including the seeded vendor roster file) can be irrecoverably lost or overwritten, which could be leveraged to destroy audit evidence or sensitive data.",
+      "severity": "low",
+      "cwe": "CWE-664"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "sensitive data uploaded to unencrypted bucket",
+      "description": "The vendor-roster.xlsx object is uploaded to the reports_archive bucket, which lacks both versioning and encryption at rest, exposing potentially sensitive vendor data to loss or unauthorized read if bucket-level security is bypassed.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing versioning",
+      "description": "The bucket does not have versioning enabled, unlike other buckets in this configuration, increasing risk of accidental or malicious overwrite/deletion of stored reports without recovery capability.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 2314,
+  "output_tokens": 1187,
+  "latency_s": 10.03,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so objects stored in it (including the seeded vendor roster file) are not encrypted at rest by default, risking data exposure if underlying storage or backups are compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block / ACL not set\", \"description\": \"The bucket has no acl attribute set and no aws_s3_bucket_public_access_block resource associated with it, leaving it reliant on AWS defaults and potentially exposed to public access if defaults change or bucket policies are later misconfigured.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores ledger export data but has no server_side_encryption_configuration block, meaning sensitive financial data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so proprietary model artifacts are stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive internal procedures or credentials) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"insecure destroy configuration\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted without recovery, and combined with lack of versioning, any object (including the seeded vendor roster file) can be irrecoverably lost or overwritten, which could be leveraged to destroy audit evidence or sensitive data.\", \"severity\": \"low\", \"cwe\": \"CWE-664\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"sensitive data uploaded to unencrypted bucket\", \"description\": \"The vendor-roster.xlsx object is uploaded to the reports_archive bucket, which lacks both versioning and encryption at rest, exposing potentially sensitive vendor data to loss or unauthorized read if bucket-level security is bypassed.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing versioning\", \"description\": \"The bucket does not have versioning enabled, unlike other buckets in this configuration, increasing risk of accidental or malicious overwrite/deletion of stored reports without recovery capability.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2314,
+      "output_tokens": 1187,
+      "latency_s": 10.03,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.016498
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.016498
+}

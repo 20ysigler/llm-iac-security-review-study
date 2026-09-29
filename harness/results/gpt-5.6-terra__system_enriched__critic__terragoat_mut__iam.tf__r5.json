@@ -1,0 +1,78 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__critic__terragoat_mut__iam.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants the deploy user wildcard actions for EC2, S3, Lambda, and CloudWatch on every resource. This enables broad data access and infrastructure modification well beyond least privilege, including service-specific privilege-escalation and destructive capabilities.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "privileged long-lived access key",
+      "description": "This creates a programmatic access key for the user receiving the overly broad policy. The key is not itself a hard-coded secret, but its compromise would provide the policy's broad permissions; the output below also makes secret material unnecessarily exposed.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "unencrypted sensitive output",
+      "description": "The access-key encrypted secret is exported without `sensitive = true`, so Terraform can display and propagate it to output consumers. Although it is provider-encrypted rather than plaintext, exposing the encrypted secret and ciphertext together in Terraform output/state consumption paths weakens credential handling.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2391,
+  "output_tokens": 565,
+  "latency_s": 7.763,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The policy grants the deploy user wildcard actions for EC2, S3, Lambda, and CloudWatch on every resource. This enables broad data access and infrastructure modification well beyond least privilege, including service-specific privilege-escalation and destructive capabilities.\",\"severity\":\"high\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"privileged long-lived access key\",\"description\":\"This creates a programmatic access key for the user receiving the overly broad policy. The key is not itself a hard-coded secret, but its compromise would provide the policy's broad permissions; the output below also makes secret material unnecessarily exposed.\",\"severity\":\"high\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"unencrypted sensitive output\",\"description\":\"The access-key encrypted secret is exported without `sensitive = true`, so Terraform can display and propagate it to output consumers. Although it is provider-encrypted rather than plaintext, exposing the encrypted secret and ciphertext together in Terraform output/state consumption paths weakens credential handling.\",\"severity\":\"medium\",\"cwe\":\"CWE-798\",\"confidence\":\"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 984,
+      "output_tokens": 280,
+      "latency_s": 3.889,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.005328
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1407,
+      "output_tokens": 285,
+      "latency_s": 3.874,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.006234
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.011562
+}

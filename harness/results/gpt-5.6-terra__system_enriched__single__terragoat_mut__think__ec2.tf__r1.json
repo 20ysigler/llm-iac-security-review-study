@@ -1,0 +1,117 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__ec2.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:29:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet automatically receive public IPv4 addresses. This subnet is associated with a route table that has a default route through an Internet gateway, so workloads placed here can become Internet-reachable unless separately constrained.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet automatically receive public IPv4 addresses. This subnet is associated with a route table that has a default route through an Internet gateway, so workloads placed here can become Internet-reachable unless separately constrained.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its contents, and snapshots made from it, may therefore be stored unencrypted unless an account-level default outside this configuration enforces encryption.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The user-data script embeds an AWS access key ID and secret access key. User data is retrievable by privileged users and potentially by processes on the instance, and the credentials can be exposed through source control, state-adjacent deployment artifacts, or instance compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "IMDSv1 access permitted",
+      "description": "No metadata_options block requires IMDSv2, leaving the AWS provider default that permits IMDSv1. A server-side request forgery flaw or local compromise could use unauthenticated metadata requests to obtain instance credentials if an instance profile is later attached.",
+      "severity": "medium",
+      "cwe": "CWE-441",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "SSH (TCP/22) is permitted from 0.0.0.0/0. Because the instance is launched in an Internet-routable subnet with automatic public IP assignment, this exposes the administrative service to arbitrary Internet hosts.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "HTTP (TCP/80) is permitted from 0.0.0.0/0 to an instance that receives a public IP in an Internet-routable subnet. This exposes the web service broadly and provides no network restriction against untrusted sources.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound access",
+      "description": "All outbound protocols and ports are allowed to every IPv4 address. A compromise of the instance can therefore communicate freely with external command-and-control or exfiltration destinations.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing bucket encryption",
+      "description": "The bucket storing VPC flow logs has no server-side encryption configuration. Log records may be stored without bucket-enforced encryption unless an external account-level control exists.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2030,
+  "output_tokens": 1175,
+  "latency_s": 13.762,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_subnet.portal_subnet_a\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"Instances launched in this subnet automatically receive public IPv4 addresses. This subnet is associated with a route table that has a default route through an Internet gateway, so workloads placed here can become Internet-reachable unless separately constrained.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.portal_subnet_b\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"Instances launched in this subnet automatically receive public IPv4 addresses. This subnet is associated with a route table that has a default route through an Internet gateway, so workloads placed here can become Internet-reachable unless separately constrained.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its contents, and snapshots made from it, may therefore be stored unencrypted unless an account-level default outside this configuration enforces encryption.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The user-data script embeds an AWS access key ID and secret access key. User data is retrievable by privileged users and potentially by processes on the instance, and the credentials can be exposed through source control, state-adjacent deployment artifacts, or instance compromise.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"IMDSv1 access permitted\",\"description\":\"No metadata_options block requires IMDSv2, leaving the AWS provider default that permits IMDSv1. A server-side request forgery flaw or local compromise could use unauthenticated metadata requests to obtain instance credentials if an instance profile is later attached.\",\"severity\":\"medium\",\"cwe\":\"CWE-441\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"SSH (TCP/22) is permitted from 0.0.0.0/0. Because the instance is launched in an Internet-routable subnet with automatic public IP assignment, this exposes the administrative service to arbitrary Internet hosts.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted HTTP ingress\",\"description\":\"HTTP (TCP/80) is permitted from 0.0.0.0/0 to an instance that receives a public IP in an Internet-routable subnet. This exposes the web service broadly and provides no network restriction against untrusted sources.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted outbound access\",\"description\":\"All outbound protocols and ports are allowed to every IPv4 address. A compromise of the instance can therefore communicate freely with external command-and-control or exfiltration destinations.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing bucket encryption\",\"description\":\"The bucket storing VPC flow logs has no server-side encryption configuration. Log records may be stored without bucket-enforced encryption unless an external account-level control exists.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2030,
+      "output_tokens": 1175,
+      "latency_s": 13.762,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.01816
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.01816
+}

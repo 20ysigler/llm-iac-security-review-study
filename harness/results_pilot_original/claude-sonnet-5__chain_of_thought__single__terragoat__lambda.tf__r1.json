@@ -1,0 +1,39 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__lambda.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:53:03Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "The Lambda function's environment variables contain plaintext AWS access key and secret key credentials, which are stored in Terraform state and code in cleartext. This exposes long-lived AWS credentials to anyone with access to the code repository, Terraform state, or Lambda console/API, enabling credential theft and lateral movement.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption for environment variables",
+      "description": "No kms_key_arn is specified for the Lambda function, so environment variables (including the hardcoded secrets) are encrypted only with the default AWS-managed key rather than a customer-managed key, reducing control over encryption and key access auditing.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2329,
+  "output_tokens": 402,
+  "latency_s": 3.859,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"The Lambda function's environment variables contain plaintext AWS access key and secret key credentials, which are stored in Terraform state and code in cleartext. This exposes long-lived AWS credentials to anyone with access to the code repository, Terraform state, or Lambda console/API, enabling credential theft and lateral movement.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption for environment variables\", \"description\": \"No kms_key_arn is specified for the Lambda function, so environment variables (including the hardcoded secrets) are encrypted only with the default AWS-managed key rather than a customer-managed key, reducing control over encryption and key access auditing.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.008678
+}

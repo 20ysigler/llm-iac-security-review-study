@@ -1,0 +1,112 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__s3.tf__r15",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 15,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:02:16Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket exposure",
+      "description": "No ACL, bucket policy, or public access block is configured, and the code comment explicitly states the bucket is public, meaning it defaults to being reachable without restriction and can expose the stored customer master data to anonymous access.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so all objects in this bucket, including customer data, are stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing versioning",
+      "description": "No versioning block is configured for this bucket, so accidental or malicious deletion/overwrite of the customer master data cannot be recovered, compounding the impact of the public exposure and lack of encryption.",
+      "severity": "low",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data in public/unencrypted bucket",
+      "description": "The customer-master.xlsx object, likely containing sensitive customer data, is uploaded into aws_s3_bucket.data, which is publicly exposed and has no encryption at rest, directly risking data breach.",
+      "severity": "critical",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined for this bucket holding financial data, leaving stored data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is present, so operational data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is present, so data science bucket contents are stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 13457,
+  "output_tokens": 2651,
+  "latency_s": 21.788,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"public bucket exposure\", \"description\": \"No ACL, bucket policy, or public access block is configured, and the code comment explicitly states the bucket is public, meaning it defaults to being reachable without restriction and can expose the stored customer master data to anonymous access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so all objects in this bucket, including customer data, are stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing versioning\", \"description\": \"No versioning block is configured for this bucket, so accidental or malicious deletion/overwrite of the customer master data cannot be recovered, compounding the impact of the public exposure and lack of encryption.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"sensitive data in public/unencrypted bucket\", \"description\": \"The customer-master.xlsx object, likely containing sensitive customer data, is uploaded into aws_s3_bucket.data, which is publicly exposed and has no encryption at rest, directly risking data breach.\", \"severity\": \"critical\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined for this bucket holding financial data, leaving stored data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is present, so operational data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is present, so data science bucket contents are stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 3870,
+      "output_tokens": 754,
+      "latency_s": 6.539,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.01528
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 3870,
+      "output_tokens": 980,
+      "latency_s": 7.621,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.01754
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 5717,
+      "output_tokens": 917,
+      "latency_s": 7.628,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.020604
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.053424
+}

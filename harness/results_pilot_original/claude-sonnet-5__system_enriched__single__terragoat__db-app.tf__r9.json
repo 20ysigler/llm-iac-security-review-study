@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r9",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 9,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:19:34Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access if the storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet and significantly increasing the attack surface for a datastore that should be isolated within private subnets.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The database username is hard-coded to 'admin' and the password is passed via a variable without any indication of secrets-manager integration; combined with plaintext exposure elsewhere, this weakens credential management for a public-facing database.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext PHP files and in the instance's user data, which is retrievable by anyone with access to the instance metadata or the instance's console output, leading to credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege and allowing the instance (which is internet facing and runs a public web app) to perform virtually any action against S3, EC2, and RDS if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all traffic (protocol -1, all ports) to 0.0.0.0/0, removing any network segmentation boundary for outbound traffic from the RDS security group and increasing risk of data exfiltration if the database is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "publicly exposed instance with excessive privileges",
+      "description": "The EC2 instance is provisioned with a public DNS name (per db_app_public_dns output) and an attached IAM role granting broad s3/ec2/rds permissions, meaning a compromise of this internet-facing web server (running a script vulnerable to unescaped output/XSS in index.php) would grant broad control over cloud resources.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1178,
+  "latency_s": 10.829,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access if the storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet and significantly increasing the attack surface for a datastore that should be isolated within private subnets.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The database username is hard-coded to 'admin' and the password is passed via a variable without any indication of secrets-manager integration; combined with plaintext exposure elsewhere, this weakens credential management for a public-facing database.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext PHP files and in the instance's user data, which is retrievable by anyone with access to the instance metadata or the instance's console output, leading to credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege and allowing the instance (which is internet facing and runs a public web app) to perform virtually any action against S3, EC2, and RDS if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all traffic (protocol -1, all ports) to 0.0.0.0/0, removing any network segmentation boundary for outbound traffic from the RDS security group and increasing risk of data exfiltration if the database is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"publicly exposed instance with excessive privileges\", \"description\": \"The EC2 instance is provisioned with a public DNS name (per db_app_public_dns output) and an attached IAM role granting broad s3/ec2/rds permissions, meaning a compromise of this internet-facing web server (running a script vulnerable to unescaped output/XSS in index.php) would grant broad control over cloud resources.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.02654
+}

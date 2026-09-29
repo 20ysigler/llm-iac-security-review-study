@@ -1,0 +1,89 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__think__db-app.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:14:53Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data if the underlying disks or snapshots are accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance to the public internet rather than restricting it to the private VPC network layer.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "default administrative credentials",
+      "description": "The database uses the default administrative username 'admin', which is a well-known default account name that increases the risk of credential guessing attacks combined with the instance being publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the database's associated network resources.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overly broad ingress rule",
+      "description": "The ingress rule permits MySQL access (port 3306) from the entire VPC CIDR block rather than scoping it to only the specific application subnet or security group that requires database connectivity, violating least-privilege network segmentation.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('*'), giving the EC2 instance role far more privilege than needed to serve a web application, violating least privilege and enabling broad lateral movement if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext PHP configuration files, which are readable by anyone with ec2:DescribeInstanceAttribute permissions or access to the instance metadata, far exceeding those with legitimate access to the secret.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "legacy instance metadata service",
+      "description": "The instance does not configure metadata_options to enforce IMDSv2 (token-required), leaving the legacy IMDSv1 endpoint available which permits unauthenticated credential retrieval via SSRF vulnerabilities in the hosted application.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 8628,
+  "output_tokens": 2018,
+  "latency_s": 19.567,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data if the underlying disks or snapshots are accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance to the public internet rather than restricting it to the private VPC network layer.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"default administrative credentials\", \"description\": \"The database uses the default administrative username 'admin', which is a well-known default account name that increases the risk of credential guessing attacks combined with the instance being publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the database's associated network resources.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.ingress\", \"issue_category\": \"overly broad ingress rule\", \"description\": \"The ingress rule permits MySQL access (port 3306) from the entire VPC CIDR block rather than scoping it to only the specific application subnet or security group that requires database connectivity, violating least-privilege network segmentation.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('*'), giving the EC2 instance role far more privilege than needed to serve a web application, violating least privilege and enabling broad lateral movement if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext PHP configuration files, which are readable by anyone with ec2:DescribeInstanceAttribute permissions or access to the instance metadata, far exceeding those with legitimate access to the secret.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"legacy instance metadata service\", \"description\": \"The instance does not configure metadata_options to enforce IMDSv2 (token-required), leaving the legacy IMDSv1 endpoint available which permits unauthenticated credential retrieval via SSRF vulnerabilities in the hosted application.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.037436
+}

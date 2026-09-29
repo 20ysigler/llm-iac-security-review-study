@@ -1,0 +1,79 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__ec2.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:38Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded cloud credentials",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "Long-lived AWS access-key credentials are embedded in EC2 user data. User data is retained in Terraform state and is retrievable from the instance metadata service by processes/users on the instance, enabling compromise of the associated AWS identity."
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The EBS volume does not set `encrypted = true`; the commented configuration explicitly indicates it is intended to remain unencrypted. Data stored on this volume can therefore be persisted without EBS encryption at rest."
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot data",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "This snapshot is created from the unencrypted `aws_ebs_volume.web_host_storage` volume, so the resulting EBS snapshot is unencrypted and exposes any stored volume data if snapshot access is obtained."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "TCP/22 is allowed from `0.0.0.0/0`. The attached `aws_instance.web_host` is in a public-IP subnet with a default route to an internet gateway, making SSH reachable from any internet source."
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. This is a public subnet because it is associated with a route table that routes `0.0.0.0/0` through the internet gateway, increasing exposure of workloads such as `aws_instance.web_host`."
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. This subnet is associated with a route table that routes `0.0.0.0/0` through the internet gateway, making future workloads publicly reachable by default."
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing bucket encryption",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The bucket used as the destination for VPC flow logs has no server-side encryption configuration. Network metadata written by `aws_flow_log.vpcflowlogs` is therefore not explicitly protected with bucket-level encryption at rest."
+    }
+  ],
+  "input_tokens": 3867,
+  "output_tokens": 611,
+  "latency_s": 5.566,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded cloud credentials\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"Long-lived AWS access-key credentials are embedded in EC2 user data. User data is retained in Terraform state and is retrievable from the instance metadata service by processes/users on the instance, enabling compromise of the associated AWS identity.\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The EBS volume does not set `encrypted = true`; the commented configuration explicitly indicates it is intended to remain unencrypted. Data stored on this volume can therefore be persisted without EBS encryption at rest.\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted snapshot data\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"This snapshot is created from the unencrypted `aws_ebs_volume.web_host_storage` volume, so the resulting EBS snapshot is unencrypted and exposes any stored volume data if snapshot access is obtained.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"TCP/22 is allowed from `0.0.0.0/0`. The attached `aws_instance.web_host` is in a public-IP subnet with a default route to an internet gateway, making SSH reachable from any internet source.\"},{\"resource\":\"aws_subnet.web_subnet\",\"issue_category\":\"automatic public IP assignment\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. This is a public subnet because it is associated with a route table that routes `0.0.0.0/0` through the internet gateway, increasing exposure of workloads such as `aws_instance.web_host`.\"},{\"resource\":\"aws_subnet.web_subnet2\",\"issue_category\":\"automatic public IP assignment\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. This subnet is associated with a route table that routes `0.0.0.0/0` through the internet gateway, making future workloads publicly reachable by default.\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing bucket encryption\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The bucket used as the destination for VPC flow logs has no server-side encryption configuration. Network metadata written by `aws_flow_log.vpcflowlogs` is therefore not explicitly protected with bucket-level encryption at rest.\"}]}",
+  "cost_usd": 0.015066
+}

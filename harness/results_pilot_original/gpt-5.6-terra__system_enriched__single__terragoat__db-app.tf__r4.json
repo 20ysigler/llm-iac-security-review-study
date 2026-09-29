@@ -1,0 +1,79 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__db-app.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:28Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, snapshots, and automated backups unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets `publicly_accessible = true`, assigning a public network address to the database and increasing its exposure beyond private VPC-only access.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL port 3306 is permitted from the entire VPC CIDR rather than only the application security group or explicitly required hosts. Combined with the publicly accessible RDS instance, this does not provide a least-privilege database access boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all protocols and ports to `0.0.0.0/0`, providing no outbound network restriction if the database is compromised.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The EC2 instance role is granted `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached instance can obtain credentials capable of broad data access, infrastructure modification, and RDS administration.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credential exposure",
+      "description": "The database password is interpolated into EC2 user data and written into a PHP configuration file. User data and the resulting file can be read by principals or processes with access to the instance/metadata or filesystem, exposing the database credential.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted database connection",
+      "description": "The application connects with `mysqli_connect` without configuring TLS, while the RDS parameter group does not require secure transport. Database credentials and application data may therefore traverse the network in cleartext.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 4225,
+  "output_tokens": 535,
+  "latency_s": 5.125,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, snapshots, and automated backups unencrypted at rest.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets `publicly_accessible = true`, assigning a public network address to the database and increasing its exposure beyond private VPC-only access.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_security_group_rule.ingress\",\"issue_category\":\"overly broad database ingress\",\"description\":\"MySQL port 3306 is permitted from the entire VPC CIDR rather than only the application security group or explicitly required hosts. Combined with the publicly accessible RDS instance, this does not provide a least-privilege database access boundary.\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted egress\",\"description\":\"The database security group allows all protocols and ports to `0.0.0.0/0`, providing no outbound network restriction if the database is compromised.\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The EC2 instance role is granted `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached instance can obtain credentials capable of broad data access, infrastructure modification, and RDS administration.\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credential exposure\",\"description\":\"The database password is interpolated into EC2 user data and written into a PHP configuration file. User data and the resulting file can be read by principals or processes with access to the instance/metadata or filesystem, exposing the database credential.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"unencrypted database connection\",\"description\":\"The application connects with `mysqli_connect` without configuring TLS, while the RDS parameter group does not require secure transport. Database credentials and application data may therefore traverse the network in cleartext.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-319\"}]}",
+  "cost_usd": 0.01487
+}

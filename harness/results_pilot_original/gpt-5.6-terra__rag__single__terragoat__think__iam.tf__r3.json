@@ -1,0 +1,41 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__iam.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:45:11Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "description": "This creates a long-lived IAM user access key rather than using federated, temporary credentials. No PGP key is configured, so the generated secret access key is retained in Terraform state, expanding the set of locations and principals that can retrieve a reusable credential.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and enables broad data access and infrastructure modification within those services if the user's credentials are compromised.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1801,
+  "output_tokens": 350,
+  "latency_s": 4.291,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"description\":\"This creates a long-lived IAM user access key rather than using federated, temporary credentials. No PGP key is configured, so the generated secret access key is retained in Terraform state, expanding the set of locations and principals that can retrieve a reusable credential.\",\"severity\":\"high\",\"cwe\":\"CWE-522\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and enables broad data access and infrastructure modification within those services if the user's credentials are compromised.\",\"severity\":\"high\",\"cwe\":\"CWE-269\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.007802
+}

@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:48:53Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action against these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a static IAM access key/secret for a user with excessive permissions creates a long-lived credential that, if leaked, grants broad access; access keys are more risky than temporary/assumed-role credentials, especially combined with the attached excess_policy.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standalone IAM user with excess privilege",
+      "description": "An IAM user (rather than a role) is created and directly attached to an overly permissive policy, increasing the blast radius if the user's credentials are compromised, and bypassing use of temporary, scoped credentials.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "The output block exposes the encrypted_secret of the IAM access key in Terraform outputs/state, which can leak sensitive credential material to anyone with access to state files, logs, or CI/CD output.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 2265,
+  "output_tokens": 637,
+  "latency_s": 6.644,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action against these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a static IAM access key/secret for a user with excessive permissions creates a long-lived credential that, if leaked, grants broad access; access keys are more risky than temporary/assumed-role credentials, especially combined with the attached excess_policy.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standalone IAM user with excess privilege\", \"description\": \"An IAM user (rather than a role) is created and directly attached to an overly permissive policy, increasing the blast radius if the user's credentials are compromised, and bypassing use of temporary, scoped credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"The output block exposes the encrypted_secret of the IAM access key in Terraform outputs/state, which can leak sensitive credential material to anyone with access to state files, logs, or CI/CD output.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}]}",
+  "cost_usd": 0.0109
+}

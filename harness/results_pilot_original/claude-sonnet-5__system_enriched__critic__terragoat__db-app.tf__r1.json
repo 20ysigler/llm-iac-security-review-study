@@ -1,0 +1,102 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:54:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for regulated data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance to the public internet and increasing attack surface for direct database access.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/weak credentials",
+      "description": "The database uses a hard-coded username 'admin' and a password sourced from a variable with no secrets-manager integration, and the same password value is propagated in plaintext into EC2 user data, increasing risk of credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and other connection details in plaintext, which is visible to anyone with access to instance metadata, console output, or the Terraform state, exposing database credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('*'), violating least privilege and allowing the EC2 instance role to perform virtually any action on S3, EC2, and RDS resources. This is especially severe because the role is attached to a publicly reachable instance via aws_iam_instance_profile.ec2profile.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "publicly reachable compute instance",
+      "description": "The EC2 instance's public DNS is exposed as an output and it is associated with a security group (web-node) not shown to restrict inbound access; combined with the overly permissive IAM role and embedded DB credentials, a publicly reachable instance compromise leads directly to full AWS account and database compromise.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 15956,
+  "output_tokens": 1831,
+  "latency_s": 17.407,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for regulated data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance to the public internet and increasing attack surface for direct database access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/weak credentials\", \"description\": \"The database uses a hard-coded username 'admin' and a password sourced from a variable with no secrets-manager integration, and the same password value is propagated in plaintext into EC2 user data, increasing risk of credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and other connection details in plaintext, which is visible to anyone with access to instance metadata, console output, or the Terraform state, exposing database credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('*'), violating least privilege and allowing the EC2 instance role to perform virtually any action on S3, EC2, and RDS resources. This is especially severe because the role is attached to a publicly reachable instance via aws_iam_instance_profile.ec2profile.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"publicly reachable compute instance\", \"description\": \"The EC2 instance's public DNS is exposed as an output and it is associated with a security group (web-node) not shown to restrict inbound access; combined with the overly permissive IAM role and embedded DB credentials, a publicly reachable instance compromise leads directly to full AWS account and database compromise.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7380,
+      "output_tokens": 934,
+      "latency_s": 9.319,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.0241
+    },
+    {
+      "step": "critique",
+      "input_tokens": 8576,
+      "output_tokens": 897,
+      "latency_s": 8.088,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.026122
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.050222
+}

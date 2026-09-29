@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:12:09Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"*\"), violating least privilege and allowing the IAM user to perform virtually any operation against these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "plaintext credential in state",
+      "description": "No pgp_key is specified for the access key, so Terraform stores the generated secret access key in plaintext in the state file (the 'secret' attribute) rather than only as an encrypted_secret, exposing long-lived AWS credentials to anyone with state file access.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a static IAM access key for a human/service user instead of relying on temporary, role-based credentials increases the attack surface, since these keys do not expire and can be leaked or misused indefinitely.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive value exposure",
+      "description": "The output exposes the access key's secret material (encrypted_secret) as a Terraform output, which can be printed in CLI output/logs or stored in plan/state artifacts, increasing the risk of credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2139,
+  "output_tokens": 1295,
+  "latency_s": 13.259,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"*\\\"), violating least privilege and allowing the IAM user to perform virtually any operation against these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"plaintext credential in state\", \"description\": \"No pgp_key is specified for the access key, so Terraform stores the generated secret access key in plaintext in the state file (the 'secret' attribute) rather than only as an encrypted_secret, exposing long-lived AWS credentials to anyone with state file access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a static IAM access key for a human/service user instead of relying on temporary, role-based credentials increases the attack surface, since these keys do not expire and can be leaked or misused indefinitely.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive value exposure\", \"description\": \"The output exposes the access key's secret material (encrypted_secret) as a Terraform output, which can be printed in CLI output/logs or stored in plan/state artifacts, increasing the risk of credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.017228
+}

@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:08:50Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS MySQL instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to anyone with access to the underlying storage or snapshots.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, assigning the RDS instance a publicly routable endpoint. Combined with credentials stored in plaintext elsewhere, this significantly increases the attack surface for a database that should only be reachable from application tiers within the VPC.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* actions on Resource \"*\", giving the EC2 instance role full administrative control over S3, EC2, and RDS services. Attached to a role assumed by an internet-facing EC2 instance, compromise of that instance (e.g., via the credentials leaked in user_data) would grant an attacker near-complete control of the AWS account's resources in these services, violating least privilege.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The EC2 user_data script embeds the RDS master username and plaintext password (var.password) directly into a PHP config file written to disk, and the password is also passed in cleartext as part of the instance's user_data, which is retrievable by anyone with access to the instance metadata service or console/API describe-instance-attribute calls.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 7254,
+  "output_tokens": 2188,
+  "latency_s": 22.093,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS MySQL instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to anyone with access to the underlying storage or snapshots.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, assigning the RDS instance a publicly routable endpoint. Combined with credentials stored in plaintext elsewhere, this significantly increases the attack surface for a database that should only be reachable from application tiers within the VPC.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* actions on Resource \\\"*\\\", giving the EC2 instance role full administrative control over S3, EC2, and RDS services. Attached to a role assumed by an internet-facing EC2 instance, compromise of that instance (e.g., via the credentials leaked in user_data) would grant an attacker near-complete control of the AWS account's resources in these services, violating least privilege.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The EC2 user_data script embeds the RDS master username and plaintext password (var.password) directly into a PHP config file written to disk, and the password is also passed in cleartext as part of the instance's user_data, which is retrievable by anyone with access to the instance metadata service or console/API describe-instance-attribute calls.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.036388
+}

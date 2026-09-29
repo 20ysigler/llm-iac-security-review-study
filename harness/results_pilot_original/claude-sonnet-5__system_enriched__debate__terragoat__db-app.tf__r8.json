@@ -1,0 +1,119 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r8",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 8,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:43:50Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted at rest, exposing sensitive data if the storage or backups are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and drastically increasing the attack surface for a datastore that should only be reachable from within the VPC/application subnets.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The database master username is hard-coded to 'admin' and the password (var.password) is subsequently interpolated in plaintext into the EC2 user_data script, meaning credentials flow into instance metadata, console logs, and Terraform state without any secrets-manager protection.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext inside a PHP config file, which is retrievable via the EC2 instance metadata service and persisted unencrypted in Terraform state, risking credential leakage to anyone with access to the instance or state file.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege. Because this role is attached to an EC2 instance in a web-facing subnet, compromise of that instance would grant near-full account control over S3, EC2, and RDS.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "publicly exposed compute instance",
+      "description": "The instance is deployed in a web subnet, its public_dns is exported as an output, and it carries an over-privileged IAM role plus embedded database credentials, making it a high-value target if it is internet-facing (no restrictive ingress security group shown for it in this file).",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and allowing a compromised database or attached resource to exfiltrate data or reach any external host. Given the co-located over-privileged IAM role and public database exposure, this is more than a low-severity concern.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 24458,
+  "output_tokens": 3445,
+  "latency_s": 29.9,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted at rest, exposing sensitive data if the storage or backups are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and drastically increasing the attack surface for a datastore that should only be reachable from within the VPC/application subnets.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The database master username is hard-coded to 'admin' and the password (var.password) is subsequently interpolated in plaintext into the EC2 user_data script, meaning credentials flow into instance metadata, console logs, and Terraform state without any secrets-manager protection.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext inside a PHP config file, which is retrievable via the EC2 instance metadata service and persisted unencrypted in Terraform state, risking credential leakage to anyone with access to the instance or state file.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege. Because this role is attached to an EC2 instance in a web-facing subnet, compromise of that instance would grant near-full account control over S3, EC2, and RDS.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"publicly exposed compute instance\", \"description\": \"The instance is deployed in a web subnet, its public_dns is exported as an output, and it carries an over-privileged IAM role plus embedded database credentials, making it a high-value target if it is internet-facing (no restrictive ingress security group shown for it in this file).\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and allowing a compromised database or attached resource to exfiltrate data or reach any external host. Given the co-located over-privileged IAM role and public database exposure, this is more than a low-severity concern.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1064,
+      "latency_s": 9.647,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.0254
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1141,
+      "latency_s": 10.216,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02617
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9698,
+      "output_tokens": 1240,
+      "latency_s": 10.037,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.031796
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.083366
+}

@@ -1,0 +1,123 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat__s3.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:53:46Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket exposure",
+      "description": "The bucket is explicitly commented as public with no ACL restricting access, allowing unauthenticated or unintended access to stored data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is set, so objects (including the customer-master.xlsx file) are stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing versioning",
+      "description": "Versioning is not enabled, so accidental or malicious overwrite/deletion of objects cannot be recovered, increasing risk of data loss or tampering going undetected.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data in public/unencrypted bucket",
+      "description": "A customer master data file (customer-master.xlsx) is uploaded to the aws_s3_bucket.data bucket, which is public and unencrypted, exposing potentially sensitive customer data.",
+      "severity": "critical",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket holding financial data, leaving it unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing versioning",
+      "description": "Versioning is not enabled for the financials bucket, risking unrecoverable loss or undetected tampering of financial records.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so objects stored in it are not encrypted at rest by default, risking data exposure if underlying storage or backups are compromised.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing access logging",
+      "description": "No logging block is configured, so there is no audit trail of access requests to this bucket, hampering detection of unauthorized access (noted here only because it compounds the lack of encryption, not as a standalone operational gap).",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket lacks a server_side_encryption_configuration block, meaning data stored (potentially sensitive data science datasets) is not encrypted at rest, increasing exposure risk if storage is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5910,
+  "output_tokens": 1217,
+  "latency_s": 12.176,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so objects stored in it are not encrypted at rest by default, risking data exposure if underlying storage or backups are compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing access logging\", \"description\": \"No logging block is configured, so there is no audit trail of access requests to this bucket, hampering detection of unauthorized access (noted here only because it compounds the lack of encryption, not as a standalone operational gap).\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket lacks a server_side_encryption_configuration block, meaning data stored (potentially sensitive data science datasets) is not encrypted at rest, increasing exposure risk if storage is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2911,
+      "output_tokens": 752,
+      "latency_s": 7.201,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.013342
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2999,
+      "output_tokens": 465,
+      "latency_s": 4.975,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.010648
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 2,
+  "cost_usd": 0.02399
+}

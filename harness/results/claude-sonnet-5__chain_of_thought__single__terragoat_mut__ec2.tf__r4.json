@@ -1,0 +1,117 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat_mut__ec2.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials",
+      "description": "AWS access key and secret access key are hardcoded in plaintext within the instance user_data script, which is stored in Terraform state and often visible in the EC2 instance metadata service to anyone with local access, exposing long-lived AWS credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The security group allows inbound TCP port 80 from 0.0.0.0/0. While intended for a public web server, combined with unrestricted SSH and egress this significantly widens the attack surface with no additional layered controls.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The security group permits all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which allows a compromised instance to exfiltrate data or communicate freely with any external host.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "unencrypted storage volume",
+      "description": "The EBS volume does not set encrypted = true, leaving data at rest unencrypted and vulnerable to exposure if the underlying storage is accessed improperly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs does not configure server-side encryption, potentially exposing sensitive network traffic metadata if the bucket contents are accessed by unauthorized parties.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access controls / public access block",
+      "description": "The S3 bucket has no public access block, bucket policy, or ACL restrictions defined, risking unintended public exposure of flow log data containing network traffic details.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unnecessary public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of the EC2 instance hosting sensitive data directly to the internet.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "unnecessary public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, expanding the network attack surface unnecessarily.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3792,
+  "output_tokens": 1379,
+  "latency_s": 11.187,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials\", \"description\": \"AWS access key and secret access key are hardcoded in plaintext within the instance user_data script, which is stored in Terraform state and often visible in the EC2 instance metadata service to anyone with local access, exposing long-lived AWS credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The security group allows inbound TCP port 80 from 0.0.0.0/0. While intended for a public web server, combined with unrestricted SSH and egress this significantly widens the attack surface with no additional layered controls.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group permits all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which allows a compromised instance to exfiltrate data or communicate freely with any external host.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"unencrypted storage volume\", \"description\": \"The EBS volume does not set encrypted = true, leaving data at rest unencrypted and vulnerable to exposure if the underlying storage is accessed improperly.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs does not configure server-side encryption, potentially exposing sensitive network traffic metadata if the bucket contents are accessed by unauthorized parties.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing access controls / public access block\", \"description\": \"The S3 bucket has no public access block, bucket policy, or ACL restrictions defined, risking unintended public exposure of flow log data containing network traffic details.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"unnecessary public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of the EC2 instance hosting sensitive data directly to the internet.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"unnecessary public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, expanding the network attack surface unnecessarily.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3792,
+      "output_tokens": 1379,
+      "latency_s": 11.187,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.021374
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.021374
+}

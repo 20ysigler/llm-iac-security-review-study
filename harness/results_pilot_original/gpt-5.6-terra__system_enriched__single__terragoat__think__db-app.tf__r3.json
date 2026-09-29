@@ -1,0 +1,73 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__db-app.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:40:22Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated snapshots, and backups unencrypted at rest. Anyone obtaining access to the underlying storage artifacts could read the database contents without a KMS decryption control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "`publicly_accessible = true` assigns a public network endpoint to the database. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes a database service to an Internet-routable interface and weakens network segmentation.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "unenforced encrypted database transport",
+      "description": "The MySQL parameter group does not set `require_secure_transport` to enforce TLS. Consequently, clients permitted by the security group can connect to the database without encryption in transit, exposing credentials and query data to interception within reachable network paths.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The instance role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Because this policy is attached through the EC2 instance profile, compromise of the instance yields broad control-plane and data-plane access, including opportunities to access data and modify infrastructure.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credentials in user data",
+      "description": "The EC2 user-data script writes the database username and `var.password` into a PHP configuration file. User data is retained in Terraform state and is accessible through instance metadata/EC2 control-plane access, expanding exposure of the database credential rather than retrieving it from a secrets-management service at runtime.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted database security-group egress",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0` for egress. This removes outbound network restriction for a sensitive database interface and permits arbitrary external connections if the database service or an associated path is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4137,
+  "output_tokens": 936,
+  "latency_s": 11.14,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unencrypted database storage\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated snapshots, and backups unencrypted at rest. Anyone obtaining access to the underlying storage artifacts could read the database contents without a KMS decryption control.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"description\":\"`publicly_accessible = true` assigns a public network endpoint to the database. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes a database service to an Internet-routable interface and weakens network segmentation.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.default\",\"issue_category\":\"unenforced encrypted database transport\",\"description\":\"The MySQL parameter group does not set `require_secure_transport` to enforce TLS. Consequently, clients permitted by the security group can connect to the database without encryption in transit, exposing credentials and query data to interception within reachable network paths.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The instance role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Because this policy is attached through the EC2 instance profile, compromise of the instance yields broad control-plane and data-plane access, including opportunities to access data and modify infrastructure.\",\"severity\":\"critical\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credentials in user data\",\"description\":\"The EC2 user-data script writes the database username and `var.password` into a PHP configuration file. User data is retained in Terraform state and is accessible through instance metadata/EC2 control-plane access, expanding exposure of the database credential rather than retrieving it from a secrets-management service at runtime.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted database security-group egress\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0` for egress. This removes outbound network restriction for a sensitive database interface and permits arbitrary external connections if the database service or an associated path is compromised.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.019506
+}

@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:36:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy (wildcard actions and resources)",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the deploy user full control over all EC2 instances, S3 buckets, Lambda functions, and CloudWatch data in the account. This is effectively broad administrative access with no least-privilege scoping, so compromise of this identity (which also owns a static access key) permits data exfiltration, resource destruction, and disabling of logging/monitoring.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is minted for the svc-deploy user, which holds the wildcard administrative policy above. Static long-lived secrets cannot be scoped to a session, are not rotated automatically, and are stored in Terraform state, so their disclosure grants durable full access to EC2/S3/Lambda/CloudWatch. Prefer short-lived roles/STS credentials over static users when the workload is not a true external identity.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed as output",
+      "description": "The configuration outputs the access key's encrypted_secret as a root-level output value. Output values are persisted in state and printed by any CI/CD pipeline or caller that reads them, expanding the credential's blast radius; secrets should not be surfaced as Terraform outputs, and no pgp_key is provided so the encryption guarantee the field name implies is absent.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "sensitive account identifier exposed as output",
+      "description": "The deploy user's name is exported as an output, disclosing the account's privileged deploy identity name to anyone who can read plan/apply output or state. This is a low-impact information disclosure that aids targeted attacks against the identity, but is not a standalone vulnerability.",
+      "severity": "informational",
+      "cwe": "CWE-200",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force_destroy bypasses deletion protections",
+      "description": "force_destroy = true allows the deploy user to be destroyed even while it still has attached policies and access keys, so a destroy operation can silently remove the account and its credentials without an explicit cleanup step. This weakens change-control safeguards over a privileged identity.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 2385,
+  "latency_s": 11.842,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy (wildcard actions and resources)\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the deploy user full control over all EC2 instances, S3 buckets, Lambda functions, and CloudWatch data in the account. This is effectively broad administrative access with no least-privilege scoping, so compromise of this identity (which also owns a static access key) permits data exfiltration, resource destruction, and disabling of logging/monitoring.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is minted for the svc-deploy user, which holds the wildcard administrative policy above. Static long-lived secrets cannot be scoped to a session, are not rotated automatically, and are stored in Terraform state, so their disclosure grants durable full access to EC2/S3/Lambda/CloudWatch. Prefer short-lived roles/STS credentials over static users when the workload is not a true external identity.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential material exposed as output\", \"description\": \"The configuration outputs the access key's encrypted_secret as a root-level output value. Output values are persisted in state and printed by any CI/CD pipeline or caller that reads them, expanding the credential's blast radius; secrets should not be surfaced as Terraform outputs, and no pgp_key is provided so the encryption guarantee the field name implies is absent.\", \"severity\": \"low\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"sensitive account identifier exposed as output\", \"description\": \"The deploy user's name is exported as an output, disclosing the account's privileged deploy identity name to anyone who can read plan/apply output or state. This is a low-impact information disclosure that aids targeted attacks against the identity, but is not a standalone vulnerability.\", \"severity\": \"informational\", \"cwe\": \"CWE-200\", \"confidence\": \"low\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force_destroy bypasses deletion protections\", \"description\": \"force_destroy = true allows the deploy user to be destroyed even while it still has attached policies and access keys, so a destroy operation can silently remove the account and its credentials without an explicit cleanup step. This weakens change-control safeguards over a privileged identity.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 2385,
+      "latency_s": 11.842,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000849
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000849
+}

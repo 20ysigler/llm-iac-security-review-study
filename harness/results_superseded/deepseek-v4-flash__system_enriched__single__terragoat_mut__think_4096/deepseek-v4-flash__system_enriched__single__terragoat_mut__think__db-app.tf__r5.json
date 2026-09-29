@@ -1,0 +1,85 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-22T02:10:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public IP/DNS endpoint reachable from outside the VPC. A database holding application data should never be internet-addressable; reachability is then governed only by a security group rule, which is a single line of defence.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS storage volume, its snapshots, and automated backups unencrypted at rest, so anyone with access to the underlying storage or a snapshot copy can read the data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data bootstrap script writes the live database password (${var.password}), username, and endpoint in cleartext into /var/www/inc/dbinfo.inc and into the instance user data itself, which is readable via the instance metadata service by any process or SSRF on the host. Secrets should be delivered from a secrets manager or IAM-authenticated role, not baked into launch scripts.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "This policy attached to the app role grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the EC2 instance full control of storage, compute, and databases across the account. Combined with the internet-facing web application that assumes this role, any compromise of the host yields unrestricted account-wide access and a direct privilege-escalation path.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and all ports (protocol = \"-1\", 0-0) to 0.0.0.0/0. Combined with the publicly accessible instance, this removes any egress restriction that would otherwise limit data exfiltration from a compromised database host.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 2616,
+  "latency_s": 13.772,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, assigning it a public IP/DNS endpoint reachable from outside the VPC. A database holding application data should never be internet-addressable; reachability is then governed only by a security group rule, which is a single line of defence.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS storage volume, its snapshots, and automated backups unencrypted at rest, so anyone with access to the underlying storage or a snapshot copy can read the data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data bootstrap script writes the live database password (${var.password}), username, and endpoint in cleartext into /var/www/inc/dbinfo.inc and into the instance user data itself, which is readable via the instance metadata service by any process or SSRF on the host. Secrets should be delivered from a secrets manager or IAM-authenticated role, not baked into launch scripts.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"This policy attached to the app role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the EC2 instance full control of storage, compute, and databases across the account. Combined with the internet-facing web application that assumes this role, any compromise of the host yields unrestricted account-wide access and a direct privilege-escalation path.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all protocols and all ports (protocol = \\\"-1\\\", 0-0) to 0.0.0.0/0. Combined with the publicly accessible instance, this removes any egress restriction that would otherwise limit data exfiltration from a compromised database host.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 2616,
+      "latency_s": 13.772,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.001236
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001236
+}

@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__db-app.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:43:40Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is set to false, meaning the RDS instance data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database directly to the internet and greatly increasing the attack surface for direct database attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/weak credentials",
+      "description": "The database uses a plaintext password variable and the default 'admin' username, and the password is later re-used in plaintext in EC2 user data, increasing risk of credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which can facilitate data exfiltration if the instance or database is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy attached to the EC2 role grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance to perform unrestricted actions across S3, EC2, and RDS if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 user_data script embeds the database password in plaintext, which is retrievable via the EC2 metadata service by anyone with access to the instance or API describe-instance-attribute permission, leading to credential exposure.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "lifecycle ignore_changes masking password rotation",
+      "description": "The lifecycle block ignores changes to password, meaning credential rotations via Terraform will not be applied to the actual resource, potentially leaving stale/compromised credentials in place.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7543,
+  "output_tokens": 1052,
+  "latency_s": 9.481,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is set to false, meaning the RDS instance data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database directly to the internet and greatly increasing the attack surface for direct database attacks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/weak credentials\", \"description\": \"The database uses a plaintext password variable and the default 'admin' username, and the password is later re-used in plaintext in EC2 user data, increasing risk of credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which can facilitate data exfiltration if the instance or database is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy attached to the EC2 role grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance to perform unrestricted actions across S3, EC2, and RDS if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 user_data script embeds the database password in plaintext, which is retrievable via the EC2 metadata service by anyone with access to the instance or API describe-instance-attribute permission, leading to credential exposure.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"lifecycle ignore_changes masking password rotation\", \"description\": \"The lifecycle block ignores changes to password, meaning credential rotations via Terraform will not be applied to the actual resource, potentially leaving stale/compromised credentials in place.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.025606
+}

@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:11:58Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Compromise of this user's long-lived key would permit full control of compute, storage, and serverless resources account-wide, enabling S3 data exfiltration and privilege escalation by creating or updating Lambda functions and EC2 instances that carry existing IAM roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is provisioned for a highly privileged service user with no rotation mechanism, instead of an IAM role issuing temporary STS credentials. Long-lived keys are a durable, frequently leaked credential vector.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret stored in cleartext state",
+      "description": "No pgp_key is supplied, so the secret access key is written to the Terraform state file in plaintext (the encrypted_secret attribute will be empty). Anyone with read access to the state backend obtains a credential with near-full ec2/s3/lambda privileges.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposed via module output",
+      "description": "Access key material is exported as a root module output without sensitive = true, so it can be rendered in plan/apply output, CI logs, and read by any module consumer via `terraform output`.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged user without boundary or MFA",
+      "description": "A service principal is modelled as an IAM user with static keys rather than an assumable role, and has neither a permissions boundary nor any MFA condition constraining use of its credentials, leaving no upper bound or second factor on the wildcard privileges it holds.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "principal name disclosure in output",
+      "description": "The IAM username of the highly privileged deploy user is exported as a non-sensitive output, disclosing a valid principal name that aids targeted credential attacks against the account. Low impact relative to the key material exposure.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-200"
+    }
+  ],
+  "input_tokens": 7996,
+  "output_tokens": 2549,
+  "latency_s": 30.644,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Compromise of this user's long-lived key would permit full control of compute, storage, and serverless resources account-wide, enabling S3 data exfiltration and privilege escalation by creating or updating Lambda functions and EC2 instances that carry existing IAM roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is provisioned for a highly privileged service user with no rotation mechanism, instead of an IAM role issuing temporary STS credentials. Long-lived keys are a durable, frequently leaked credential vector.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret stored in cleartext state\", \"description\": \"No pgp_key is supplied, so the secret access key is written to the Terraform state file in plaintext (the encrypted_secret attribute will be empty). Anyone with read access to the state backend obtains a credential with near-full ec2/s3/lambda privileges.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposed via module output\", \"description\": \"Access key material is exported as a root module output without sensitive = true, so it can be rendered in plan/apply output, CI logs, and read by any module consumer via `terraform output`.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged user without boundary or MFA\", \"description\": \"A service principal is modelled as an IAM user with static keys rather than an assumable role, and has neither a permissions boundary nor any MFA condition constraining use of its credentials, leaving no upper bound or second factor on the wildcard privileges it holds.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"principal name disclosure in output\", \"description\": \"The IAM username of the highly privileged deploy user is exported as a non-sensitive output, disclosing a valid principal name that aids targeted credential attacks against the account. Low impact relative to the key material exposure.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-200\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2060,
+      "output_tokens": 839,
+      "latency_s": 10.201,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031275
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2060,
+      "output_tokens": 725,
+      "latency_s": 9.208,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.028425
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3876,
+      "output_tokens": 985,
+      "latency_s": 11.235,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.044005
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.103705
+}

@@ -1,0 +1,87 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:01Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the database data and backups are stored without encryption at rest, exposing sensitive data if storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance to the public internet rather than confining it to the private network.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "database credentials ignored in lifecycle",
+      "description": "lifecycle ignore_changes = [\"password\"] means Terraform will not detect or remediate password drift, allowing the administrative password to be changed outside of IaC control without enforcement of the configured password.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all traffic (protocol -1, ports 0-0) to 0.0.0.0/0, permitting the database to reach any external host, which can be abused for data exfiltration if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The EC2 role policy grants wildcard actions across s3, ec2, and rds on all resources (\"*\"), far exceeding least privilege and allowing the instance to read/write any S3 data, perform arbitrary EC2 operations, and manage all RDS instances.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "user_data embeds the database password in plaintext (define('DB_PASSWORD', '${var.password}')), leaking the credential into instance user data where it is visible in the EC2 console and API, and permitting full database access from the compromised instance.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted in transit to app",
+      "description": "The web app connects to MySQL without TLS and the instance is used by the EC2 app over the public network, transmitting DB credentials and data in cleartext; no requiring_ssl parameter or encrypted transport is configured.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "insecure database access scope",
+      "description": "The database ingress is open to the entire VPC CIDR, and combined with publicly_accessible the DB can be reached beyond the intended applications; access lacks the principle of least privilege at the network layer.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4765,
+  "output_tokens": 782,
+  "latency_s": 8.48,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is set to false, so the database data and backups are stored without encryption at rest, exposing sensitive data if storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance to the public internet rather than confining it to the private network.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"database credentials ignored in lifecycle\", \"description\": \"lifecycle ignore_changes = [\\\"password\\\"] means Terraform will not detect or remediate password drift, allowing the administrative password to be changed outside of IaC control without enforcement of the configured password.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all traffic (protocol -1, ports 0-0) to 0.0.0.0/0, permitting the database to reach any external host, which can be abused for data exfiltration if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The EC2 role policy grants wildcard actions across s3, ec2, and rds on all resources (\\\"*\\\"), far exceeding least privilege and allowing the instance to read/write any S3 data, perform arbitrary EC2 operations, and manage all RDS instances.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"user_data embeds the database password in plaintext (define('DB_PASSWORD', '${var.password}')), leaking the credential into instance user data where it is visible in the EC2 console and API, and permitting full database access from the compromised instance.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted in transit to app\", \"description\": \"The web app connects to MySQL without TLS and the instance is used by the EC2 app over the public network, transmitting DB credentials and data in cleartext; no requiring_ssl parameter or encrypted transport is configured.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.ingress\", \"issue_category\": \"insecure database access scope\", \"description\": \"The database ingress is open to the entire VPC CIDR, and combined with publicly_accessible the DB can be reached beyond the intended applications; access lacks the principle of least privilege at the network layer.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000886
+}

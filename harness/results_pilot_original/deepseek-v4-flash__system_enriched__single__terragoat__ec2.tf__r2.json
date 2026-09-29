@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__ec2.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:20Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The user_data startup script embeds plaintext AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY values, leaking live credentials into instance metadata and any logs that capture the script. These credentials are exposed in the configuration, instance user data, and are retrievable by anyone with instance access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without setting encrypted = true, leaving the root/data volume unencrypted at rest as noted in the configuration comment.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created without enabling encryption, so the snapshot of the unencrypted volume is not encrypted at rest and may contain sensitive data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress on SSH",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative remote access to the entire internet.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress on HTTP",
+      "description": "The security group allows inbound TCP port 80 from 0.0.0.0/0. While web traffic on port 80 is expected, the web host serves HTTP without TLS, so the exposure combined with the lack of encryption constitutes cleartext web access. The primary concern here is the unrestricted exposure of the instance to the internet without a restrictive boundary.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to instances in this subnet, exposing the instance to the internet even without explicit elastic IP assignment.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to instances in this subnet, exposing the instance to the internet.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4401,
+  "output_tokens": 681,
+  "latency_s": 6.74,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user_data\", \"description\": \"The user_data startup script embeds plaintext AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY values, leaking live credentials into instance metadata and any logs that capture the script. These credentials are exposed in the configuration, instance user data, and are retrievable by anyone with instance access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without setting encrypted = true, leaving the root/data volume unencrypted at rest as noted in the configuration comment.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is created without enabling encryption, so the snapshot of the unencrypted volume is not encrypted at rest and may contain sensitive data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress on SSH\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative remote access to the entire internet.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress on HTTP\", \"description\": \"The security group allows inbound TCP port 80 from 0.0.0.0/0. While web traffic on port 80 is expected, the web host serves HTTP without TLS, so the exposure combined with the lack of encryption constitutes cleartext web access. The primary concern here is the unrestricted exposure of the instance to the internet without a restrictive boundary.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IPs to instances in this subnet, exposing the instance to the internet even without explicit elastic IP assignment.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IPs to instances in this subnet, exposing the instance to the internet.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000807
+}

@@ -1,0 +1,143 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__ec2.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:34Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true, so every instance launched into it receives a public IP address and is directly addressable from the internet. Combined with the route table association to a route table containing a 0.0.0.0/0 route via the internet gateway, all instances here are publicly reachable by default.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true, so instances launched into it are assigned public IPs and are directly reachable from untrusted networks. This subnet is also associated with the route table that has an internet gateway default route.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_route.portal_default_route",
+      "issue_category": "internet gateway default route",
+      "description": "A 0.0.0.0/0 route directs all outbound traffic from the associated subnets to the internet gateway, making both portal subnets public. When combined with map_public_ip_on_launch on those subnets, the workload is exposed to the internet with no network boundary.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_route_table_association.portal_routes_a",
+      "issue_category": "public subnet exposure",
+      "description": "Associates subnet A with the route table containing the 0.0.0.0/0 internet gateway route, placing the subnet on the public internet path rather than a private route table.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_route_table_association.portal_routes_b",
+      "issue_category": "public subnet exposure",
+      "description": "Associates subnet B with the route table containing the 0.0.0.0/0 internet gateway route, placing the subnet on the public internet path rather than a private route table.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.portal_public_dns",
+      "issue_category": "internal hostname disclosure",
+      "description": "The output exposes aws_instance.portal_server.public_dns, publishing the instance's public DNS name to anyone with access to Terraform state or outputs. This aids reconnaissance against the internet-facing portal server.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true and no KMS key is specified, so data written to the portal server disk is stored unencrypted at rest. Snapshots taken from this volume (aws_ebs_snapshot.portal_disk_backup) will also be unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The instance's user_data script embeds a static AWS access key ID and secret access key in plaintext. user_data is stored unencrypted and is readable via the instance metadata service and the EC2 console/API by anyone with describe permissions, so these long-lived credentials are effectively disclosed.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "An ingress rule allows TCP/22 (SSH) from 0.0.0.0/0, exposing remote administration of the instance to the entire internet and enabling brute-force or credential-stuffing attacks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "Egress permits all protocols and all ports to 0.0.0.0/0, so a compromised instance can exfiltrate data or reach arbitrary external hosts without restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5379,
+  "output_tokens": 1215,
+  "latency_s": 7.198,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1878,
+      "output_tokens": 764,
+      "latency_s": 3.607,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000477
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2075,
+      "output_tokens": 416,
+      "latency_s": 2.356,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000407
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1426,
+      "output_tokens": 35,
+      "latency_s": 1.235,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000209
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.001093
+}

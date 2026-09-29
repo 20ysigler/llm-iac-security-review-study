@@ -1,0 +1,61 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__lambda.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:46:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials",
+      "description": "AWS access key and secret key are hardcoded in plaintext as Lambda environment variables, exposing long-lived credentials to anyone with read access to the Terraform state, code repository, or Lambda console/API. This is a critical credential leak (matches AWS example key pattern) that could allow full account compromise if the underlying key is real or if the pattern is mistakenly reused.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted sensitive environment variables",
+      "description": "The Lambda function does not configure a customer-managed KMS key for environment variable encryption, and sensitive secrets are stored directly in environment variables rather than a secrets manager, increasing exposure risk for the embedded credentials.",
+      "severity": "medium",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2310,
+  "output_tokens": 369,
+  "latency_s": 4.258,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials\", \"description\": \"AWS access key and secret key are hardcoded in plaintext as Lambda environment variables, exposing long-lived credentials to anyone with read access to the Terraform state, code repository, or Lambda console/API. This is a critical credential leak (matches AWS example key pattern) that could allow full account compromise if the underlying key is real or if the pattern is mistakenly reused.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted sensitive environment variables\", \"description\": \"The Lambda function does not configure a customer-managed KMS key for environment variable encryption, and sensitive secrets are stored directly in environment variables rather than a secrets manager, increasing exposure risk for the embedded credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2310,
+      "output_tokens": 369,
+      "latency_s": 4.258,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00831
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00831
+}

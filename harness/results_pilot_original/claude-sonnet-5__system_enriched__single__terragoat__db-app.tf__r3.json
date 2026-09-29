@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:47:16Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's data, including any employee/customer data, is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance to the internet and significantly widening the attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The database password is passed via var.password and used directly; combined with lifecycle ignore_changes on password, credential rotation is effectively disabled and the master password is likely stored in plaintext state and variable definitions.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database username, password, and endpoint in plaintext PHP files (dbinfo.inc) and in the instance's user data, which is readable via the EC2 metadata service and stored in Terraform state, exposing DB credentials to anyone with access to the instance or its metadata.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on all resources (\"Resource\": \"*\") to the EC2 instance role, violating least privilege and allowing the instance (which is likely internet-facing and has hard-coded DB credentials) to fully control S3, EC2, and RDS resources if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, which could facilitate data exfiltration if the database or associated resources are compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "no encryption in transit for database connection",
+      "description": "The PHP application connects to MySQL via mysqli_connect without enforcing TLS/SSL, sending credentials and query data in cleartext between the EC2 instance and the RDS database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1138,
+  "latency_s": 10.246,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's data, including any employee/customer data, is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance to the internet and significantly widening the attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The database password is passed via var.password and used directly; combined with lifecycle ignore_changes on password, credential rotation is effectively disabled and the master password is likely stored in plaintext state and variable definitions.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username, password, and endpoint in plaintext PHP files (dbinfo.inc) and in the instance's user data, which is readable via the EC2 metadata service and stored in Terraform state, exposing DB credentials to anyone with access to the instance or its metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on all resources (\\\"Resource\\\": \\\"*\\\") to the EC2 instance role, violating least privilege and allowing the instance (which is likely internet-facing and has hard-coded DB credentials) to fully control S3, EC2, and RDS resources if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, which could facilitate data exfiltration if the database or associated resources are compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"no encryption in transit for database connection\", \"description\": \"The PHP application connects to MySQL via mysqli_connect without enforcing TLS/SSL, sending credentials and query data in cleartext between the EC2 instance and the RDS database.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.02614
+}

@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:55:45Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance is not encrypted, violating encryption-at-rest requirements for sensitive data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The master username is hard-coded to 'admin' and the password is sourced from var.password with no secrets manager integration, and this same secret is embedded in plaintext in the EC2 user_data script, risking credential leakage via instance metadata, console output, or state files.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and password in plaintext within a PHP file on disk, which is retrievable via the EC2 instance metadata service (IMDS) and readable by anyone with instance, console, or Terraform state access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants full wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege. This is especially severe because the role is attached to an EC2 instance that is likely internet-facing, so compromise of the instance yields near-account-wide access.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "undefined/unreviewable security group referenced by internet-facing instance",
+      "description": "aws_instance.db_app attaches vpc_security_group_ids referencing aws_security_group.web-node, which is not defined in this file; combined with the instance's user_data serving a public web app, its ingress rules could not be verified and warrant review, but cannot be confirmed as a vulnerability from this file alone.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 15994,
+  "output_tokens": 1942,
+  "latency_s": 18.485,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance is not encrypted, violating encryption-at-rest requirements for sensitive data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The master username is hard-coded to 'admin' and the password is sourced from var.password with no secrets manager integration, and this same secret is embedded in plaintext in the EC2 user_data script, risking credential leakage via instance metadata, console output, or state files.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and password in plaintext within a PHP file on disk, which is retrievable via the EC2 instance metadata service (IMDS) and readable by anyone with instance, console, or Terraform state access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants full wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege. This is especially severe because the role is attached to an EC2 instance that is likely internet-facing, so compromise of the instance yields near-account-wide access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"undefined/unreviewable security group referenced by internet-facing instance\", \"description\": \"aws_instance.db_app attaches vpc_security_group_ids referencing aws_security_group.web-node, which is not defined in this file; combined with the instance's user_data serving a public web app, its ingress rules could not be verified and warrant review, but cannot be confirmed as a vulnerability from this file alone.\", \"severity\": \"informational\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7380,
+      "output_tokens": 1054,
+      "latency_s": 9.957,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.0253
+    },
+    {
+      "step": "critique",
+      "input_tokens": 8614,
+      "output_tokens": 888,
+      "latency_s": 8.528,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.026108
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.051408
+}

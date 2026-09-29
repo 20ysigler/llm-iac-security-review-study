@@ -1,0 +1,77 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:06:04Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credential exposure",
+      "description": "The database password is interpolated into EC2 user data and written to /var/www/inc/dbinfo.inc. EC2 user data is retrievable by principals with instance metadata/user-data access and can be exposed through Terraform state or instance access, making the database credential easier to compromise.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "public database exposure",
+      "description": "The RDS instance sets publicly_accessible = true, causing it to receive a public network endpoint. Although the shown security group restricts MySQL ingress to the VPC CIDR, the public endpoint unnecessarily expands attack surface and can become externally reachable if that network rule changes or other rules are added.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The database explicitly sets storage_encrypted = false, leaving RDS storage, automated backups, snapshots, and replicas created from it unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive instance policy",
+      "description": "The policy grants the EC2 instance role unrestricted s3:*, ec2:*, and rds:* permissions against every resource. A compromise of the application instance or its role credentials would permit broad account-wide data access and infrastructure modification, including likely privilege-escalation paths through EC2 and IAM-adjacent service actions.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3098,
+  "output_tokens": 369,
+  "latency_s": 7.31,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"database credential exposure\",\"description\":\"The database password is interpolated into EC2 user data and written to /var/www/inc/dbinfo.inc. EC2 user data is retrievable by principals with instance metadata/user-data access and can be exposed through Terraform state or instance access, making the database credential easier to compromise.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"public database exposure\",\"description\":\"The RDS instance sets publicly_accessible = true, causing it to receive a public network endpoint. Although the shown security group restricts MySQL ingress to the VPC CIDR, the public endpoint unnecessarily expands attack surface and can become externally reachable if that network rule changes or other rules are added.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The database explicitly sets storage_encrypted = false, leaving RDS storage, automated backups, snapshots, and replicas created from it unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive instance policy\",\"description\":\"The policy grants the EC2 instance role unrestricted s3:*, ec2:*, and rds:* permissions against every resource. A compromise of the application instance or its role credentials would permit broad account-wide data access and infrastructure modification, including likely privilege-escalation paths through EC2 and IAM-adjacent service actions.\",\"severity\":\"critical\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3098,
+      "output_tokens": 369,
+      "latency_s": 7.31,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010624
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.010624
+}

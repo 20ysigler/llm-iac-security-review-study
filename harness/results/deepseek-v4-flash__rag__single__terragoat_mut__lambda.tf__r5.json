@@ -1,0 +1,68 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__lambda.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:57Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in configuration",
+      "description": "The Lambda function's environment variables contain hardcoded plaintext AWS credentials (access_key = \"AKIAIOSFODNN7EXAMPLE\" and secret_key = \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"). These are committed to source control and readable by anyone with lambda:GetFunctionConfiguration, so the credentials must be treated as compromised and rotated immediately; secrets should come from Secrets Manager or SSM Parameter Store via the execution role.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses runtime \"nodejs12.x\", which is end-of-life and no longer receives security patches, leaving known vulnerabilities unpatched in a function that holds credentials.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing least-privilege permissions boundary",
+      "description": "The role has no permissions boundary and no attached policy documented at all, while the function embeds long-lived static credentials in its environment; without a boundary or scoped permissions defined in code, effective permissions cannot be constrained or audited per the least-privilege guidance.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 2078,
+  "output_tokens": 376,
+  "latency_s": 2.538,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in configuration\", \"description\": \"The Lambda function's environment variables contain hardcoded plaintext AWS credentials (access_key = \\\"AKIAIOSFODNN7EXAMPLE\\\" and secret_key = \\\"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\\\"). These are committed to source control and readable by anyone with lambda:GetFunctionConfiguration, so the credentials must be treated as compromised and rotated immediately; secrets should come from Secrets Manager or SSM Parameter Store via the execution role.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses runtime \\\"nodejs12.x\\\", which is end-of-life and no longer receives security patches, leaving known vulnerabilities unpatched in a function that holds credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing least-privilege permissions boundary\", \"description\": \"The role has no permissions boundary and no attached policy documented at all, while the function embeds long-lived static credentials in its environment; without a boundary or scoped permissions defined in code, effective permissions cannot be constrained or audited per the least-privilege guidance.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2078,
+      "output_tokens": 376,
+      "latency_s": 2.538,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000396
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000396
+}

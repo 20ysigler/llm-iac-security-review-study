@@ -1,0 +1,127 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__ec2.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:19Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server is created without an encrypted flag and without a KMS key, so the disk's data is stored unencrypted and readable by anyone who obtains the underlying volume or snapshot.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true on a subnet associated with a route table that has a 0.0.0.0/0 route to an internet gateway, so any instance launched here receives a public IP and is directly reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true on this subnet, which is also associated with the internet-routed route table portal_routes, exposing instances launched in it to the public internet by default.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hard-coded credentials in user_data",
+      "description": "The EC2 user_data script embeds a literal AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). user_data is readable from instance metadata and via the EC2 API by anyone with DescribeInstanceAttribute permission, so these long-lived credentials are effectively disclosed.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted SSH ingress",
+      "description": "The ingress rule allows TCP/22 from 0.0.0.0/0, exposing SSH administration of the instance to the entire internet and enabling brute-force or credential-stuffing attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted ingress",
+      "description": "TCP/80 is open to 0.0.0.0/0, publishing the web service to the public internet with no network boundary. Combined with the open SSH rule and the plaintext user_data credentials this instance is directly reachable by any host.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption at rest",
+      "description": "The S3 bucket used as the VPC flow log destination has no server-side encryption configuration, so flow log records (which capture source/destination IPs, ports and traffic metadata) are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing public access block",
+      "description": "The bucket has no aws_s3_bucket_public_access_block and no bucket policy restricting access, and force_destroy = true allows the contents to be destroyed with the bucket. Without S3 Block Public Access the bucket relies on defaults alone to prevent public exposure of the flow log archive.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5379,
+  "output_tokens": 937,
+  "latency_s": 6.442,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1878,
+      "output_tokens": 331,
+      "latency_s": 1.932,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000356
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2075,
+      "output_tokens": 571,
+      "latency_s": 3.244,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.00045
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1426,
+      "output_tokens": 35,
+      "latency_s": 1.266,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000209
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.001015
+}

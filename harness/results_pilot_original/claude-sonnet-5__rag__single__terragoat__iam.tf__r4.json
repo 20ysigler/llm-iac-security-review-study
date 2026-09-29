@@ -1,0 +1,55 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:56:38Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this user to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "An IAM access key is created for a human/service IAM user rather than relying on temporary credentials or federated roles, creating a long-lived static credential that can be leaked or compromised without automatic rotation.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret exposure via output",
+      "description": "The encrypted_secret of the IAM access key is exposed as a Terraform output, making the credential material readable by anyone with access to state or output logs, widening exposure of a sensitive secret beyond the intended audience.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "unnecessary IAM user with force_destroy",
+      "description": "Creating a standalone IAM user with force_destroy=true and attaching an access key encourages use of static, long-lived credentials rather than temporary/federated identities, increasing the attack surface for credential compromise.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 3639,
+  "output_tokens": 667,
+  "latency_s": 6.943,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this user to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"An IAM access key is created for a human/service IAM user rather than relying on temporary credentials or federated roles, creating a long-lived static credential that can be leaked or compromised without automatic rotation.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret exposure via output\", \"description\": \"The encrypted_secret of the IAM access key is exposed as a Terraform output, making the credential material readable by anyone with access to state or output logs, widening exposure of a sensitive secret beyond the intended audience.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"unnecessary IAM user with force_destroy\", \"description\": \"Creating a standalone IAM user with force_destroy=true and attaching an access key encourages use of static, long-lived credentials rather than temporary/federated identities, increasing the attack surface for credential compromise.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.013948
+}

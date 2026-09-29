@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:28Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the service user near-administrative control over compute, storage, and serverless resources in the account. Compromise of this user's credentials would allow data exfiltration from any S3 bucket and arbitrary EC2/Lambda execution.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for the user with no PGP key specified, so the secret is stored in plaintext in Terraform state. Long-lived static keys attached to a highly privileged user are a prime credential-theft target and should be replaced with IAM roles / STS short-lived credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "missing PGP encryption for secret",
+      "description": "No pgp_key is configured, so the access key secret is written unencrypted to the Terraform state file; the referenced encrypted_secret attribute will be empty/null without it.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "Outputting access key material (aws_iam_access_key.svc_deploy_key.encrypted_secret) exposes the credential through terraform output and the state file; the output is not marked sensitive, so it can be printed to CI logs.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged user without MFA",
+      "description": "A long-lived IAM user with broad wildcard permissions is created with no MFA enforcement or permissions boundary, relying solely on static access keys for authentication.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    }
+  ],
+  "input_tokens": 1638,
+  "output_tokens": 811,
+  "latency_s": 9.611,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the service user near-administrative control over compute, storage, and serverless resources in the account. Compromise of this user's credentials would allow data exfiltration from any S3 bucket and arbitrary EC2/Lambda execution.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for the user with no PGP key specified, so the secret is stored in plaintext in Terraform state. Long-lived static keys attached to a highly privileged user are a prime credential-theft target and should be replaced with IAM roles / STS short-lived credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"missing PGP encryption for secret\", \"description\": \"No pgp_key is configured, so the access key secret is written unencrypted to the Terraform state file; the referenced encrypted_secret attribute will be empty/null without it.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"Outputting access key material (aws_iam_access_key.svc_deploy_key.encrypted_secret) exposes the credential through terraform output and the state file; the output is not marked sensitive, so it can be printed to CI logs.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged user without MFA\", \"description\": \"A long-lived IAM user with broad wildcard permissions is created with no MFA enforcement or permissions boundary, relying solely on static access keys for authentication.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1638,
+      "output_tokens": 811,
+      "latency_s": 9.611,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.028465
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.028465
+}

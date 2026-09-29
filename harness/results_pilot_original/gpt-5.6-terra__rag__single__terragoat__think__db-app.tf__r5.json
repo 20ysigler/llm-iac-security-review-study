@@ -1,0 +1,97 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:44:01Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "RDS storage encryption is explicitly disabled with `storage_encrypted = false`. Database contents, snapshots, and automated backups are therefore not protected by encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "`publicly_accessible = true` assigns the database a public network endpoint. Although the shown security-group ingress is VPC-scoped, exposing the database publicly unnecessarily expands its reachable attack surface and makes later security-group mistakes internet-exposing.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "unenforced database transport encryption",
+      "description": "The custom MySQL parameter group does not set `require_secure_transport=ON`, leaving MySQL's default of permitting non-TLS client connections in effect. The application connection configuration also does not establish TLS, so database credentials and data can traverse the VPC unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overbroad database ingress",
+      "description": "MySQL port 3306 is allowed from the entire VPC CIDR rather than only from the application security group or narrowly defined application subnets. Any compromised or unintended workload in the VPC can attempt to access the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted database egress",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0`. This provides an unrestricted outbound path from a database-facing network interface, contrary to egress least privilege.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overprivileged instance role",
+      "description": "The EC2 instance role grants every action in S3, EC2, and RDS against every resource. Compromise of the web instance or its role credentials would permit broad control of infrastructure and access to data well beyond the application's requirements.",
+      "severity": "critical",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credential in user data",
+      "description": "The database password is interpolated into EC2 `user_data` and written into a PHP configuration file. User data is retrievable through EC2 instance metadata and AWS describe APIs for principals with relevant access, exposing the database credential outside a secrets-management system.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No `metadata_options` configuration requires IMDSv2, so the instance permits the legacy IMDSv1 credential retrieval path. A server-side request forgery in the web application could retrieve the highly privileged instance-role credentials.",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "default database administrator name",
+      "description": "The database uses the predictable administrative username `admin`. This retains a default-style privileged account name, reducing the uncertainty an attacker faces when attempting credential attacks.",
+      "severity": "low",
+      "cwe": "CWE-1392",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4935,
+  "output_tokens": 1084,
+  "latency_s": 11.763,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unencrypted database storage\",\"description\":\"RDS storage encryption is explicitly disabled with `storage_encrypted = false`. Database contents, snapshots, and automated backups are therefore not protected by encryption at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"description\":\"`publicly_accessible = true` assigns the database a public network endpoint. Although the shown security-group ingress is VPC-scoped, exposing the database publicly unnecessarily expands its reachable attack surface and makes later security-group mistakes internet-exposing.\",\"severity\":\"high\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.default\",\"issue_category\":\"unenforced database transport encryption\",\"description\":\"The custom MySQL parameter group does not set `require_secure_transport=ON`, leaving MySQL's default of permitting non-TLS client connections in effect. The application connection configuration also does not establish TLS, so database credentials and data can traverse the VPC unencrypted.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.ingress\",\"issue_category\":\"overbroad database ingress\",\"description\":\"MySQL port 3306 is allowed from the entire VPC CIDR rather than only from the application security group or narrowly defined application subnets. Any compromised or unintended workload in the VPC can attempt to access the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted database egress\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0`. This provides an unrestricted outbound path from a database-facing network interface, contrary to egress least privilege.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overprivileged instance role\",\"description\":\"The EC2 instance role grants every action in S3, EC2, and RDS against every resource. Compromise of the web instance or its role credentials would permit broad control of infrastructure and access to data well beyond the application's requirements.\",\"severity\":\"critical\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credential in user data\",\"description\":\"The database password is interpolated into EC2 `user_data` and written into a PHP configuration file. User data is retrievable through EC2 instance metadata and AWS describe APIs for principals with relevant access, exposing the database credential outside a secrets-management system.\",\"severity\":\"high\",\"cwe\":\"CWE-312\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No `metadata_options` configuration requires IMDSv2, so the instance permits the legacy IMDSv1 credential retrieval path. A server-side request forgery in the web application could retrieve the highly privileged instance-role credentials.\",\"severity\":\"high\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"default database administrator name\",\"description\":\"The database uses the predictable administrative username `admin`. This retains a default-style privileged account name, reducing the uncertainty an attacker faces when attempting credential attacks.\",\"severity\":\"low\",\"cwe\":\"CWE-1392\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.022878
+}

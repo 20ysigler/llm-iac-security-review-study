@@ -1,0 +1,79 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__ec2.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:41:29Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded cloud credentials",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "Long-lived AWS access key credentials are embedded in EC2 user data, placing them in Terraform source/state and making them readable through instance user-data/describe access. Anyone obtaining these credentials can authenticate as the associated IAM principal until they are revoked."
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-918",
+      "description": "No metadata_options block requires IMDSv2, so the instance can permit IMDSv1. An SSRF flaw on this internet-exposed host could be used to retrieve instance-profile credentials if an instance profile is later attached."
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The EBS volume does not explicitly enable encryption; absent an account-level default-encryption control, data written to it is stored unencrypted and can be exposed through unauthorized access to underlying storage or snapshots."
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted storage snapshot",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "This snapshot is created from a volume that is not configured for encryption, so it preserves unencrypted volume data and extends the exposure of that data."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "TCP port 22 is open to 0.0.0.0/0, allowing any internet host to attempt SSH authentication and materially increasing brute-force and remote-access attack surface."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound access",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "The security group permits all protocols and ports to 0.0.0.0/0. This gives a compromised web host unrestricted egress for command-and-control and data exfiltration."
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing bucket encryption",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The bucket storing VPC Flow Logs has no server-side encryption configuration. Unless an external account-level default encryption control is enforced, log objects may be stored without explicit encryption at rest."
+    }
+  ],
+  "input_tokens": 4665,
+  "output_tokens": 544,
+  "latency_s": 5.222,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hardcoded cloud credentials\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"Long-lived AWS access key credentials are embedded in EC2 user data, placing them in Terraform source/state and making them readable through instance user-data/describe access. Anyone obtaining these credentials can authenticate as the associated IAM principal until they are revoked.\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"IMDSv1 not disabled\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-918\",\"description\":\"No metadata_options block requires IMDSv2, so the instance can permit IMDSv1. An SSRF flaw on this internet-exposed host could be used to retrieve instance-profile credentials if an instance profile is later attached.\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The EBS volume does not explicitly enable encryption; absent an account-level default-encryption control, data written to it is stored unencrypted and can be exposed through unauthorized access to underlying storage or snapshots.\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted storage snapshot\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"This snapshot is created from a volume that is not configured for encryption, so it preserves unencrypted volume data and extends the exposure of that data.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"TCP port 22 is open to 0.0.0.0/0, allowing any internet host to attempt SSH authentication and materially increasing brute-force and remote-access attack surface.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound access\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"The security group permits all protocols and ports to 0.0.0.0/0. This gives a compromised web host unrestricted egress for command-and-control and data exfiltration.\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing bucket encryption\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The bucket storing VPC Flow Logs has no server-side encryption configuration. Unless an external account-level default encryption control is enforced, log objects may be stored without explicit encryption at rest.\"}]}",
+  "cost_usd": 0.015858
+}

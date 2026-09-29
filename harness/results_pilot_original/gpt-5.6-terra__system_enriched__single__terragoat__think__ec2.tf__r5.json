@@ -1,0 +1,97 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__ec2.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:41:45Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key in cleartext. User data is retrievable by principals with instance/user-data access and may be retained in Terraform state or source control, allowing credential theft and use outside the instance.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "encryption not enforced",
+      "description": "The EBS volume does not set `encrypted = true` or a KMS key. Its encryption therefore depends on an account-level default not enforced by this configuration, so data may be stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot data",
+      "description": "This snapshot is created from `aws_ebs_volume.web_host_storage`, whose encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this configuration can create an unencrypted copy of the volume data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is permitted from `0.0.0.0/0`, exposing remote administrative access to any Internet host. The associated instance is placed in a public subnet with a default route to an Internet gateway, making this reachability actionable.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unencrypted public HTTP",
+      "description": "TCP/80 is allowed from `0.0.0.0/0`, while the instance user data installs and starts Apache HTTP without configuring TLS. Requests to the public web service can therefore be transmitted in cleartext and are exposed to interception or modification in transit.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The security group permits all protocols and ports to `0.0.0.0/0`. This removes egress segmentation and enables unrestricted outbound communications, including data exfiltration or command-and-control traffic if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. Combined with the Internet-gateway default route and the attached instance's permissive ingress rules, the web host is directly Internet reachable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "`map_public_ip_on_launch = true` automatically exposes future instances launched in this subnet with public IPv4 addresses. This subnet is also associated with a route table that has a default route through the Internet gateway.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "encryption not enforced",
+      "description": "The bucket storing VPC flow logs has no bucket encryption configuration. Although a provider/account default may apply, this Terraform configuration does not enforce encryption at rest for potentially sensitive network telemetry.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3779,
+  "output_tokens": 1164,
+  "latency_s": 12.078,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key in cleartext. User data is retrievable by principals with instance/user-data access and may be retained in Terraform state or source control, allowing credential theft and use outside the instance.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"encryption not enforced\",\"description\":\"The EBS volume does not set `encrypted = true` or a KMS key. Its encryption therefore depends on an account-level default not enforced by this configuration, so data may be stored unencrypted at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted snapshot data\",\"description\":\"This snapshot is created from `aws_ebs_volume.web_host_storage`, whose encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this configuration can create an unencrypted copy of the volume data.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is permitted from `0.0.0.0/0`, exposing remote administrative access to any Internet host. The associated instance is placed in a public subnet with a default route to an Internet gateway, making this reachability actionable.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unencrypted public HTTP\",\"description\":\"TCP/80 is allowed from `0.0.0.0/0`, while the instance user data installs and starts Apache HTTP without configuring TLS. Requests to the public web service can therefore be transmitted in cleartext and are exposed to interception or modification in transit.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The security group permits all protocols and ports to `0.0.0.0/0`. This removes egress segmentation and enables unrestricted outbound communications, including data exfiltration or command-and-control traffic if the instance is compromised.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. Combined with the Internet-gateway default route and the attached instance's permissive ingress rules, the web host is directly Internet reachable.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet2\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"`map_public_ip_on_launch = true` automatically exposes future instances launched in this subnet with public IPv4 addresses. This subnet is also associated with a route table that has a default route through the Internet gateway.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"encryption not enforced\",\"description\":\"The bucket storing VPC flow logs has no bucket encryption configuration. Although a provider/account default may apply, this Terraform configuration does not enforce encryption at rest for potentially sensitive network telemetry.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.021526
+}

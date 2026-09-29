@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__db-app.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:09:21Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS MySQL instance's underlying storage, snapshots, and automated backups are not encrypted at rest, exposing data to unauthorized access if the underlying storage or snapshots are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, assigning a publicly routable endpoint to the database instance. Even though the attached security group restricts ingress to the VPC CIDR, exposing a database directly to the internet increases attack surface and violates network segmentation best practices for a data tier that should only be reachable from application servers.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* actions on Resource \"*\", giving the EC2 instance role far more privilege than needed to serve a web application. Since this role is attached to an EC2 instance with user data containing database credentials, compromise of the instance would grant an attacker broad control over S3, EC2, and RDS resources account-wide (privilege escalation / lateral movement risk).",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the RDS database password and username in plaintext (DB_PASSWORD defined from var.password) inside a file written to disk. EC2 user data is retrievable via the instance metadata service and via the ec2:DescribeInstanceAttribute API (which this instance's own IAM role, and potentially other principals with ec2:* permissions, can call), exposing database credentials in cleartext to anyone with access to the instance or appropriate API permissions.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 7254,
+  "output_tokens": 2979,
+  "latency_s": 31.196,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS MySQL instance's underlying storage, snapshots, and automated backups are not encrypted at rest, exposing data to unauthorized access if the underlying storage or snapshots are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, assigning a publicly routable endpoint to the database instance. Even though the attached security group restricts ingress to the VPC CIDR, exposing a database directly to the internet increases attack surface and violates network segmentation best practices for a data tier that should only be reachable from application servers.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* actions on Resource \\\"*\\\", giving the EC2 instance role far more privilege than needed to serve a web application. Since this role is attached to an EC2 instance with user data containing database credentials, compromise of the instance would grant an attacker broad control over S3, EC2, and RDS resources account-wide (privilege escalation / lateral movement risk).\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the RDS database password and username in plaintext (DB_PASSWORD defined from var.password) inside a file written to disk. EC2 user data is retrievable via the instance metadata service and via the ec2:DescribeInstanceAttribute API (which this instance's own IAM role, and potentially other principals with ec2:* permissions, can call), exposing database credentials in cleartext to anyone with access to the instance or appropriate API permissions.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.044298
+}

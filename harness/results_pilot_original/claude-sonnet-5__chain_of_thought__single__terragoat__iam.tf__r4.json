@@ -1,0 +1,54 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:52:33Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline IAM policy grants full wildcard access (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to the IAM user, violating least privilege and allowing the user (or anyone with its credentials) to perform virtually any action on these services.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key for a user rather than using temporary/assumed-role credentials increases the risk of credential leakage and provides a persistent, high-privilege secret tied to an overly permissive policy.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standing IAM user with programmatic access",
+      "description": "An IAM user is created with force_destroy enabled and an access key attached, combined with an excessively broad policy, creating a high-value credential target instead of using scoped roles or temporary credentials.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "The output 'secret' exposes aws_iam_access_key.user.encrypted_secret, which along with the access key ID can allow reconstruction/use of long-lived AWS credentials; outputting secret-related values increases risk of credential leakage through state files, logs, or CI output.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2019,
+  "output_tokens": 656,
+  "latency_s": 7.759,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline IAM policy grants full wildcard access (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to the IAM user, violating least privilege and allowing the user (or anyone with its credentials) to perform virtually any action on these services.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key for a user rather than using temporary/assumed-role credentials increases the risk of credential leakage and provides a persistent, high-privilege secret tied to an overly permissive policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standing IAM user with programmatic access\", \"description\": \"An IAM user is created with force_destroy enabled and an access key attached, combined with an excessively broad policy, creating a high-value credential target instead of using scoped roles or temporary credentials.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"The output 'secret' exposes aws_iam_access_key.user.encrypted_secret, which along with the access key ID can allow reconstruction/use of long-lived AWS credentials; outputting secret-related values increases risk of credential leakage through state files, logs, or CI output.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.010598
+}

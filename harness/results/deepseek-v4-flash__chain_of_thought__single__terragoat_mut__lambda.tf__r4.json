@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__lambda.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:59Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The function's environment block embeds a literal AWS access key ID and secret access key, so the long-lived credentials are stored in Terraform state, in the Lambda console/API, and in any snapshot of this configuration; anyone with read access to the function or state file can exfiltrate them.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is set on the environment block, so the plaintext secrets above are only protected by the default service-managed key and are readable by any principal with lambda:GetFunctionConfiguration permission.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "deprecated insecure runtime",
+      "description": "The function runs on nodejs12.x, which is end-of-life and no longer receives security patches, leaving known-vulnerable runtime code exposed for an attacker to exploit.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1118,
+  "output_tokens": 331,
+  "latency_s": 2.45,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The function's environment block embeds a literal AWS access key ID and secret access key, so the long-lived credentials are stored in Terraform state, in the Lambda console/API, and in any snapshot of this configuration; anyone with read access to the function or state file can exfiltrate them.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is set on the environment block, so the plaintext secrets above are only protected by the default service-managed key and are readable by any principal with lambda:GetFunctionConfiguration permission.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"deprecated insecure runtime\", \"description\": \"The function runs on nodejs12.x, which is end-of-life and no longer receives security patches, leaving known-vulnerable runtime code exposed for an attacker to exploit.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1118,
+      "output_tokens": 331,
+      "latency_s": 2.45,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000249
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000249
+}

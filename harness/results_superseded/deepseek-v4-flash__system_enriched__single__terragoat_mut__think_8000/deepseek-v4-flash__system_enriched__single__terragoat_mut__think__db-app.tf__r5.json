@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:34:08Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, causing it to receive a publicly resolvable endpoint/DNS name reachable from the internet rather than being confined to the VPC. Combined with a weak 'admin' master username and no encryption, this materially expands the attack surface of the catalog database.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The database is created with storage_encrypted = false, so the underlying storage, snapshots, and read replicas are unencrypted. Any data (including credentials managed by the app) is exposed in cleartext at the storage layer.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "over-permissive IAM policy",
+      "description": "The inline policy attached to the EC2-assumable catalog_app_role grants s3:*, ec2:*, and rds:* on Resource '*', giving any instance using this profile full read/write/delete control over S3 data, all EC2 resources, and every RDS database account-wide. This is a broad privilege-escalation and data-destruction path if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in user data",
+      "description": "The EC2 user_data script interpolates the database password (${var.password}) directly into the instance's user data and writes it to /var/www/inc/dbinfo.inc. EC2 user data is retrievable via instance metadata by anything on the host and is retained in Terraform state and console output, so the DB credential is exposed to anyone with instance or metadata access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR block rather than scoped to the specific application security group. Any host or workload within the VPC (including any compromised instance) can reach the database, violating least-privilege network segmentation.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 3337,
+  "latency_s": 15.246,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, causing it to receive a publicly resolvable endpoint/DNS name reachable from the internet rather than being confined to the VPC. Combined with a weak 'admin' master username and no encryption, this materially expands the attack surface of the catalog database.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The database is created with storage_encrypted = false, so the underlying storage, snapshots, and read replicas are unencrypted. Any data (including credentials managed by the app) is exposed in cleartext at the storage layer.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"over-permissive IAM policy\", \"description\": \"The inline policy attached to the EC2-assumable catalog_app_role grants s3:*, ec2:*, and rds:* on Resource '*', giving any instance using this profile full read/write/delete control over S3 data, all EC2 resources, and every RDS database account-wide. This is a broad privilege-escalation and data-destruction path if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in user data\", \"description\": \"The EC2 user_data script interpolates the database password (${var.password}) directly into the instance's user data and writes it to /var/www/inc/dbinfo.inc. EC2 user data is retrievable via instance metadata by anything on the host and is retained in Terraform state and console output, so the DB credential is exposed to anyone with instance or metadata access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR block rather than scoped to the specific application security group. Any host or workload within the VPC (including any compromised instance) can reach the database, violating least-privilege network segmentation.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 3337,
+      "latency_s": 15.246,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.001438
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001438
+}

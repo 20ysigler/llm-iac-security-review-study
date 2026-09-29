@@ -1,0 +1,49 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:26:47Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Any entity holding this user's credentials can read/modify/delete all S3 objects and fully control EC2, Lambda, and CloudWatch resources in the account.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creates a permanent IAM access key with no rotation for a user holding the broad wildcard policy. The plaintext secret is persisted in the Terraform state file, and a leaked key grants sweeping access to S3, EC2, Lambda, and CloudWatch.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure in output",
+      "description": "The Terraform output exposes the IAM user's secret credential. Output values are stored in plaintext in the state file and commonly surface in CI/CD logs and consoles, leaking a credential to anyone with access to state or logs.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1463,
+  "output_tokens": 2428,
+  "latency_s": 20.579,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Any entity holding this user's credentials can read/modify/delete all S3 objects and fully control EC2, Lambda, and CloudWatch resources in the account.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creates a permanent IAM access key with no rotation for a user holding the broad wildcard policy. The plaintext secret is persisted in the Terraform state file, and a leaked key grants sweeping access to S3, EC2, Lambda, and CloudWatch.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure in output\", \"description\": \"The Terraform output exposes the IAM user's secret credential. Output values are stored in plaintext in the state file and commonly surface in CI/CD logs and consoles, leaking a credential to anyone with access to state or logs.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000885
+}

@@ -1,0 +1,47 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__iam.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:41:52Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-250",
+      "description": "The policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions on every resource. This violates least privilege and allows the access-key holder to alter infrastructure, access or exfiltrate S3 data, invoke or modify functions, and change monitoring resources."
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "A static IAM access key is provisioned for the user rather than using federation or temporary role credentials. If this credential is exposed or stolen, it remains usable until manually disabled or rotated."
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential output",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-200",
+      "description": "The encrypted IAM access-key secret is exposed through a Terraform output without sensitive = true. Terraform outputs can be displayed in CLI output and persisted in state, increasing the audience able to retrieve credential material."
+    }
+  ],
+  "input_tokens": 1889,
+  "output_tokens": 255,
+  "latency_s": 2.844,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-250\",\"description\":\"The policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions on every resource. This violates least privilege and allows the access-key holder to alter infrastructure, access or exfiltrate S3 data, invoke or modify functions, and change monitoring resources.\"},{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"A static IAM access key is provisioned for the user rather than using federation or temporary role credentials. If this credential is exposed or stolen, it remains usable until manually disabled or rotated.\"},{\"resource\":\"output.secret\",\"issue_category\":\"sensitive credential output\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-200\",\"description\":\"The encrypted IAM access-key secret is exposed through a Terraform output without sensitive = true. Terraform outputs can be displayed in CLI output and persisted in state, increasing the audience able to retrieve credential material.\"}]}",
+  "cost_usd": 0.006838
+}

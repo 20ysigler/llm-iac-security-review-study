@@ -1,0 +1,72 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": 0.0,
+  "timestamp": "2026-08-16T21:13:04Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet, drastically increasing attack surface for a data store holding application data.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled encryption at rest",
+      "description": "storage_encrypted is set to false, meaning the database storage and its underlying data are not encrypted at rest, risking exposure of sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database username is hardcoded to 'admin' and the password is passed via a variable and later embedded in plaintext inside EC2 user data, risking credential leakage through instance metadata and logs.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which permits data exfiltration and unrestricted outbound communication from the database security group.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources ('*'), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 instance user_data script embeds the database password in plaintext (var.password) which is stored in instance metadata and easily retrievable by anyone with access to the metadata service or console, leaking credentials.",
+      "severity": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled backup retention increasing data loss/exposure risk",
+      "description": "backup_retention_period is set to 0, disabling automated backups; combined with skip_final_snapshot = true, this removes recovery points which is a security-relevant availability/data-integrity concern in case of compromise or ransomware-style attack.",
+      "severity": "low",
+      "cwe": "CWE-459"
+    }
+  ],
+  "input_tokens": 6958,
+  "output_tokens": 964,
+  "latency_s": 10.244,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet, drastically increasing attack surface for a data store holding application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled encryption at rest\", \"description\": \"storage_encrypted is set to false, meaning the database storage and its underlying data are not encrypted at rest, risking exposure of sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database username is hardcoded to 'admin' and the password is passed via a variable and later embedded in plaintext inside EC2 user data, risking credential leakage through instance metadata and logs.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which permits data exfiltration and unrestricted outbound communication from the database security group.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources ('*'), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 instance user_data script embeds the database password in plaintext (var.password) which is stored in instance metadata and easily retrievable by anyone with access to the metadata service or console, leaking credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled backup retention increasing data loss/exposure risk\", \"description\": \"backup_retention_period is set to 0, disabling automated backups; combined with skip_final_snapshot = true, this removes recovery points which is a security-relevant availability/data-integrity concern in case of compromise or ransomware-style attack.\", \"severity\": \"low\", \"cwe\": \"CWE-459\"}]}",
+  "cost_usd": 0.023556
+}

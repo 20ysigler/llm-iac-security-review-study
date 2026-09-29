@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:16:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables, which places them in the Terraform source, the state file, and the function configuration API. Any principal with lambda:GetFunctionConfiguration, repository access, or state access can retrieve and reuse these static credentials outside the function's intended scope; the function should instead rely on its IAM execution role.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables at rest",
+      "description": "No kms_key_arn is set, so the environment variables (which here hold secret material) are protected only by the default AWS-managed Lambda key and are returned decrypted to any caller of GetFunction/GetFunctionConfiguration, with no separate CMK key policy restricting access.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function targets the nodejs12.x runtime, which is end-of-life and no longer receives security patches for the language runtime or underlying OS packages, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "No vpc_config is declared, so the function executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet egress boundary. Combined with the embedded static credentials, a compromised function or dependency has an unconstrained exfiltration path.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code-signing integrity validation",
+      "description": "No code_signing_config_arn is attached, so the deployment package is not verified against a trusted signing profile and a tampered artifact introduced into the deployment path would be accepted and executed.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-345"
+    }
+  ],
+  "input_tokens": 7984,
+  "output_tokens": 2338,
+  "latency_s": 32.054,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables, which places them in the Terraform source, the state file, and the function configuration API. Any principal with lambda:GetFunctionConfiguration, repository access, or state access can retrieve and reuse these static credentials outside the function's intended scope; the function should instead rely on its IAM execution role.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables at rest\", \"description\": \"No kms_key_arn is set, so the environment variables (which here hold secret material) are protected only by the default AWS-managed Lambda key and are returned decrypted to any caller of GetFunction/GetFunctionConfiguration, with no separate CMK key policy restricting access.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function targets the nodejs12.x runtime, which is end-of-life and no longer receives security patches for the language runtime or underlying OS packages, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"No vpc_config is declared, so the function executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet egress boundary. Combined with the embedded static credentials, a compromised function or dependency has an unconstrained exfiltration path.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code-signing integrity validation\", \"description\": \"No code_signing_config_arn is attached, so the deployment package is not verified against a trusted signing profile and a tampered artifact introduced into the deployment path would be accepted and executed.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-345\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2079,
+      "output_tokens": 686,
+      "latency_s": 9.971,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027545
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2079,
+      "output_tokens": 809,
+      "latency_s": 10.639,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03062
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3826,
+      "output_tokens": 843,
+      "latency_s": 11.444,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.040205
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.09837
+}

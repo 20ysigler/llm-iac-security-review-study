@@ -1,0 +1,63 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:45:30Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so RDS data is stored unencrypted at rest, exposing confidential database content if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS database directly to the internet rather than keeping it in a private subnet, greatly expanding its attack surface.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "database credentials in plaintext",
+      "description": "The RDS password is set to var.password directly and the same password variable is embedded in plain text within the EC2 user_data script, making the credential readable by anyone with describe access on the resources and stored in plain text.",
+      "severity": "high",
+      "cwe": "CWE-256",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overprivileged IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the EC2 role effectively administrative access across the account and violating least privilege.",
+      "severity": "high",
+      "cwe": "CWE-272",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols and all ports to 0.0.0.0/0, providing an unrestricted outbound path that permits data exfiltration and command-and-control channels.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5580,
+  "output_tokens": 472,
+  "latency_s": 5.292,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is set to false, so RDS data is stored unencrypted at rest, exposing confidential database content if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS database directly to the internet rather than keeping it in a private subnet, greatly expanding its attack surface.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"database credentials in plaintext\", \"description\": \"The RDS password is set to var.password directly and the same password variable is embedded in plain text within the EC2 user_data script, making the credential readable by anyone with describe access on the resources and stored in plain text.\", \"severity\": \"high\", \"cwe\": \"CWE-256\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overprivileged IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the EC2 role effectively administrative access across the account and violating least privilege.\", \"severity\": \"high\", \"cwe\": \"CWE-272\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols and all ports to 0.0.0.0/0, providing an unrestricted outbound path that permits data exfiltration and command-and-control channels.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000913
+}

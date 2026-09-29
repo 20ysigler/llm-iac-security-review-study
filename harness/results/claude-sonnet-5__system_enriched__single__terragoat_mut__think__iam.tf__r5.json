@@ -1,0 +1,69 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:32:51Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"*\") to the svc_deploy user, violating least privilege and allowing this identity to perform virtually any operation against these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key is created for the svc_deploy user without any pgp_key encryption parameter, meaning the resulting secret access key is stored in cleartext in the Terraform state file, creating a durable, easily leaked credential attached to an overly privileged user.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure via output",
+      "description": "The configuration outputs the access key's encrypted_secret value, but since no pgp_key was configured on the access key resource the encryption step is not actually performed, so sensitive key material is surfaced through Terraform outputs/state and CLI output instead of being securely encrypted for handoff.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2002,
+  "output_tokens": 1131,
+  "latency_s": 11.384,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"*\\\") to the svc_deploy user, violating least privilege and allowing this identity to perform virtually any operation against these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key is created for the svc_deploy user without any pgp_key encryption parameter, meaning the resulting secret access key is stored in cleartext in the Terraform state file, creating a durable, easily leaked credential attached to an overly privileged user.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure via output\", \"description\": \"The configuration outputs the access key's encrypted_secret value, but since no pgp_key was configured on the access key resource the encryption step is not actually performed, so sensitive key material is surfaced through Terraform outputs/state and CLI output instead of being securely encrypted for handoff.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2002,
+      "output_tokens": 1131,
+      "latency_s": 11.384,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.015314
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.015314
+}

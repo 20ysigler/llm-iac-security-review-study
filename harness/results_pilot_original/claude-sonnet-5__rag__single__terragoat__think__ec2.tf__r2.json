@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__think__ec2.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:16:20Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The user_data script contains a plaintext AWS access key and secret key. These are readable by anyone with EC2 describe-instance-attribute permissions and are committed to source control, so they must be treated as compromised.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block is defined to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (it is explicitly commented out), so data stored on the volume is unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot is created from the unencrypted web_host_storage volume, so the resulting snapshot is also unencrypted, exposing volume data at rest and to unauthorized copying.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet rather than restricting it to trusted source ranges.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "Ingress rule allows TCP port 80 from 0.0.0.0/0 with no compensating controls (e.g., WAF, TLS), broadening the attack surface for the web application layer.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule permits all traffic (protocol -1, all ports) to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the instance.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unnecessary public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of workloads that may not need direct internet reachability.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unnecessary public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of workloads that may not need direct internet reachability.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket storing VPC flow logs has no server_side_encryption_configuration, so log data (which can reveal network topology and traffic patterns) is stored unencrypted by default.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block or bucket policy restricting access is defined for the flow log bucket, leaving it reliant on defaults and open to misconfiguration toward public exposure.",
+      "severity": "medium",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7758,
+  "output_tokens": 2119,
+  "latency_s": 17.136,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The user_data script contains a plaintext AWS access key and secret key. These are readable by anyone with EC2 describe-instance-attribute permissions and are committed to source control, so they must be treated as compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"No metadata_options block is defined to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true (it is explicitly commented out), so data stored on the volume is unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot is created from the unencrypted web_host_storage volume, so the resulting snapshot is also unencrypted, exposing volume data at rest and to unauthorized copying.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet rather than restricting it to trusted source ranges.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"Ingress rule allows TCP port 80 from 0.0.0.0/0 with no compensating controls (e.g., WAF, TLS), broadening the attack surface for the web application layer.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule permits all traffic (protocol -1, all ports) to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the instance.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"unnecessary public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of workloads that may not need direct internet reachability.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"unnecessary public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing exposure of workloads that may not need direct internet reachability.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket storing VPC flow logs has no server_side_encryption_configuration, so log data (which can reveal network topology and traffic patterns) is stored unencrypted by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block or bucket policy restricting access is defined for the flow log bucket, leaving it reliant on defaults and open to misconfiguration toward public exposure.\", \"severity\": \"medium\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.036706
+}

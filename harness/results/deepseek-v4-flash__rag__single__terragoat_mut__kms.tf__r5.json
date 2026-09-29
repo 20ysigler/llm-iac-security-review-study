@@ -1,0 +1,68 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__kms.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:45Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The KMS key does not enable automatic key rotation (enable_key_rotation is absent, defaulting to false), so the same key material encrypts audit bucket data indefinitely and a compromised key cannot be retired through rotation.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "default key policy full admin",
+      "description": "No key policy is defined, so KMS applies the default policy granting the AWS account root full administrative control (kms:*, including PutKeyPolicy) over this audit key. Combined with account-level principals, this permits unrestricted re-keying/deletion and privilege escalation rather than least-privilege access to the audit data.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "short deletion window",
+      "description": "deletion_window_in_days = 7 is the minimum and gives the shortest possible window before this audit-trail key is destroyed; accidental or malicious scheduling of deletion can render audit log data unrecoverable with minimal opportunity to detect and cancel it.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1915,
+  "output_tokens": 341,
+  "latency_s": 2.301,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The KMS key does not enable automatic key rotation (enable_key_rotation is absent, defaulting to false), so the same key material encrypts audit bucket data indefinitely and a compromised key cannot be retired through rotation.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"default key policy full admin\", \"description\": \"No key policy is defined, so KMS applies the default policy granting the AWS account root full administrative control (kms:*, including PutKeyPolicy) over this audit key. Combined with account-level principals, this permits unrestricted re-keying/deletion and privilege escalation rather than least-privilege access to the audit data.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"short deletion window\", \"description\": \"deletion_window_in_days = 7 is the minimum and gives the shortest possible window before this audit-trail key is destroyed; accidental or malicious scheduling of deletion can render audit log data unrecoverable with minimal opportunity to detect and cancel it.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1915,
+      "output_tokens": 341,
+      "latency_s": 2.301,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000364
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000364
+}

@@ -1,0 +1,93 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat_mut__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext database credential",
+      "description": "The database password is embedded in EC2 user data and written into a PHP configuration file. User data is retrievable by principals with instance describe access and may be exposed through the instance or Terraform state, broadening access to the database credential.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block requires IMDSv2, so the instance can use IMDSv1. An SSRF flaw on the web server could retrieve the attached instance-role credentials without IMDSv2 token protection.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public network address. Although the shown security group limits MySQL ingress to the VPC CIDR, this unnecessarily exposes the database to internet-facing routing and can become externally reachable if security-group controls change.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing storage encryption",
+      "description": "The RDS instance explicitly sets storage_encrypted = false, leaving database storage, backups, and snapshots unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted database egress",
+      "description": "This rule permits all protocols and ports from the database security group to 0.0.0.0/0. It allows unrestricted outbound communication, creating data-exfiltration and command-and-control paths from the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The application instance role grants every S3, EC2, and RDS action against every resource. Compromise of the web server or its role credentials would enable broad account-level data access and infrastructure modification.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3896,
+  "output_tokens": 487,
+  "latency_s": 6.156,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"plaintext database credential\",\"description\":\"The database password is embedded in EC2 user data and written into a PHP configuration file. User data is retrievable by principals with instance describe access and may be exposed through the instance or Terraform state, broadening access to the database credential.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No metadata_options block requires IMDSv2, so the instance can use IMDSv1. An SSRF flaw on the web server could retrieve the attached instance-role credentials without IMDSv2 token protection.\",\"severity\":\"medium\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, assigning it a public network address. Although the shown security group limits MySQL ingress to the VPC CIDR, this unnecessarily exposes the database to internet-facing routing and can become externally reachable if security-group controls change.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing storage encryption\",\"description\":\"The RDS instance explicitly sets storage_encrypted = false, leaving database storage, backups, and snapshots unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_outbound\",\"issue_category\":\"unrestricted database egress\",\"description\":\"This rule permits all protocols and ports from the database security group to 0.0.0.0/0. It allows unrestricted outbound communication, creating data-exfiltration and command-and-control paths from the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The application instance role grants every S3, EC2, and RDS action against every resource. Compromise of the web server or its role credentials would enable broad account-level data access and infrastructure modification.\",\"severity\":\"critical\",\"cwe\":\"CWE-269\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3896,
+      "output_tokens": 487,
+      "latency_s": 6.156,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.013636
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.013636
+}

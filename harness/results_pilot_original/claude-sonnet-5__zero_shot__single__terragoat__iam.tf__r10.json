@@ -1,0 +1,54 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__iam.tf__r10",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 10,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:15:50Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the IAM user to perform virtually any action across these services.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating an IAM access key for a user establishes long-lived static credentials tied to an overly permissive user, increasing risk of credential leakage and misuse instead of using temporary roles/credentials.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Defining a standalone IAM user with attached broad permissions and generated access keys increases attack surface compared to using roles with temporary credentials, and force_destroy=true can allow silent removal of access keys/data.",
+      "severity": "medium",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "sensitive credential output",
+      "description": "The output block exposes aws_iam_access_key.user.encrypted_secret, which surfaces sensitive credential material in Terraform outputs/state and CLI output, risking credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1843,
+  "output_tokens": 638,
+  "latency_s": 6.044,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the IAM user to perform virtually any action across these services.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating an IAM access key for a user establishes long-lived static credentials tied to an overly permissive user, increasing risk of credential leakage and misuse instead of using temporary roles/credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Defining a standalone IAM user with attached broad permissions and generated access keys increases attack surface compared to using roles with temporary credentials, and force_destroy=true can allow silent removal of access keys/data.\", \"severity\": \"medium\", \"confidence\": \"low\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"sensitive credential output\", \"description\": \"The output block exposes aws_iam_access_key.user.encrypted_secret, which surfaces sensitive credential material in Terraform outputs/state and CLI output, risking credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.010066
+}

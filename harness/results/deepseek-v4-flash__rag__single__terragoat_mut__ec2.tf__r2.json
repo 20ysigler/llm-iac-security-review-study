@@ -1,0 +1,125 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__ec2.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The instance user_data embeds a static AWS access key ID and secret access key in plaintext. These are stored in the Terraform source/state and are readable by anyone with ec2:DescribeInstanceAttribute, and the keys must be treated as compromised.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group admits SSH (tcp/22) from 0.0.0.0/0, exposing remote administration of the portal server to the entire internet and enabling brute-force or credential-based attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "HTTP (tcp/80) is open to 0.0.0.0/0, permitting any internet host to reach the web server on the instance.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule permits all protocols to all destinations (0.0.0.0/0), providing an unrestricted data exfiltration and command-and-control channel from the instance.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume has no encrypted = true setting, so the portal server disk is stored unencrypted and the snapshot derived from it is likewise unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot of the portal disk is created without encryption, exposing a copy of the instance's data at rest outside the protections of an encrypted volume.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The VPC flow log archive bucket defines no server-side encryption configuration, so flow log records are stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so instances launched in this subnet automatically receive public addresses and are directly internet-reachable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, automatically assigning routable public IP addresses to instances in this subnet and exposing them to the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_route.portal_default_route",
+      "issue_category": "internet gateway default route",
+      "description": "A 0.0.0.0/0 route is pointed at the internet gateway and associated with both subnets, making them public subnets with a direct path to and from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3334,
+  "output_tokens": 899,
+  "latency_s": 4.254,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The instance user_data embeds a static AWS access key ID and secret access key in plaintext. These are stored in the Terraform source/state and are readable by anyone with ec2:DescribeInstanceAttribute, and the keys must be treated as compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group admits SSH (tcp/22) from 0.0.0.0/0, exposing remote administration of the portal server to the entire internet and enabling brute-force or credential-based attacks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"HTTP (tcp/80) is open to 0.0.0.0/0, permitting any internet host to reach the web server on the instance.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule permits all protocols to all destinations (0.0.0.0/0), providing an unrestricted data exfiltration and command-and-control channel from the instance.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume has no encrypted = true setting, so the portal server disk is stored unencrypted and the snapshot derived from it is likewise unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot of the portal disk is created without encryption, exposing a copy of the instance's data at rest outside the protections of an encrypted volume.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The VPC flow log archive bucket defines no server-side encryption configuration, so flow log records are stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so instances launched in this subnet automatically receive public addresses and are directly internet-reachable.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, automatically assigning routable public IP addresses to instances in this subnet and exposing them to the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_route.portal_default_route\", \"issue_category\": \"internet gateway default route\", \"description\": \"A 0.0.0.0/0 route is pointed at the internet gateway and associated with both subnets, making them public subnets with a direct path to and from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3334,
+      "output_tokens": 899,
+      "latency_s": 4.254,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000718
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000718
+}

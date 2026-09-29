@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__lambda.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:21Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function's environment block stores a plaintext AWS access key ID (AKIAIOSFODNN7EXAMPLE) and secret access key directly in the Terraform source. Anyone with read access to the state file, repository, or the Lambda configuration can recover long-lived AWS credentials, and they cannot be rotated without a code change.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "secrets exposed to function runtime",
+      "description": "Sensitive credentials are passed as Lambda environment variables rather than through AWS Secrets Manager or SSM Parameter Store; environment variables are visible in the console, API responses, and lambda GetFunction output to any principal with lambda:GetFunctionConfiguration.",
+      "severity": "medium",
+      "cwe": "CWE-526",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches, leaving the function exposed to known unpatched vulnerabilities.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "no permissions boundary or least privilege policy",
+      "description": "The role has no attached permissions policy, so its effective permissions depend entirely on out-of-band attachments. Combined with credentials embedded in the function, this provides no restriction on what the leaked identity can do.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1002,
+  "output_tokens": 430,
+  "latency_s": 2.57,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function's environment block stores a plaintext AWS access key ID (AKIAIOSFODNN7EXAMPLE) and secret access key directly in the Terraform source. Anyone with read access to the state file, repository, or the Lambda configuration can recover long-lived AWS credentials, and they cannot be rotated without a code change.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"secrets exposed to function runtime\", \"description\": \"Sensitive credentials are passed as Lambda environment variables rather than through AWS Secrets Manager or SSM Parameter Store; environment variables are visible in the console, API responses, and lambda GetFunction output to any principal with lambda:GetFunctionConfiguration.\", \"severity\": \"medium\", \"cwe\": \"CWE-526\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches, leaving the function exposed to known unpatched vulnerabilities.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"no permissions boundary or least privilege policy\", \"description\": \"The role has no attached permissions policy, so its effective permissions depend entirely on out-of-band attachments. Combined with credentials embedded in the function, this provides no restriction on what the leaked identity can do.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1002,
+      "output_tokens": 430,
+      "latency_s": 2.57,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000261
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000261
+}

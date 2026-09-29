@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__few_shot__single__terragoat_mut__iam.tf__r2",
+  "model": "claude-opus-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:47Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the deploy user unrestricted control over all compute, storage, and serverless resources in the account. A leaked credential for this user permits mass data exfiltration, resource destruction, and privilege escalation via EC2/Lambda role passing.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a highly privileged user and its secret is stored in Terraform state in plaintext (no pgp_key is supplied, so encrypted_secret is empty and secret/ses_smtp_password are recorded in state). Static, non-rotating keys for a wildcard-permission user are a prime target for credential theft; an IAM role with temporary credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "missing PGP encryption for secret",
+      "description": "No pgp_key argument is set, so AWS returns the secret access key unencrypted and Terraform persists it in the state file. Anyone with read access to state (often an S3 bucket or CI artifact) obtains working admin-level credentials.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged user without MFA",
+      "description": "A long-lived IAM user with broad wildcard permissions is created with no MFA enforcement or permissions boundary, so compromise of its single credential grants full access with no second factor or blast-radius limit.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure via output",
+      "description": "The access key material is exported as a Terraform output without sensitive = true, so it is printed to the console and CI logs and stored readable in state. Since no pgp_key was configured, this output path is intended to carry the key secret and leaks it to anyone who can view plan/apply logs.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 2223,
+  "output_tokens": 892,
+  "latency_s": 10.835,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the deploy user unrestricted control over all compute, storage, and serverless resources in the account. A leaked credential for this user permits mass data exfiltration, resource destruction, and privilege escalation via EC2/Lambda role passing.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a highly privileged user and its secret is stored in Terraform state in plaintext (no pgp_key is supplied, so encrypted_secret is empty and secret/ses_smtp_password are recorded in state). Static, non-rotating keys for a wildcard-permission user are a prime target for credential theft; an IAM role with temporary credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"missing PGP encryption for secret\", \"description\": \"No pgp_key argument is set, so AWS returns the secret access key unencrypted and Terraform persists it in the state file. Anyone with read access to state (often an S3 bucket or CI artifact) obtains working admin-level credentials.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged user without MFA\", \"description\": \"A long-lived IAM user with broad wildcard permissions is created with no MFA enforcement or permissions boundary, so compromise of its single credential grants full access with no second factor or blast-radius limit.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key material is exported as a Terraform output without sensitive = true, so it is printed to the console and CI logs and stored readable in state. Since no pgp_key was configured, this output path is intended to carry the key secret and leaks it to anyone who can view plan/apply logs.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2223,
+      "output_tokens": 892,
+      "latency_s": 10.835,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.033415
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.033415
+}

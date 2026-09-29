@@ -1,0 +1,160 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat__ec2.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:13:55Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds a plaintext AWS access key ID and secret access key, which are stored in the instance metadata and Terraform state, exposing long-lived credentials to anyone with access to the instance metadata service, console, or state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (and the setting is explicitly commented out), meaning data stored on the volume is not encrypted at rest, risking data exposure if the underlying storage is compromised or the volume/snapshot is shared.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot does not specify encryption, and if the source volume is unencrypted, the resulting snapshot will store data unencrypted, exposing sensitive data at rest and to unauthorized sharing.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing the management interface of the instance to the entire internet and enabling brute-force or exploitation attempts.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The security group allows all outbound traffic (all ports/protocols) to 0.0.0.0/0, violating least privilege and enabling data exfiltration or command-and-control communication if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, increasing exposure of workloads to the internet unless explicitly overridden at instance creation time.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, increasing exposure of workloads to the internet unless explicitly overridden at instance creation time.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_flow_log.vpcflowlogs",
+      "issue_category": "incomplete flow log configuration",
+      "description": "The excerpt indicates flow logs are intended to be sent to an S3 bucket, but the actual aws_flow_log resource definition is not present in this excerpt beyond a comment, so its configuration (e.g., traffic type, log destination) cannot be verified for completeness.",
+      "severity": "informational",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) or versioning, meaning sensitive network traffic metadata is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "no public access block / ACL restriction",
+      "description": "The bucket lacks any aws_s3_bucket_public_access_block or ACL/policy restricting access, and force_destroy is enabled, increasing risk that logs could be publicly exposed or destroyed without protection.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 15185,
+  "output_tokens": 1859,
+  "latency_s": 21.441,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) or versioning, meaning sensitive network traffic metadata is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"no public access block / ACL restriction\", \"description\": \"The bucket lacks any aws_s3_bucket_public_access_block or ACL/policy restricting access, and force_destroy is enabled, increasing risk that logs could be publicly exposed or destroyed without protection.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2987,
+      "output_tokens": 358,
+      "latency_s": 4.176,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009554
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3022,
+      "output_tokens": 621,
+      "latency_s": 6.167,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.012254
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3031,
+      "output_tokens": 326,
+      "latency_s": 3.661,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009322
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 3208,
+      "output_tokens": 186,
+      "latency_s": 3.083,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.008276
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 2937,
+      "output_tokens": 368,
+      "latency_s": 4.354,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009554
+    }
+  ],
+  "n_calls": 5,
+  "chunks": 5,
+  "cost_usd": 0.04896
+}

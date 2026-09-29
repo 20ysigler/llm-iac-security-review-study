@@ -1,0 +1,99 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "This policy grants the svc_deploy user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\" with no condition keys or resource scoping, giving full administrative control over compute, storage, and serverless resources account-wide. A compromise of this long-lived user's credentials yields broad account control and an unrestricted blast radius.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user. These credentials do not expire or rotate and, combined with the user's wildcard policy, form a high-value non-rotating credential pair that can be exfiltrated and used to control the account's EC2, S3, and Lambda resources. Short-lived federated or role-based credentials should be used instead.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "sensitive credential exposed in output",
+      "description": "This output emits the access key secret (encrypted_secret) into Terraform state and any plan/apply logs, CI output, or UI consuming it, and it is not marked sensitive. Anyone with read access to state or pipeline logs can retrieve the credential for the privileged svc_deploy user. Secret material should not be emitted as an output.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "user with force_destroy enabled",
+      "description": "The IAM user is configured with force_destroy = true, allowing the identity and any attached keys and policies to be deleted without a guardrail. Destroying this identity via Terraform would silently remove the deployment access path and its associated credential objects with no protection against accidental deletion.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4863,
+  "output_tokens": 1476,
+  "latency_s": 8.353,
+  "attempts": 1,
+  "schema_problems": [
+    "reviewer_a: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name",
+    "reviewer_b: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name",
+    "reconciler: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"This policy grants the svc_deploy user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\" with no condition keys or resource scoping, giving full administrative control over compute, storage, and serverless resources account-wide. A compromise of this long-lived user's credentials yields broad account control and an unrestricted blast radius.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user. These credentials do not expire or rotate and, combined with the user's wildcard policy, form a high-value non-rotating credential pair that can be exfiltrated and used to control the account's EC2, S3, and Lambda resources. Short-lived federated or role-based credentials should be used instead.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"sensitive credential exposed in output\", \"description\": \"This output emits the access key secret (encrypted_secret) into Terraform state and any plan/apply logs, CI output, or UI consuming it, and it is not marked sensitive. Anyone with read access to state or pipeline logs can retrieve the credential for the privileged svc_deploy user. Secret material should not be emitted as an output.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"user with force_destroy enabled\", \"description\": \"The IAM user is configured with force_destroy = true, allowing the identity and any attached keys and policies to be deleted without a guardrail. Destroying this identity via Terraform would silently remove the deployment access path and its associated credential objects with no protection against accidental deletion.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1271,
+      "output_tokens": 548,
+      "latency_s": 3.216,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000331
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1271,
+      "output_tokens": 396,
+      "latency_s": 2.429,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000289
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2321,
+      "output_tokens": 532,
+      "latency_s": 2.708,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000474
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001094
+}

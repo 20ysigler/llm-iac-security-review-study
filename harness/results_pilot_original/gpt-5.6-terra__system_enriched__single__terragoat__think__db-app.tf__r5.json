@@ -1,0 +1,65 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:40:45Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "storage encryption disabled",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, backups, and snapshots unencrypted at rest by RDS. An unauthorized party obtaining access to the underlying stored data would not need a KMS key to read it.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "public database endpoint",
+      "description": "`publicly_accessible = true` assigns the RDS instance a publicly routable endpoint rather than keeping it private to the VPC. Although the shown security-group ingress is scoped to the VPC CIDR, exposing the database at the network edge weakens segmentation and makes future security-group or routing mistakes directly internet-reachable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "unenforced database transport encryption",
+      "description": "The parameter group does not set MySQL `require_secure_transport` to `ON`. Consequently, clients are not required by this configuration to use TLS when authenticating to or transferring data with the database, allowing cleartext connections from permitted network locations.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The EC2 role is granted `s3:*`, `ec2:*`, and `rds:*` on every resource. A compromise of the attached instance would yield broad control over S3, EC2, and RDS resources, far beyond the permissions needed for the shown web application and enabling data access and destructive or privilege-expanding actions.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credential in user data",
+      "description": "The database password is interpolated into EC2 `user_data` and written as application configuration. User data is retained in the instance configuration and Terraform state and can be retrieved by principals or processes with access to those artifacts, exposing the database credential rather than retrieving it from a secrets-management service.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4137,
+  "output_tokens": 966,
+  "latency_s": 12.563,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"storage encryption disabled\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, backups, and snapshots unencrypted at rest by RDS. An unauthorized party obtaining access to the underlying stored data would not need a KMS key to read it.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"public database endpoint\",\"description\":\"`publicly_accessible = true` assigns the RDS instance a publicly routable endpoint rather than keeping it private to the VPC. Although the shown security-group ingress is scoped to the VPC CIDR, exposing the database at the network edge weakens segmentation and makes future security-group or routing mistakes directly internet-reachable.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.default\",\"issue_category\":\"unenforced database transport encryption\",\"description\":\"The parameter group does not set MySQL `require_secure_transport` to `ON`. Consequently, clients are not required by this configuration to use TLS when authenticating to or transferring data with the database, allowing cleartext connections from permitted network locations.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The EC2 role is granted `s3:*`, `ec2:*`, and `rds:*` on every resource. A compromise of the attached instance would yield broad control over S3, EC2, and RDS resources, far beyond the permissions needed for the shown web application and enabling data access and destructive or privilege-expanding actions.\",\"severity\":\"critical\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credential in user data\",\"description\":\"The database password is interpolated into EC2 `user_data` and written as application configuration. User data is retained in the instance configuration and Terraform state and can be retrieved by principals or processes with access to those artifacts, exposing the database credential rather than retrieving it from a secrets-management service.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.019866
+}

@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__lambda.tf__r3",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:37Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded cloud credentials in environment variables",
+      "description": "AWS access key ID and secret access key are hardcoded in plaintext as Lambda environment variables, so they are stored in state files, version control, and visible to anyone with lambda:GetFunctionConfiguration. Credentials should come from the function's IAM role or a secrets manager.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is specified, so the environment variables (which contain secrets here) are encrypted only with the default AWS-managed key and are decrypted/displayed to any principal able to read the function configuration, with no separate key-level access control.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code signing validation",
+      "description": "The function does not set code_signing_config_arn, so unsigned or tampered deployment packages can be deployed without integrity verification.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "outdated end-of-life runtime",
+      "description": "The function uses nodejs12.x, a deprecated runtime that no longer receives security patches, leaving known vulnerabilities in the runtime unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, increasing exfiltration attack surface.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    }
+  ],
+  "input_tokens": 1657,
+  "output_tokens": 722,
+  "latency_s": 8.276,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded cloud credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are hardcoded in plaintext as Lambda environment variables, so they are stored in state files, version control, and visible to anyone with lambda:GetFunctionConfiguration. Credentials should come from the function's IAM role or a secrets manager.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is specified, so the environment variables (which contain secrets here) are encrypted only with the default AWS-managed key and are decrypted/displayed to any principal able to read the function configuration, with no separate key-level access control.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code signing validation\", \"description\": \"The function does not set code_signing_config_arn, so unsigned or tampered deployment packages can be deployed without integrity verification.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"outdated end-of-life runtime\", \"description\": \"The function uses nodejs12.x, a deprecated runtime that no longer receives security patches, leaving known vulnerabilities in the runtime unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, increasing exfiltration attack surface.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1657,
+      "output_tokens": 722,
+      "latency_s": 8.276,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.026335
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026335
+}

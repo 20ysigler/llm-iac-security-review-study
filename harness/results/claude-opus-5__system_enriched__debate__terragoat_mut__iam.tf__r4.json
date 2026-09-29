@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:13:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege and giving the service user account-wide control over compute, storage, serverless and monitoring. This enables data access across all S3 buckets, log/alarm tampering via cloudwatch:*, and privilege escalation via ec2:RunInstances or lambda function creation with an existing instance profile/execution role.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials in state",
+      "description": "A permanent IAM access key is created for a highly privileged user instead of using an assumable role with short-lived credentials, and no pgp_key is supplied, so the secret and ses_smtp_password attributes are written to the Terraform state file in cleartext. Anyone with read access to state obtains account-wide credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential material exposed via output",
+      "description": "The svc_deploy_key_material output exports access key material from the key resource and is not marked sensitive, so the value is rendered in CLI output, plan artifacts and CI/CD logs. (Note: because no pgp_key is set, encrypted_secret is unset; the insecure pattern of emitting key material as a non-sensitive output remains, and the plaintext secret is still recoverable from state.)",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged IAM user without MFA or boundary",
+      "description": "A long-lived IAM user is used for automation rather than an assumable role, with no MFA enforcement and no permissions_boundary constraining its wildcard inline policy. Compromise of its static key yields full account-wide access with no secondary control.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force_destroy removes access control artifacts",
+      "description": "force_destroy = true allows Terraform to delete the user along with all attached access keys, policies and group memberships without manual intervention, enabling silent teardown of an identity and its audit-relevant attachments during a destroy or a hijacked pipeline run.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 7909,
+  "output_tokens": 2453,
+  "latency_s": 29.842,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege and giving the service user account-wide control over compute, storage, serverless and monitoring. This enables data access across all S3 buckets, log/alarm tampering via cloudwatch:*, and privilege escalation via ec2:RunInstances or lambda function creation with an existing instance profile/execution role.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials in state\", \"description\": \"A permanent IAM access key is created for a highly privileged user instead of using an assumable role with short-lived credentials, and no pgp_key is supplied, so the secret and ses_smtp_password attributes are written to the Terraform state file in cleartext. Anyone with read access to state obtains account-wide credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential material exposed via output\", \"description\": \"The svc_deploy_key_material output exports access key material from the key resource and is not marked sensitive, so the value is rendered in CLI output, plan artifacts and CI/CD logs. (Note: because no pgp_key is set, encrypted_secret is unset; the insecure pattern of emitting key material as a non-sensitive output remains, and the plaintext secret is still recoverable from state.)\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged IAM user without MFA or boundary\", \"description\": \"A long-lived IAM user is used for automation rather than an assumable role, with no MFA enforcement and no permissions_boundary constraining its wildcard inline policy. Compromise of its static key yields full account-wide access with no secondary control.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force_destroy removes access control artifacts\", \"description\": \"force_destroy = true allows Terraform to delete the user along with all attached access keys, policies and group memberships without manual intervention, enabling silent teardown of an identity and its audit-relevant attachments during a destroy or a hijacked pipeline run.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2060,
+      "output_tokens": 744,
+      "latency_s": 9.651,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.0289
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2060,
+      "output_tokens": 748,
+      "latency_s": 9.416,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.029
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3789,
+      "output_tokens": 961,
+      "latency_s": 10.775,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.04297
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.10087
+}

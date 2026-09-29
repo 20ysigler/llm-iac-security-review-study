@@ -1,0 +1,126 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat__db-app.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:56:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS MySQL instance sets publicly_accessible = true, giving it an internet-routable endpoint (and the endpoint is exported as a Terraform output). This substantially expands attack surface for credential brute-force and exploitation of the MySQL service.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables KMS encryption of the RDS storage volume and its snapshots, leaving stored application data unencrypted on the underlying storage.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "transport encryption not enforced",
+      "description": "The MySQL 8.0 parameter group sets only character-set parameters and does not set require_secure_transport = 1, so the database accepts unencrypted client connections; combined with a publicly accessible endpoint this permits cleartext transmission of credentials and query data.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script interpolates the database master password (var.password) and username directly into the instance bootstrap script. User data is retrievable in plaintext from the instance metadata service and via ec2:DescribeInstanceAttribute, exposing DB credentials to anyone with instance access, SSRF against 169.254.169.254, or read access to the EC2 API.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "instance metadata service v1 permitted",
+      "description": "No metadata_options block with http_tokens = \"required\" is configured, so IMDSv1 remains available. A server-side request forgery in the hosted PHP application could retrieve the instance profile credentials, which carry s3:*, ec2:* and rds:* on all resources.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device encrypted = true is specified, so the root volume \u2014 which persists the plaintext dbinfo.inc credentials file and the user data \u2014 relies on account default settings and may be unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "low",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\" to the role assumed by the internet-facing web instance. This violates least privilege and provides a direct data exfiltration and privilege escalation path (read all S3 buckets, modify RDS, launch or modify EC2 instances) from a single web application compromise.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The RDS security group allows all outbound protocols and ports to 0.0.0.0/0, providing no containment against data exfiltration or command-and-control traffic from a compromised database host.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_subnet_group.default",
+      "issue_category": "database placed in public subnets",
+      "description": "The DB subnet group places the RDS instance in aws_subnet.web_subnet and aws_subnet.web_subnet2 \u2014 the same subnets used for the public-facing web instance. Combined with publicly_accessible = true, this removes the network segmentation boundary that should isolate the data tier from the internet.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 16516,
+  "output_tokens": 2970,
+  "latency_s": 33.217,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS MySQL instance sets publicly_accessible = true, giving it an internet-routable endpoint (and the endpoint is exported as a Terraform output). This substantially expands attack surface for credential brute-force and exploitation of the MySQL service.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables KMS encryption of the RDS storage volume and its snapshots, leaving stored application data unencrypted on the underlying storage.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_parameter_group.default\", \"issue_category\": \"transport encryption not enforced\", \"description\": \"The MySQL 8.0 parameter group sets only character-set parameters and does not set require_secure_transport = 1, so the database accepts unencrypted client connections; combined with a publicly accessible endpoint this permits cleartext transmission of credentials and query data.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script interpolates the database master password (var.password) and username directly into the instance bootstrap script. User data is retrievable in plaintext from the instance metadata service and via ec2:DescribeInstanceAttribute, exposing DB credentials to anyone with instance access, SSRF against 169.254.169.254, or read access to the EC2 API.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"instance metadata service v1 permitted\", \"description\": \"No metadata_options block with http_tokens = \\\"required\\\" is configured, so IMDSv1 remains available. A server-side request forgery in the hosted PHP application could retrieve the instance profile credentials, which carry s3:*, ec2:* and rds:* on all resources.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device encrypted = true is specified, so the root volume \\u2014 which persists the plaintext dbinfo.inc credentials file and the user data \\u2014 relies on account default settings and may be unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"low\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to the role assumed by the internet-facing web instance. This violates least privilege and provides a direct data exfiltration and privilege escalation path (read all S3 buckets, modify RDS, launch or modify EC2 instances) from a single web application compromise.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The RDS security group allows all outbound protocols and ports to 0.0.0.0/0, providing no containment against data exfiltration or command-and-control traffic from a compromised database host.\", \"severity\": \"low\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_subnet_group.default\", \"issue_category\": \"database placed in public subnets\", \"description\": \"The DB subnet group places the RDS instance in aws_subnet.web_subnet and aws_subnet.web_subnet2 \\u2014 the same subnets used for the public-facing web instance. Combined with publicly_accessible = true, this removes the network segmentation boundary that should isolate the data tier from the internet.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7312,
+      "output_tokens": 1541,
+      "latency_s": 17.959,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.075085
+    },
+    {
+      "step": "critique",
+      "input_tokens": 9204,
+      "output_tokens": 1429,
+      "latency_s": 15.258,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.081745
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.15683
+}

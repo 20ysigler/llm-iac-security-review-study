@@ -1,0 +1,102 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:55:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted at rest, violating encryption-at-rest requirements for regulated data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance to the internet and relying solely on security group rules for protection, dramatically increasing the attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The master username is hard-coded to 'admin' and the password is sourced from a variable with no indication of use of a secrets manager; combined with the password being embedded in plaintext into EC2 user data below, this creates a credential exposure risk.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The database username and password are interpolated directly into the EC2 instance's user_data script in cleartext, which is stored in the EC2 metadata service and instance console output, exposing DB credentials to anyone with read access to instance metadata or the Terraform state/logs.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege and allowing the instance (which is publicly reachable and running a public-facing web app) to perform virtually unrestricted actions across S3, EC2, and RDS if compromised via the SQL/PHP application.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and ports to 0.0.0.0/0, providing no network egress restriction and enabling data exfiltration or command-and-control communication if the DB or associated host is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 16021,
+  "output_tokens": 2099,
+  "latency_s": 18.461,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted at rest, violating encryption-at-rest requirements for regulated data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance to the internet and relying solely on security group rules for protection, dramatically increasing the attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The master username is hard-coded to 'admin' and the password is sourced from a variable with no indication of use of a secrets manager; combined with the password being embedded in plaintext into EC2 user data below, this creates a credential exposure risk.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The database username and password are interpolated directly into the EC2 instance's user_data script in cleartext, which is stored in the EC2 metadata service and instance console output, exposing DB credentials to anyone with read access to instance metadata or the Terraform state/logs.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege and allowing the instance (which is publicly reachable and running a public-facing web app) to perform virtually unrestricted actions across S3, EC2, and RDS if compromised via the SQL/PHP application.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and ports to 0.0.0.0/0, providing no network egress restriction and enabling data exfiltration or command-and-control communication if the DB or associated host is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7380,
+      "output_tokens": 1081,
+      "latency_s": 10.482,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02557
+    },
+    {
+      "step": "critique",
+      "input_tokens": 8641,
+      "output_tokens": 1018,
+      "latency_s": 7.979,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.027462
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.053032
+}

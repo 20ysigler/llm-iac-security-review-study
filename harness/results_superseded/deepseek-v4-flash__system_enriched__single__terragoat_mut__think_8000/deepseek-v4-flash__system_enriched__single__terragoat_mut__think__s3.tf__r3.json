@@ -1,0 +1,118 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:38:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket has no server_side_encryption_configuration block, unlike aws_s3_bucket.audit_trail, so objects such as the seeded vendor-roster.xlsx are not encrypted with a customer-managed KMS key and rely on whatever account/BucketKey default applies. Data at rest is not protected by an explicit, auditable encryption control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket holding ledger exports has no server_side_encryption_configuration block and therefore no customer-managed encryption key. Financial ledger data is stored unencrypted by any explicit control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "Versioning and logging are enabled but no server_side_encryption_configuration is defined, so model artifacts are stored without an explicitly configured key. Logging to the audit bucket does not substitute for encryption of the object data itself.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket has no server_side_encryption_configuration block, leaving operational runbook contents without an explicit encryption-at-rest control or customer-managed key.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "absent public access block",
+      "description": "No aws_s3_bucket_public_access_block is attached and the bucket does not even set an explicit private ACL, so there is no bucket-level guardrail preventing a later policy or ACL change from exposing the bucket publicly.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "absent public access block",
+      "description": "No aws_s3_bucket_public_access_block is attached to this bucket. Defence in depth against accidental public exposure depends solely on the private ACL with no block-public-access guardrail.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "absent public access block",
+      "description": "No aws_s3_bucket_public_access_block is attached to this bucket, so the public-access guardrail that suppresses public ACLs and policies is not enforced at the bucket level.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "absent public access block",
+      "description": "No aws_s3_bucket_public_access_block is attached to this bucket, leaving no bucket-level enforcement that public access remain blocked.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "absent public access block",
+      "description": "The audit-trail bucket uses a log-delivery-write ACL (as required to be a logging target) but has no aws_s3_bucket_public_access_block, so the grant-based ACL model is not constrained by a block-public-access guardrail on this security-sensitive bucket.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1558,
+  "output_tokens": 5094,
+  "latency_s": 22.604,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket has no server_side_encryption_configuration block, unlike aws_s3_bucket.audit_trail, so objects such as the seeded vendor-roster.xlsx are not encrypted with a customer-managed KMS key and rely on whatever account/BucketKey default applies. Data at rest is not protected by an explicit, auditable encryption control.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket holding ledger exports has no server_side_encryption_configuration block and therefore no customer-managed encryption key. Financial ledger data is stored unencrypted by any explicit control.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Versioning and logging are enabled but no server_side_encryption_configuration is defined, so model artifacts are stored without an explicitly configured key. Logging to the audit bucket does not substitute for encryption of the object data itself.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket has no server_side_encryption_configuration block, leaving operational runbook contents without an explicit encryption-at-rest control or customer-managed key.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"absent public access block\", \"description\": \"No aws_s3_bucket_public_access_block is attached and the bucket does not even set an explicit private ACL, so there is no bucket-level guardrail preventing a later policy or ACL change from exposing the bucket publicly.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"absent public access block\", \"description\": \"No aws_s3_bucket_public_access_block is attached to this bucket. Defence in depth against accidental public exposure depends solely on the private ACL with no block-public-access guardrail.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"absent public access block\", \"description\": \"No aws_s3_bucket_public_access_block is attached to this bucket, so the public-access guardrail that suppresses public ACLs and policies is not enforced at the bucket level.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"absent public access block\", \"description\": \"No aws_s3_bucket_public_access_block is attached to this bucket, leaving no bucket-level enforcement that public access remain blocked.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"absent public access block\", \"description\": \"The audit-trail bucket uses a log-delivery-write ACL (as required to be a logging target) but has no aws_s3_bucket_public_access_block, so the grant-based ACL model is not constrained by a block-public-access guardrail on this security-sensitive bucket.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1558,
+      "output_tokens": 5094,
+      "latency_s": 22.604,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.001644
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001644
+}

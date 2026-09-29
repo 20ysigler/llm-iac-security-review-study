@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:07:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in user_data",
+      "description": "The user_data script writes the RDS endpoint, username, database name and the plaintext DB password (${var.password}) into /var/www/inc/dbinfo.inc on disk. User data is unencrypted and retrievable by any process on the instance and, absent IMDSv2, by SSRF through the public web application, exposing the database credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy attached to the EC2-assumable catalog_app_role grants s3:*, ec2:* and rds:* on Resource \"*\", giving the web server's instance role full control of storage, compute and databases. A compromise of this internet-facing app yields account-wide read/write and privilege-escalation paths (e.g. launching instances, modifying or deleting RDS data).",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the MySQL instance a public address, placing the database in a publicly reachable network sphere rather than isolating it inside the VPC; its exposure then depends entirely on the security group rules and subnet routing.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the database storage, snapshots and backups unencrypted, so any access to the underlying volumes exposes all catalog data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "The instance does not set metadata_options to require IMDSv2 (http_tokens = \"required\"), so the legacy metadata endpoint remains reachable. Combined with the public PHP application, an SSRF flaw can retrieve instance role credentials and the user_data secrets via 169.254.169.254.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "Ingress to MySQL port 3306 is allowed from the entire VPC CIDR block rather than only from the application security group, so any compromised host in the VPC can reach and attack the database (defence-in-depth weakening of network segmentation).",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows egress on all protocols and ports to 0.0.0.0/0, providing an unconstrained exfiltration path from the database host to any external network.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "predictable administrative username",
+      "description": "The master username is the well-known default \"admin\", which weakens credential strength and simplifies credential-guessing against the publicly accessible database.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 4843,
+  "latency_s": 21.382,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in user_data\", \"description\": \"The user_data script writes the RDS endpoint, username, database name and the plaintext DB password (${var.password}) into /var/www/inc/dbinfo.inc on disk. User data is unencrypted and retrievable by any process on the instance and, absent IMDSv2, by SSRF through the public web application, exposing the database credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy attached to the EC2-assumable catalog_app_role grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", giving the web server's instance role full control of storage, compute and databases. A compromise of this internet-facing app yields account-wide read/write and privilege-escalation paths (e.g. launching instances, modifying or deleting RDS data).\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true assigns the MySQL instance a public address, placing the database in a publicly reachable network sphere rather than isolating it inside the VPC; its exposure then depends entirely on the security group rules and subnet routing.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the database storage, snapshots and backups unencrypted, so any access to the underlying volumes exposes all catalog data in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"The instance does not set metadata_options to require IMDSv2 (http_tokens = \\\"required\\\"), so the legacy metadata endpoint remains reachable. Combined with the public PHP application, an SSRF flaw can retrieve instance role credentials and the user_data secrets via 169.254.169.254.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"Ingress to MySQL port 3306 is allowed from the entire VPC CIDR block rather than only from the application security group, so any compromised host in the VPC can reach and attack the database (defence-in-depth weakening of network segmentation).\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows egress on all protocols and ports to 0.0.0.0/0, providing an unconstrained exfiltration path from the database host to any external network.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"predictable administrative username\", \"description\": \"The master username is the well-known default \\\"admin\\\", which weakens credential strength and simplifies credential-guessing against the publicly accessible database.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 4843,
+      "latency_s": 21.382,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.001859
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001859
+}

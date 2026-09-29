@@ -1,0 +1,81 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__s3.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:58:44Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so objects (including the uploaded customer master spreadsheet) are stored without enforced SSE-KMS. Any data written here lacks key-managed encryption and the audit trail that KMS grants provide.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "unrestricted public bucket access",
+      "description": "The bucket is explicitly annotated as public and has no ACL restriction and no accompanying aws_s3_bucket_public_access_block resource, so ACL or policy grants to AllUsers/AuthenticatedUsers are not blocked. This bucket holds a customer master file, so anonymous read access would expose customer records.",
+      "severity": "critical",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "cleartext transmission permitted",
+      "description": "No bucket policy denies requests where aws:SecureTransport is false, so objects in this bucket may be retrieved over unencrypted HTTP. Combined with the sensitive customer object stored here, this permits interception of data in transit.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data stored unencrypted",
+      "description": "A customer master spreadsheet is uploaded into aws_s3_bucket.data with no server_side_encryption or kms_key_id argument, and the target bucket has no default encryption and no public access block. Sensitive customer data is therefore stored in cleartext in a bucket with weak access controls.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores financial data but defines no server_side_encryption_configuration, so objects are not encrypted with a managed KMS key at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so operational data is stored without enforced SSE-KMS encryption at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so data-science datasets are stored without enforced SSE-KMS encryption at rest, unlike the logs bucket in the same file.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 3676,
+  "output_tokens": 2373,
+  "latency_s": 29.566,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so objects (including the uploaded customer master spreadsheet) are stored without enforced SSE-KMS. Any data written here lacks key-managed encryption and the audit trail that KMS grants provide.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"unrestricted public bucket access\", \"description\": \"The bucket is explicitly annotated as public and has no ACL restriction and no accompanying aws_s3_bucket_public_access_block resource, so ACL or policy grants to AllUsers/AuthenticatedUsers are not blocked. This bucket holds a customer master file, so anonymous read access would expose customer records.\", \"severity\": \"critical\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"cleartext transmission permitted\", \"description\": \"No bucket policy denies requests where aws:SecureTransport is false, so objects in this bucket may be retrieved over unencrypted HTTP. Combined with the sensitive customer object stored here, this permits interception of data in transit.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"sensitive data stored unencrypted\", \"description\": \"A customer master spreadsheet is uploaded into aws_s3_bucket.data with no server_side_encryption or kms_key_id argument, and the target bucket has no default encryption and no public access block. Sensitive customer data is therefore stored in cleartext in a bucket with weak access controls.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores financial data but defines no server_side_encryption_configuration, so objects are not encrypted with a managed KMS key at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so operational data is stored without enforced SSE-KMS encryption at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so data-science datasets are stored without enforced SSE-KMS encryption at rest, unlike the logs bucket in the same file.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}]}",
+  "cost_usd": 0.077705
+}

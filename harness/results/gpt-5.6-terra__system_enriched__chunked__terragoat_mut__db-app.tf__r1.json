@@ -1,0 +1,136 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__chunked__terragoat_mut__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded database credential",
+      "description": "The database password is interpolated into EC2 user data and written to /var/www/inc/dbinfo.inc. User data and the resulting application file can expose this credential to principals able to inspect instance metadata, launch configuration state, or the instance filesystem.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The PHP application connects with mysqli_connect without configuring TLS/SSL or verifying the database certificate. Database credentials and application data may therefore traverse the network without transport encryption if the RDS endpoint does not independently require TLS.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance is configured with publicly_accessible = true, which assigns a public network endpoint. Although the shown security-group ingress is limited to the VPC CIDR, public exposure unnecessarily increases attack surface and can become externally reachable if security-group rules change.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance explicitly sets storage_encrypted = false, leaving database storage, automated backups, and snapshots unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded database administrator username",
+      "description": "The database administrator username is fixed as \"admin\" in configuration. This creates a predictable privileged account name that assists password-guessing attacks against the database endpoint.",
+      "severity": "low",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0. This removes egress network segmentation for the database and permits unrestricted outbound connections if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The application role is granted every S3, EC2, and RDS action on every resource. This violates least privilege and can enable broad data access, infrastructure modification, and privilege escalation from the application instance that uses this role.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL port 3306 is allowed from the entire VPC CIDR rather than a specific application security group or narrowly defined clients. Any workload or compromised host in the VPC can attempt to connect to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5992,
+  "output_tokens": 692,
+  "latency_s": 10.425,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1335,
+      "output_tokens": 18,
+      "latency_s": 0.931,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.002886
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2062,
+      "output_tokens": 179,
+      "latency_s": 2.552,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.006272
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1528,
+      "output_tokens": 477,
+      "latency_s": 5.992,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.00878
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1067,
+      "output_tokens": 18,
+      "latency_s": 0.95,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.00235
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.020288
+}

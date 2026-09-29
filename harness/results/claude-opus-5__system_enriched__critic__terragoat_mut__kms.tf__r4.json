@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__kms.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:48:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Missing key rotation configuration",
+      "description": "enable_key_rotation is not set, so it defaults to false and the CMK protecting audit trail data keeps the same static key material indefinitely. This increases the blast radius of a key compromise and fails common audit-log encryption baselines.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Missing explicit key policy",
+      "description": "No policy argument is supplied, so AWS applies the default key policy delegating full control to the account root principal, meaning any IAM principal in the account with sufficient IAM permissions can Decrypt, Disable, or ScheduleKeyDeletion on the key. For a key protecting audit evidence this is an over-broad grant that does not constrain who can read or destroy the logs.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Short key deletion window",
+      "description": "deletion_window_in_days is set to the minimum of 7 days. For a key encrypting audit trail data this shortens the window in which an accidental or malicious ScheduleKeyDeletion can be detected and cancelled, after which all data encrypted under the key becomes permanently unrecoverable (destruction of audit evidence).",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    }
+  ],
+  "input_tokens": 4149,
+  "output_tokens": 958,
+  "latency_s": 13.532,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Missing key rotation configuration\", \"description\": \"enable_key_rotation is not set, so it defaults to false and the CMK protecting audit trail data keeps the same static key material indefinitely. This increases the blast radius of a key compromise and fails common audit-log encryption baselines.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Missing explicit key policy\", \"description\": \"No policy argument is supplied, so AWS applies the default key policy delegating full control to the account root principal, meaning any IAM principal in the account with sufficient IAM permissions can Decrypt, Disable, or ScheduleKeyDeletion on the key. For a key protecting audit evidence this is an over-broad grant that does not constrain who can read or destroy the logs.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Short key deletion window\", \"description\": \"deletion_window_in_days is set to the minimum of 7 days. For a key encrypting audit trail data this shortens the window in which an accidental or malicious ScheduleKeyDeletion can be detected and cancelled, after which all data encrypted under the key becomes permanently unrecoverable (destruction of audit evidence).\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-693\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1796,
+      "output_tokens": 400,
+      "latency_s": 5.907,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.01898
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2353,
+      "output_tokens": 558,
+      "latency_s": 7.625,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.025715
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.044695
+}

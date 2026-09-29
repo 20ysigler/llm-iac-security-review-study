@@ -1,0 +1,72 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:46:56Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing data to unauthorized access if the storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting access to within the VPC, significantly increasing attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The database master username is hard-coded to 'admin' and the password is passed via a variable without indication of secure secrets management (e.g., Secrets Manager), and is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database username and password (var.password) in cleartext within a PHP file and the instance metadata, which is retrievable by anyone with access to the instance or its metadata service, and stored in Terraform state and cloud provider logs unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: *), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and enabling data exfiltration or command-and-control communication from the RDS security group.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "combined public exposure and open security group",
+      "description": "The database is both publicly accessible and attached to a security group whose ingress rule allows the entire VPC CIDR range on port 3306, meaning that combined with publicly_accessible=true, the effective exposure is broader than intended since any publicly reachable path into the VPC could reach the database.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1104,
+  "latency_s": 10.31,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing data to unauthorized access if the storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting access to within the VPC, significantly increasing attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The database master username is hard-coded to 'admin' and the password is passed via a variable without indication of secure secrets management (e.g., Secrets Manager), and is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database username and password (var.password) in cleartext within a PHP file and the instance metadata, which is retrievable by anyone with access to the instance or its metadata service, and stored in Terraform state and cloud provider logs unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: *), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, removing network segmentation and enabling data exfiltration or command-and-control communication from the RDS security group.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"combined public exposure and open security group\", \"description\": \"The database is both publicly accessible and attached to a security group whose ingress rule allows the entire VPC CIDR range on port 3306, meaning that combined with publicly_accessible=true, the effective exposure is broader than intended since any publicly reachable path into the VPC could reach the database.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}]}",
+  "cost_usd": 0.0258
+}

@@ -1,0 +1,117 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__s3.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:35:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default, risking exposure of sensitive report data.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block / no ACL restriction",
+      "description": "The bucket has no ACL specified and no aws_s3_bucket_public_access_block resource restricting public access, leaving it potentially exposed to public read/write depending on account-level defaults.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for a bucket storing ledger export data, meaning sensitive financial data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so model artifacts are stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive operational details) is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "destructive operation enabled",
+      "description": "force_destroy = true allows the bucket and all its contents to be permanently deleted without recovery, increasing risk of accidental or malicious data loss for archived reports.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "destructive operation enabled",
+      "description": "force_destroy = true permits irreversible deletion of all objects in a bucket holding financial ledger exports.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload",
+      "description": "The object is uploaded to a bucket lacking server-side encryption configuration and does not specify its own server_side_encryption/kms_key_id, so this potentially sensitive vendor roster file is stored in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 9869,
+  "output_tokens": 3114,
+  "latency_s": 24.074,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default, risking exposure of sensitive report data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block / no ACL restriction\", \"description\": \"The bucket has no ACL specified and no aws_s3_bucket_public_access_block resource restricting public access, leaving it potentially exposed to public read/write depending on account-level defaults.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for a bucket storing ledger export data, meaning sensitive financial data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so model artifacts are stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive operational details) is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"destructive operation enabled\", \"description\": \"force_destroy = true allows the bucket and all its contents to be permanently deleted without recovery, increasing risk of accidental or malicious data loss for archived reports.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"destructive operation enabled\", \"description\": \"force_destroy = true permits irreversible deletion of all objects in a bucket holding financial ledger exports.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object upload\", \"description\": \"The object is uploaded to a bucket lacking server-side encryption configuration and does not specify its own server_side_encryption/kms_key_id, so this potentially sensitive vendor roster file is stored in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2560,
+      "output_tokens": 1037,
+      "latency_s": 8.142,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.01549
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2560,
+      "output_tokens": 1039,
+      "latency_s": 8.547,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.01551
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4749,
+      "output_tokens": 1038,
+      "latency_s": 7.385,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.019878
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.050878
+}

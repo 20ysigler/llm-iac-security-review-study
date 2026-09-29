@@ -1,0 +1,173 @@
+{
+  "run_id": "claude-opus-5__few_shot__single__terragoat_mut__s3.tf__r4",
+  "model": "claude-opus-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:21:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so objects in this reports bucket are stored without enforced SSE-KMS/SSE-S3 encryption.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access restrictions",
+      "description": "The bucket sets no ACL and has no aws_s3_bucket_public_access_block, so bucket/object ACLs or policies could expose report data publicly with no account-level guardrail.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing access logging",
+      "description": "No logging block is configured, so unauthorized access to the report objects would leave no audit trail for detection or forensics.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing object versioning",
+      "description": "Versioning is disabled, so objects can be overwritten or deleted irreversibly (e.g., by ransomware or a compromised credential) with force_destroy also enabled.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger export bucket has no server_side_encryption_configuration, leaving sensitive financial export data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing access logging",
+      "description": "No server access logging is configured for this ledger bucket, so reads and writes to sensitive exports are not auditable.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing object versioning",
+      "description": "Versioning is not enabled while force_destroy is true, so ledger export objects can be permanently destroyed or tampered with without recoverable prior versions.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is attached, so a future ACL or bucket policy change could silently make ledger data publicly readable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model artifacts bucket defines versioning and logging but no server-side encryption configuration, so artifacts are stored unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "no public access block",
+      "description": "There is no aws_s3_bucket_public_access_block guarding this bucket against ACL- or policy-based public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is set, so operational runbooks (which commonly contain internal hostnames, procedures, and secrets) are stored unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing access logging",
+      "description": "No logging block is defined, so access to runbook content is not recorded for audit or intrusion detection.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "no public access block",
+      "description": "The bucket lacks an aws_s3_bucket_public_access_block, leaving no account-level guardrail against accidental public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing access logging",
+      "description": "The audit/log-delivery bucket itself has no access logging configured, so tampering with or exfiltration of audit logs is not independently recorded.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "The audit log bucket has no aws_s3_bucket_public_access_block, so a misconfigured ACL or policy could expose log data containing internal access patterns.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "A vendor roster spreadsheet is uploaded into the unencrypted reports_archive bucket with no server_side_encryption or kms_key_id specified, so potentially sensitive third-party data is stored in plaintext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2655,
+  "output_tokens": 1948,
+  "latency_s": 21.402,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so objects in this reports bucket are stored without enforced SSE-KMS/SSE-S3 encryption.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access restrictions\", \"description\": \"The bucket sets no ACL and has no aws_s3_bucket_public_access_block, so bucket/object ACLs or policies could expose report data publicly with no account-level guardrail.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing access logging\", \"description\": \"No logging block is configured, so unauthorized access to the report objects would leave no audit trail for detection or forensics.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing object versioning\", \"description\": \"Versioning is disabled, so objects can be overwritten or deleted irreversibly (e.g., by ransomware or a compromised credential) with force_destroy also enabled.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger export bucket has no server_side_encryption_configuration, leaving sensitive financial export data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing access logging\", \"description\": \"No server access logging is configured for this ledger bucket, so reads and writes to sensitive exports are not auditable.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing object versioning\", \"description\": \"Versioning is not enabled while force_destroy is true, so ledger export objects can be permanently destroyed or tampered with without recoverable prior versions.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is attached, so a future ACL or bucket policy change could silently make ledger data publicly readable.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model artifacts bucket defines versioning and logging but no server-side encryption configuration, so artifacts are stored unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"no public access block\", \"description\": \"There is no aws_s3_bucket_public_access_block guarding this bucket against ACL- or policy-based public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is set, so operational runbooks (which commonly contain internal hostnames, procedures, and secrets) are stored unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing access logging\", \"description\": \"No logging block is defined, so access to runbook content is not recorded for audit or intrusion detection.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"no public access block\", \"description\": \"The bucket lacks an aws_s3_bucket_public_access_block, leaving no account-level guardrail against accidental public exposure.\", \"sever",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2655,
+      "output_tokens": 1948,
+      "latency_s": 21.402,
+      "n_findings": 16,
+      "error": "",
+      "cost_usd": 0.061975
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.061975
+}

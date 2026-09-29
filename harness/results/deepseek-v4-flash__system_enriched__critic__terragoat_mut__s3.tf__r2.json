@@ -1,0 +1,110 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__s3.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports bucket defines no server_side_encryption_configuration, so archived reports are stored under S3's default (SSE-S3 or, where unset, no managed key) rather than an explicitly enforced SSE-KMS/SSE-S3 policy.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger exports bucket defines no server_side_encryption_configuration, so exported financial ledger data is not encrypted under a managed key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model artifacts bucket defines no server_side_encryption_configuration, so model data and training artifacts are stored without an explicitly configured default encryption key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The runbooks bucket defines no server_side_encryption_configuration, so operational runbooks are not encrypted under a managed key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "public access not blocked",
+      "description": "The audit trail bucket sets acl = \"log-delivery-write\" but has no aws_s3_bucket_public_access_block\":\"none and no public access block resource, leaving the bucket that stores the account's audit logs without a guard against public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "object uploaded without encryption",
+      "description": "The seed object is uploaded to the reports_archive bucket, which has no server_side_encryption_configuration and therefore no enforced default key; the object is stored without managed encryption and no explicit encryption attribute is set on the object.",
+      "severity": "low",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force destroy enabled",
+      "description": "force_destroy = true on the audit trail bucket allows the access logs and audit records for the account to be destroyed by a routine terraform apply, undermining the tamper-evidence of the logging pipeline.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4497,
+  "output_tokens": 1912,
+  "latency_s": 8.522,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports bucket defines no server_side_encryption_configuration, so archived reports are stored under S3's default (SSE-S3 or, where unset, no managed key) rather than an explicitly enforced SSE-KMS/SSE-S3 policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger exports bucket defines no server_side_encryption_configuration, so exported financial ledger data is not encrypted under a managed key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model artifacts bucket defines no server_side_encryption_configuration, so model data and training artifacts are stored without an explicitly configured default encryption key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The runbooks bucket defines no server_side_encryption_configuration, so operational runbooks are not encrypted under a managed key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"public access not blocked\", \"description\": \"The audit trail bucket sets acl = \\\"log-delivery-write\\\" but has no aws_s3_bucket_public_access_block\\\":\\\"none and no public access block resource, leaving the bucket that stores the account's audit logs without a guard against public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"object uploaded without encryption\", \"description\": \"The seed object is uploaded to the reports_archive bucket, which has no server_side_encryption_configuration and therefore no enforced default key; the object is stored without managed encryption and no explicit encryption attribute is set on the object.\", \"severity\": \"low\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"force destroy enabled\", \"description\": \"force_destroy = true on the audit trail bucket allows the access logs and audit records for the account to be destroyed by a routine terraform apply, undermining the tamper-evidence of the logging pipeline.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1538,
+      "output_tokens": 1230,
+      "latency_s": 5.269,
+      "n_findings": 13,
+      "error": "",
+      "cost_usd": 0.00056
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2959,
+      "output_tokens": 682,
+      "latency_s": 3.253,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000605
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.001165
+}

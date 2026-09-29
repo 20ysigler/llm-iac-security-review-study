@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:23:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is set to false, meaning the RDS database's data at rest is not encrypted, exposing sensitive data if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database directly to the internet, significantly increasing the attack surface for unauthorized access.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via var.password directly into the resource and later embedded in plaintext into instance user_data, risking credential exposure in state files, logs, and instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext credential in user data",
+      "description": "The user_data script embeds the database password and username in cleartext into /var/www/inc/dbinfo.inc, which is retrievable from instance metadata by anyone with access to the instance or metadata service, and may also be logged in Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "Ingress on port 3306 (MySQL) is allowed from the entire VPC CIDR block rather than being scoped to only the application server's security group, broadening the reachable attack surface within the VPC.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all outbound traffic (all protocols, all ports) to 0.0.0.0/0, which is overly permissive for a database security group and could facilitate data exfiltration if the DB or associated instance is compromised.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 6030,
+  "output_tokens": 976,
+  "latency_s": 8.437,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is set to false, meaning the RDS database's data at rest is not encrypted, exposing sensitive data if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database directly to the internet, significantly increasing the attack surface for unauthorized access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via var.password directly into the resource and later embedded in plaintext into instance user_data, risking credential exposure in state files, logs, and instance metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext credential in user data\", \"description\": \"The user_data script embeds the database password and username in cleartext into /var/www/inc/dbinfo.inc, which is retrievable from instance metadata by anyone with access to the instance or metadata service, and may also be logged in Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network ingress\", \"description\": \"Ingress on port 3306 (MySQL) is allowed from the entire VPC CIDR block rather than being scoped to only the application server's security group, broadening the reachable attack surface within the VPC.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all outbound traffic (all protocols, all ports) to 0.0.0.0/0, which is overly permissive for a database security group and could facilitate data exfiltration if the DB or associated instance is compromised.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 6030,
+      "output_tokens": 976,
+      "latency_s": 8.437,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02182
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02182
+}

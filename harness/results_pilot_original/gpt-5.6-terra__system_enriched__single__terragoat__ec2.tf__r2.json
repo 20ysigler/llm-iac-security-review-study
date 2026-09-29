@@ -1,0 +1,79 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:42Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded cloud credentials",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "Long-lived AWS access key credentials are embedded in EC2 user data. User data is stored in Terraform state and can be retrieved by parties with instance or metadata access, exposing credentials that may grant AWS API access."
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The EBS volume does not set `encrypted = true`; encryption therefore depends on an account-level default not established by this configuration. Data written to the attached volume may be stored unencrypted at rest."
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted storage snapshot",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "This snapshot is created from the EBS volume that is not configured for encryption. As a result, the snapshot can preserve the volume's data without encryption at rest."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "TCP port 22 is allowed from `0.0.0.0/0`. The associated instance is placed in a public-IP subnet with a default route to an internet gateway, making SSH reachable from untrusted internet hosts."
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. Together with the internet-gateway route and security group, this exposes the web host directly to the internet."
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. The subnet is associated with a route table that has a default route to the internet gateway, creating internet exposure for future workloads."
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing S3 encryption",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The bucket receiving VPC flow logs has no server-side encryption configuration. Flow-log data may therefore be stored without encryption at rest unless an external account default is relied upon."
+    }
+  ],
+  "input_tokens": 3867,
+  "output_tokens": 557,
+  "latency_s": 4.617,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded cloud credentials\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"Long-lived AWS access key credentials are embedded in EC2 user data. User data is stored in Terraform state and can be retrieved by parties with instance or metadata access, exposing credentials that may grant AWS API access.\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The EBS volume does not set `encrypted = true`; encryption therefore depends on an account-level default not established by this configuration. Data written to the attached volume may be stored unencrypted at rest.\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted storage snapshot\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"This snapshot is created from the EBS volume that is not configured for encryption. As a result, the snapshot can preserve the volume's data without encryption at rest.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"TCP port 22 is allowed from `0.0.0.0/0`. The associated instance is placed in a public-IP subnet with a default route to an internet gateway, making SSH reachable from untrusted internet hosts.\"},{\"resource\":\"aws_subnet.web_subnet\",\"issue_category\":\"automatic public IP assignment\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. Together with the internet-gateway route and security group, this exposes the web host directly to the internet.\"},{\"resource\":\"aws_subnet.web_subnet2\",\"issue_category\":\"automatic public IP assignment\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`map_public_ip_on_launch = true` automatically assigns public IPv4 addresses to instances launched in this subnet. The subnet is associated with a route table that has a default route to the internet gateway, creating internet exposure for future workloads.\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing S3 encryption\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The bucket receiving VPC flow logs has no server-side encryption configuration. Flow-log data may therefore be stored without encryption at rest unless an external account default is relied upon.\"}]}",
+  "cost_usd": 0.014418
+}

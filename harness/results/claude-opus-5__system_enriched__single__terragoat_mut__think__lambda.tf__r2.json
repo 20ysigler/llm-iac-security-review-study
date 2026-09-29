@@ -1,0 +1,69 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:36:41Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded AWS credentials in environment",
+      "description": "Long-lived AWS access key and secret key are embedded directly in the Lambda environment variables (`access_key` / `secret_key`), committing static credentials to source control and exposing them to anyone with lambda:GetFunctionConfiguration or console read access. This also defeats the purpose of the attached execution role, since the function can authenticate as an entirely different, potentially more privileged IAM principal.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables at rest",
+      "description": "No `kms_key_arn` is specified, so the environment variables \u2014 which here contain AWS secret credentials \u2014 are encrypted only with the default AWS-managed Lambda key rather than a customer-managed CMK with its own key policy and audit trail. Any principal holding generic Lambda read permissions can retrieve the decrypted values without a separate KMS authorization check.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime version",
+      "description": "The function targets `nodejs12.x`, a runtime that has reached end of life and no longer receives security patches from AWS. Known vulnerabilities in the Node.js interpreter and bundled OpenSSL libraries will remain unremediated in the execution environment.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 1953,
+  "output_tokens": 875,
+  "latency_s": 11.165,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded AWS credentials in environment\", \"description\": \"Long-lived AWS access key and secret key are embedded directly in the Lambda environment variables (`access_key` / `secret_key`), committing static credentials to source control and exposing them to anyone with lambda:GetFunctionConfiguration or console read access. This also defeats the purpose of the attached execution role, since the function can authenticate as an entirely different, potentially more privileged IAM principal.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables at rest\", \"description\": \"No `kms_key_arn` is specified, so the environment variables \\u2014 which here contain AWS secret credentials \\u2014 are encrypted only with the default AWS-managed Lambda key rather than a customer-managed CMK with its own key policy and audit trail. Any principal holding generic Lambda read permissions can retrieve the decrypted values without a separate KMS authorization check.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime version\", \"description\": \"The function targets `nodejs12.x`, a runtime that has reached end of life and no longer receives security patches from AWS. Known vulnerabilities in the Node.js interpreter and bundled OpenSSL libraries will remain unremediated in the execution environment.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1953,
+      "output_tokens": 875,
+      "latency_s": 11.165,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.03164
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.03164
+}

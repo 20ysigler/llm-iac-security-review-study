@@ -1,0 +1,119 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__debate__terragoat_mut__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet automatically assigns public IPv4 addresses to launched instances and is associated with a route table that has a default route to an Internet Gateway. Workloads launched here can become directly Internet-reachable if their security groups permit it.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet automatically assigns public IPv4 addresses to launched instances and is associated with an Internet-routable route table. The portal instance is launched here, so the public-IP exposure combines with its permissive security group.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not explicitly enable encryption or specify a KMS key. Its contents can be stored unencrypted unless account-level default EBS encryption, which is not established here, compensates for the omission.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "EC2 user data contains an AWS access key ID and secret access key. The secret is exposed in Terraform source, may be retained in state or deployment artifacts, and is accessible on the instance through its user-data script.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is permitted from 0.0.0.0/0. This group is attached to the portal instance, which is assigned a public IP in an Internet-routable subnet, exposing SSH to arbitrary Internet hosts.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket receiving VPC flow logs has no explicit server-side encryption configuration. The log records are therefore not protected by a bucket-enforced SSE-S3 or SSE-KMS setting.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted data snapshot",
+      "description": "The snapshot is created from an EBS volume that is not configured as encrypted. It can therefore retain the disk contents without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 7953,
+  "output_tokens": 1756,
+  "latency_s": 18.833,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_subnet.portal_subnet_b\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet automatically assigns public IPv4 addresses to launched instances and is associated with a route table that has a default route to an Internet Gateway. Workloads launched here can become directly Internet-reachable if their security groups permit it.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.portal_subnet_a\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet automatically assigns public IPv4 addresses to launched instances and is associated with an Internet-routable route table. The portal instance is launched here, so the public-IP exposure combines with its permissive security group.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not explicitly enable encryption or specify a KMS key. Its contents can be stored unencrypted unless account-level default EBS encryption, which is not established here, compensates for the omission.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"EC2 user data contains an AWS access key ID and secret access key. The secret is exposed in Terraform source, may be retained in state or deployment artifacts, and is accessible on the instance through its user-data script.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is permitted from 0.0.0.0/0. This group is attached to the portal instance, which is assigned a public IP in an Internet-routable subnet, exposing SSH to arbitrary Internet hosts.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The bucket receiving VPC flow logs has no explicit server-side encryption configuration. The log records are therefore not protected by a bucket-enforced SSE-S3 or SSE-KMS setting.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"unencrypted data snapshot\",\"description\":\"The snapshot is created from an EBS volume that is not configured as encrypted. It can therefore retain the disk contents without encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2118,
+      "output_tokens": 566,
+      "latency_s": 6.833,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.011028
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2118,
+      "output_tokens": 635,
+      "latency_s": 6.928,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.011856
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3717,
+      "output_tokens": 555,
+      "latency_s": 5.072,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.014094
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.036978
+}

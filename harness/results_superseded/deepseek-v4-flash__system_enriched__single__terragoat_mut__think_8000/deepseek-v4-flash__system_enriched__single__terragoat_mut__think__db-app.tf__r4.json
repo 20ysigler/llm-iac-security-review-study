@@ -1,0 +1,110 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:33:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS storage volumes, automated snapshots and read replicas unencrypted, so anyone who obtains a snapshot or the underlying storage can read the database contents in cleartext. This is a regulated-data database with a hard-coded admin credential, making the exposure more serious.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly reachable database",
+      "description": "publicly_accessible = true assigns the RDS instance a public IP/DNS endpoint, removing the network boundary around the database. Combined with the VPC-wide MySQL ingress rule on catalog_db_sg, any host that reaches the VPC edge can attempt to connect to the database directly rather than being restricted to the application tier.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The RDS master password (var.password) is interpolated directly into the EC2 user_data script as DB_PASSWORD. Instance user data is stored in the instance metadata service and cloud-init logs, so any local user or process on the web server \u2014 or anyone able to query IMDS \u2014 can retrieve the production database credential in plaintext.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:* and rds:* on Resource \"*\", giving the web server full control of S3, EC2 and RDS in the account. Because this role is attached to an internet-facing EC2 instance that runs a PHP web application via the wildcard asset policy, a compromise of the app yields credentials that allow destroying or exfiltrating all data and escalating to full account control (e.g. ec2:RunInstances with a privileged instance profile).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad ingress",
+      "description": "The database security group allows TCP/3306 from the entire VPC CIDR block (aws_vpc.portal_vpc.cidr_block) instead of scoping access to the application security group. Every instance in the VPC, including any future or compromised host, can reach the database directly, which is inconsistent with least-privilege network segmentation for a data-tier resource.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all outbound traffic to 0.0.0.0/0 (protocol -1), so a compromised database or metadata service can initiate arbitrary outbound connections for command-and-control or data exfiltration. Database tiers should normally have tightly scoped egress.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "cleartext transmission not restricted",
+      "description": "The parameter group does not set require_secure_transport = 1, and the application's mysqli_connect call does not enable TLS, so database credentials and query data can travel between the web server and RDS in cleartext. Enforcing TLS on the MySQL 8.0 engine would prevent downgraded/unencrypted connections.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak default master username",
+      "description": "The RDS master username is set to the well-known default \"admin\", which removes the small obscurity benefit of a non-default administrative account name and eases automated credential-stuffing and brute-force attempts against the database administrator login.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-521"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 4480,
+  "latency_s": 21.133,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS storage volumes, automated snapshots and read replicas unencrypted, so anyone who obtains a snapshot or the underlying storage can read the database contents in cleartext. This is a regulated-data database with a hard-coded admin credential, making the exposure more serious.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly reachable database\", \"description\": \"publicly_accessible = true assigns the RDS instance a public IP/DNS endpoint, removing the network boundary around the database. Combined with the VPC-wide MySQL ingress rule on catalog_db_sg, any host that reaches the VPC edge can attempt to connect to the database directly rather than being restricted to the application tier.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The RDS master password (var.password) is interpolated directly into the EC2 user_data script as DB_PASSWORD. Instance user data is stored in the instance metadata service and cloud-init logs, so any local user or process on the web server \u2014 or anyone able to query IMDS \u2014 can retrieve the production database credential in plaintext.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", giving the web server full control of S3, EC2 and RDS in the account. Because this role is attached to an internet-facing EC2 instance that runs a PHP web application via the wildcard asset policy, a compromise of the app yields credentials that allow destroying or exfiltrating all data and escalating to full account control (e.g. ec2:RunInstances with a privileged instance profile).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad ingress\", \"description\": \"The database security group allows TCP/3306 from the entire VPC CIDR block (aws_vpc.portal_vpc.cidr_block) instead of scoping access to the application security group. Every instance in the VPC, including any future or compromised host, can reach the database directly, which is inconsistent with least-privilege network segmentation for a data-tier resource.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all outbound traffic to 0.0.0.0/0 (protocol -1), so a compromised database or metadata service can initiate arbitrary outbound connections for command-and-control or data exfiltration. Database tiers should normally have tightly scoped egress.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_parameter_group.catalog_db_params\", \"issue_category\": \"cleartext transmission not restricted\", \"description\": \"The parameter group does not set require_secure_transport = 1, and the application's mysqli_connect call does not enable TLS, so database credentials and query data can travel between the web server and RDS in cleartext. Enforcing TLS on the MySQL 8.0 engine would prevent downgraded/unencrypted connections.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"weak default master username\", \"description\": \"The RDS master username is set to the well-known default \\\"admin\\\", which removes the small obscurity benefit of a non-default administrative account name and eases automated credential-stuffing and brute-force attempts agains",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 4480,
+      "latency_s": 21.133,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.001758
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001758
+}

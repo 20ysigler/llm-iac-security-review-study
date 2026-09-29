@@ -1,0 +1,102 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__critic__terragoat_mut__ec2.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:32Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded AWS credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User data can be retrieved by processes with instance access and may be exposed through Terraform state or source control, enabling unauthorized use of the associated AWS identity.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is open to 0.0.0.0/0. The associated instance is in a subnet with public IP assignment enabled and a default route to an Internet gateway, creating Internet-reachable SSH attack surface.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "TCP/80 is open to 0.0.0.0/0 on the security group attached to the publicly addressed instance. This exposes the web service to all Internet sources without a network access restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Encryption could be imposed by an account-level default, but that control is not established in this configuration, so the volume is not explicitly protected at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted disk snapshot",
+      "description": "The snapshot is created from an EBS volume not configured for encryption, so its contents may be stored unencrypted at rest. No encryption control is configured for the source volume or snapshot.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket receiving VPC flow logs has no server-side encryption configuration. Flow-log records are not explicitly protected by bucket encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4727,
+  "output_tokens": 801,
+  "latency_s": 9.423,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded AWS credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key. User data can be retrieved by processes with instance access and may be exposed through Terraform state or source control, enabling unauthorized use of the associated AWS identity.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is open to 0.0.0.0/0. The associated instance is in a subnet with public IP assignment enabled and a default route to an Internet gateway, creating Internet-reachable SSH attack surface.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted HTTP ingress\",\"description\":\"TCP/80 is open to 0.0.0.0/0 on the security group attached to the publicly addressed instance. This exposes the web service to all Internet sources without a network access restriction.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Encryption could be imposed by an account-level default, but that control is not established in this configuration, so the volume is not explicitly protected at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"unencrypted disk snapshot\",\"description\":\"The snapshot is created from an EBS volume not configured for encryption, so its contents may be stored unencrypted at rest. No encryption control is configured for the source volume or snapshot.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The bucket receiving VPC flow logs has no server-side encryption configuration. Flow-log records are not explicitly protected by bucket encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2118,
+      "output_tokens": 326,
+      "latency_s": 4.66,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.008148
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2609,
+      "output_tokens": 475,
+      "latency_s": 4.763,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.010918
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.019066
+}

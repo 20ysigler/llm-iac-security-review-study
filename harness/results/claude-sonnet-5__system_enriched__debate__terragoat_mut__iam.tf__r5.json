@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:59:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the svc_deploy user to perform virtually unrestricted actions across these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "use of IAM user with static credentials instead of role",
+      "description": "A standalone IAM user with force_destroy enabled is used for service/deploy access rather than an assumable role with temporary credentials; combined with the wildcard policy attached directly to the user, this increases the risk and blast radius of credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key for a service user rather than using roles or temporary credentials creates a persistent secret that can be leaked or misused; combined with the wildcard policy, compromise of this key grants near-admin access.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret exposure via Terraform output",
+      "description": "The encrypted_secret attribute of the access key is passed to an output (svc_deploy_key_material) without being marked sensitive and without a PGP key configured for encryption, risking exposure of credential material through Terraform state, CLI output, or CI/CD logs.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 7851,
+  "output_tokens": 1984,
+  "latency_s": 19.346,
+  "attempts": 1,
+  "schema_problems": [
+    "reviewer_b: finding[3] resource 'svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the svc_deploy user to perform virtually unrestricted actions across these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"use of IAM user with static credentials instead of role\", \"description\": \"A standalone IAM user with force_destroy enabled is used for service/deploy access rather than an assumable role with temporary credentials; combined with the wildcard policy attached directly to the user, this increases the risk and blast radius of credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key for a service user rather than using roles or temporary credentials creates a persistent secret that can be leaked or misused; combined with the wildcard policy, compromise of this key grants near-admin access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret exposure via Terraform output\", \"description\": \"The encrypted_secret attribute of the access key is passed to an output (svc_deploy_key_material) without being marked sensitive and without a PGP key configured for encryption, risking exposure of credential material through Terraform state, CLI output, or CI/CD logs.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2128,
+      "output_tokens": 633,
+      "latency_s": 7.262,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010586
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2128,
+      "output_tokens": 640,
+      "latency_s": 6.211,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010656
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3595,
+      "output_tokens": 711,
+      "latency_s": 5.873,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.0143
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.035542
+}

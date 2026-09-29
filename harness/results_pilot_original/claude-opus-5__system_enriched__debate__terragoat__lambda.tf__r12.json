@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__lambda.tf__r12",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 12,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:25:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "Hard-coded credentials in environment variables",
+      "description": "An AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, meaning they are committed to source control, written to Terraform state, and readable by any principal with lambda:GetFunctionConfiguration or console read access.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "Unencrypted environment variables (no CMK)",
+      "description": "No kms_key_arn is specified, so the environment variables holding the secrets are protected only by the default AWS-managed key, giving no key-level access control or audit boundary over the secret material.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "Deprecated end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "Missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet boundary to contain or detect exfiltration if the function (which holds static credentials) is compromised.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "Missing confused-deputy trust conditions",
+      "description": "The assume-role policy trusts the lambda.amazonaws.com service principal with no aws:SourceArn or aws:SourceAccount condition, so the trust relationship is not scoped to a specific function or account, weakening defence against cross-account confused-deputy use of the role.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 9097,
+  "output_tokens": 2120,
+  "latency_s": 25.213,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"Hard-coded credentials in environment variables\", \"description\": \"An AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, meaning they are committed to source control, written to Terraform state, and readable by any principal with lambda:GetFunctionConfiguration or console read access.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"Unencrypted environment variables (no CMK)\", \"description\": \"No kms_key_arn is specified, so the environment variables holding the secrets are protected only by the default AWS-managed key, giving no key-level access control or audit boundary over the secret material.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"Deprecated end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"Missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function executes outside any customer VPC with unrestricted outbound internet access and no security group or subnet boundary to contain or detect exfiltration if the function (which holds static credentials) is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"Missing confused-deputy trust conditions\", \"description\": \"The assume-role policy trusts the lambda.amazonaws.com service principal with no aws:SourceArn or aws:SourceAccount condition, so the trust relationship is not scoped to a specific function or account, weakening defence against cross-account confused-deputy use of the role.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2507,
+      "output_tokens": 755,
+      "latency_s": 9.247,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03141
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2507,
+      "output_tokens": 569,
+      "latency_s": 7.527,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02676
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4083,
+      "output_tokens": 796,
+      "latency_s": 8.439,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.040315
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.098485
+}

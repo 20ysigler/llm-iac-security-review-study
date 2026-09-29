@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "Overly permissive IAM policy",
+      "description": "The policy grants wildcard actions across four services (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", which is effectively administrative access over compute, storage, and serverless resources. This violates least privilege and, combined with the access key below, gives an attacker who compromises the user broad control of the account.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Long-lived static credentials",
+      "description": "A static IAM access key is created for a user and, per the output below, its secret is exposed. Static keys attached to users do not expire and are a recurring source of credential compromise; temporary credentials or federation should be used instead.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "Secret exposed in output",
+      "description": "This output exposes the access key secret (encrypted_secret) in Terraform state and plan/apply output, where it is readable by anyone with access to state or the console. Secrets must never be placed in outputs; they belong in a secret store.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user with static credentials",
+      "description": "The deployment identity is a long-lived IAM user rather than a role with temporary credentials. IAM users accumulate static credentials that persist until manually rotated; roles with federation or assumed credentials should be preferred.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2086,
+  "output_tokens": 460,
+  "latency_s": 2.715,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"Overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions across four services (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", which is effectively administrative access over compute, storage, and serverless resources. This violates least privilege and, combined with the access key below, gives an attacker who compromises the user broad control of the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Long-lived static credentials\", \"description\": \"A static IAM access key is created for a user and, per the output below, its secret is exposed. Static keys attached to users do not expire and are a recurring source of credential compromise; temporary credentials or federation should be used instead.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"Secret exposed in output\", \"description\": \"This output exposes the access key secret (encrypted_secret) in Terraform state and plan/apply output, where it is readable by anyone with access to state or the console. Secrets must never be placed in outputs; they belong in a secret store.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user with static credentials\", \"description\": \"The deployment identity is a long-lived IAM user rather than a role with temporary credentials. IAM users accumulate static credentials that persist until manually rotated; roles with federation or assumed credentials should be preferred.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2086,
+      "output_tokens": 460,
+      "latency_s": 2.715,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000421
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000421
+}

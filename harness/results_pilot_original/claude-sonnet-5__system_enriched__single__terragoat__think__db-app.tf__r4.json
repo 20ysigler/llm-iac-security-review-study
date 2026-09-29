@@ -1,0 +1,65 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:10:03Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet via a public endpoint, significantly increasing the attack surface for a data store that should only be reachable from application tiers.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credential exposure in user data",
+      "description": "The EC2 user_data script embeds the database username and password (var.password) in plaintext, which is stored in the EC2 instance metadata service and can be retrieved by anyone with API/console access to the instance or metadata endpoint, or by any process running on the box.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on Resource \"*\" to the role assumed by the EC2 instance, violating least privilege. If the instance (which is exposed via a public DNS name) is compromised, an attacker gains near-administrative control over S3, EC2, and RDS resources in the account.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting the RDS instance's network interface to send traffic anywhere, which facilitates data exfiltration if the database or an attached instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7254,
+  "output_tokens": 1910,
+  "latency_s": 19.208,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet via a public endpoint, significantly increasing the attack surface for a data store that should only be reachable from application tiers.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credential exposure in user data\", \"description\": \"The EC2 user_data script embeds the database username and password (var.password) in plaintext, which is stored in the EC2 instance metadata service and can be retrieved by anyone with API/console access to the instance or metadata endpoint, or by any process running on the box.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on Resource \\\"*\\\" to the role assumed by the EC2 instance, violating least privilege. If the instance (which is exposed via a public DNS name) is compromised, an attacker gains near-administrative control over S3, EC2, and RDS resources in the account.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting the RDS instance's network interface to send traffic anywhere, which facilitates data exfiltration if the database or an attached instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.033608
+}

@@ -1,0 +1,141 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__db-app.tf__r1",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:23Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet, where only the security group stands between attackers and the database.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database volume and snapshots are stored unencrypted, exposing catalog data if the underlying storage or a snapshot is accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database credentials in state/variables",
+      "description": "The master password is supplied through var.password and passed in plaintext to the resource; it is stored in Terraform state unencrypted and also interpolated into EC2 user data, leaking the credential. Using AWS Secrets Manager / manage_master_user_password is preferred.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing IAM database authentication",
+      "description": "iam_database_authentication_enabled is not set, so only static password authentication is possible for the MySQL instance, preventing centralized, short-lived credential control.",
+      "severity": "low",
+      "cwe": "CWE-1188",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted final snapshot deletion",
+      "description": "skip_final_snapshot = true combined with backup_retention_period = 0 disables all recoverable copies, so data destruction (accidental or malicious) is irreversible.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The database master username and password are embedded in the instance user_data script, which is readable by anyone with ec2:DescribeInstanceAttribute or from the instance metadata service (including via SSRF from the web app), leaking database credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 enabled (no metadata_options)",
+      "description": "metadata_options is not configured, so IMDSv1 remains available; combined with the plaintext credentials in user data and the overly permissive instance profile, an SSRF in the PHP app can retrieve role credentials and the DB password.",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device/ebs encryption configuration is specified, so the instance volume (which stores the dbinfo.inc file containing DB credentials) may be unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:*, and rds:* on Resource \"*\", allowing full control of all S3 buckets, EC2, and RDS in the account. Any compromise of the web server yields near-account-wide privileges.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols and ports, enabling data exfiltration or command-and-control from a compromised database host.",
+      "severity": "medium",
+      "cwe": "CWE-1327",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "missing security group description",
+      "description": "The security group lacks a description, and combined with the publicly_accessible database it provides no documented intent for the rules attached; rules default behavior should be reviewed to ensure the DB is not reachable beyond the VPC.",
+      "severity": "informational",
+      "cwe": "CWE-1059",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "TLS not enforced for DB connections",
+      "description": "The MySQL parameter group does not set require_secure_transport = ON, so the application connects to RDS (mysqli_connect without TLS options) over an unencrypted channel, exposing credentials and query data in transit.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5377,
+  "output_tokens": 1642,
+  "latency_s": 19.028,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet, where only the security group stands between attackers and the database.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database volume and snapshots are stored unencrypted, exposing catalog data if the underlying storage or a snapshot is accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database credentials in state/variables\", \"description\": \"The master password is supplied through var.password and passed in plaintext to the resource; it is stored in Terraform state unencrypted and also interpolated into EC2 user data, leaking the credential. Using AWS Secrets Manager / manage_master_user_password is preferred.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing IAM database authentication\", \"description\": \"iam_database_authentication_enabled is not set, so only static password authentication is possible for the MySQL instance, preventing centralized, short-lived credential control.\", \"severity\": \"low\", \"cwe\": \"CWE-1188\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted final snapshot deletion\", \"description\": \"skip_final_snapshot = true combined with backup_retention_period = 0 disables all recoverable copies, so data destruction (accidental or malicious) is irreversible.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The database master username and password are embedded in the instance user_data script, which is readable by anyone with ec2:DescribeInstanceAttribute or from the instance metadata service (including via SSRF from the web app), leaking database credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 enabled (no metadata_options)\", \"description\": \"metadata_options is not configured, so IMDSv1 remains available; combined with the plaintext credentials in user data and the overly permissive instance profile, an SSRF in the PHP app can retrieve role credentials and the DB password.\", \"severity\": \"high\", \"cwe\": \"CWE-918\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device/ebs encryption configuration is specified, so the instance volume (which stores the dbinfo.inc file containing DB credentials) may be unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", allowing full control of all S3 buckets, EC2, and RDS in the account. Any compromise of the web server yields near-account-wide privileges.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols and ports, enabling data exfiltration or command-and-control from a compromised database host.\", \"severity\": \"medium\", \"cwe\": \"CWE-1327\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.catalog_db_sg\", \"issue_category\": \"missing security group description\", \"description\": \"The ",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5377,
+      "output_tokens": 1642,
+      "latency_s": 19.028,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.067935
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.067935
+}

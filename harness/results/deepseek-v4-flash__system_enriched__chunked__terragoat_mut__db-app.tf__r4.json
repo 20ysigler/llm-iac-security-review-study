@@ -1,0 +1,144 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_role.catalog_app_role",
+      "issue_category": "overly permissive assume role policy",
+      "description": "The role trust policy grants sts:AssumeRole to the entire ec2.amazonaws.com service principal without a SourceAccount or SourceArn condition, allowing any AWS account's EC2 instance to assume this role. A condition such as aws:SourceAccount restricted to the owning account should be enforced.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance user_data embeds the database password via '${var.password}' into /tmp/dbinfo.inc (then /var/www/inc/dbinfo.inc). User data is stored in EC2 instance metadata and its console output in plaintext, so the RDS master credentials are retrievable by anyone with metadata access (or via the web-served include file if the document root is misconfigured), constituting cleartext exposure of secrets.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in startup script",
+      "description": "The generated /var/www/inc/dbinfo.inc contains the DB password and is written with root ownership but the PHP application includes it from the web tree; combined with the user_data exposure this places live database credentials in a location served by httpd and duplicated in instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance sets storage_encrypted = false, so the catalog database and all its data are stored unencrypted on the underlying storage, readable by anyone who obtains the snapshots or volumes.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the MySQL instance a public IP/DNS name reachable from the internet, sharply increasing the attack surface for the database listener in front of the credential-based authentication.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\" with no condition, so the application role can read or delete every bucket, reshape the network, and reconfigure or snapshot every database in the account. Any compromise of the app server becomes full account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded database credentials",
+      "description": "The master password is supplied directly through the var.password variable for a publicly reachable instance, and the lifecycle ignore_changes = [\"password\"] block discourages rotation. Secrets used this way are liable to end up in tfvars files and state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The DB security group allows all protocols and all ports to 0.0.0.0/0, so a compromised database or anything attached to this group can exfiltrate data or reach arbitrary internet hosts.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak master username",
+      "description": "The master username is the well-known default \"admin\" and it is combined with a publicly accessible instance, removing one of the two things an attacker must know to reach the database.",
+      "severity": "low",
+      "cwe": "CWE-1188",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7420,
+  "output_tokens": 1080,
+  "latency_s": 8.583,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1674,
+      "output_tokens": 149,
+      "latency_s": 1.668,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.000276
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2466,
+      "output_tokens": 286,
+      "latency_s": 2.342,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000425
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1896,
+      "output_tokens": 610,
+      "latency_s": 3.478,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000436
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1384,
+      "output_tokens": 35,
+      "latency_s": 1.095,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000204
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.001341
+}

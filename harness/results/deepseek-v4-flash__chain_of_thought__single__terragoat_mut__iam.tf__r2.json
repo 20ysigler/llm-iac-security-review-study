@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants the svc_deploy user wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\" with no conditions, giving full administrative control over EC2, S3, Lambda and CloudWatch \u2014 including data exfiltration, data destruction, and privilege escalation paths (e.g. via Lambda role creation or IAM-adjacent EC2 instance profiles).",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user",
+      "issue_category": "long-lived static credentials",
+      "description": "The user relies on an aws_iam_access_key (static, non-rotating long-lived access key/secret) combined with wildcard permissions, so any leaked key grants permanent, broadly privileged API access with no expiration or MFA requirement.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret output exposure",
+      "description": "The access key's secret material is surfaced through a Terraform output (svc_deploy_key_material), which stores the secret in the state file and CLI output in plaintext/recoverable form; anyone with read access to state or CI logs obtains live credentials for a wildcard-privileged user.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-200"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "static access key creation",
+      "description": "A permanent IAM access key is created for the deploy user rather than using short-lived roles/federation, so leaked credentials cannot be automatically rotated and remain valid indefinitely.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 1126,
+  "output_tokens": 475,
+  "latency_s": 2.587,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[1] resource 'aws_iam_user' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants the svc_deploy user wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\" with no conditions, giving full administrative control over EC2, S3, Lambda and CloudWatch \u2014 including data exfiltration, data destruction, and privilege escalation paths (e.g. via Lambda role creation or IAM-adjacent EC2 instance profiles).\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"The user relies on an aws_iam_access_key (static, non-rotating long-lived access key/secret) combined with wildcard permissions, so any leaked key grants permanent, broadly privileged API access with no expiration or MFA requirement.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret output exposure\", \"description\": \"The access key's secret material is surfaced through a Terraform output (svc_deploy_key_material), which stores the secret in the state file and CLI output in plaintext/recoverable form; anyone with read access to state or CI logs obtains live credentials for a wildcard-privileged user.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-200\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"static access key creation\", \"description\": \"A permanent IAM access key is created for the deploy user rather than using short-lived roles/federation, so leaked credentials cannot be automatically rotated and remain valid indefinitely.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1126,
+      "output_tokens": 475,
+      "latency_s": 2.587,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000291
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000291
+}

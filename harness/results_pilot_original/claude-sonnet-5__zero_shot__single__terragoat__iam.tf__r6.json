@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__iam.tf__r6",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 6,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:15:25Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard (*) actions on ec2, s3, lambda, and cloudwatch with Resource set to '*', violating least privilege and allowing the IAM user to perform virtually any action on these services.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived credential creation",
+      "description": "Creating a static IAM access key/secret for a user introduces long-lived credentials that can be leaked or misused; combined with the excessively permissive policy, this significantly increases attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Provisioning a standalone IAM user with an attached access key rather than using roles or federated identities increases the risk of credential leakage and long-term static credential exposure.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "Outputting the encrypted_secret of the IAM access key exposes sensitive key material in Terraform state and CLI output, risking credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-522"
+    }
+  ],
+  "input_tokens": 1843,
+  "output_tokens": 531,
+  "latency_s": 5.327,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard (*) actions on ec2, s3, lambda, and cloudwatch with Resource set to '*', violating least privilege and allowing the IAM user to perform virtually any action on these services.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived credential creation\", \"description\": \"Creating a static IAM access key/secret for a user introduces long-lived credentials that can be leaked or misused; combined with the excessively permissive policy, this significantly increases attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Provisioning a standalone IAM user with an attached access key rather than using roles or federated identities increases the risk of credential leakage and long-term static credential exposure.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"Outputting the encrypted_secret of the IAM access key exposes sensitive key material in Terraform state and CLI output, risking credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\"}]}",
+  "cost_usd": 0.008996
+}

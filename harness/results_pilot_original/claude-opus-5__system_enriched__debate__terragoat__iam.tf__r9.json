@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__iam.tf__r9",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 9,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:16:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions on ec2, s3, lambda and cloudwatch against Resource \"*\", giving the user near-administrative control over compute and all bucket data across the account. This violates least privilege and creates a privilege-escalation path (lambda:* plus ec2:* allows executing code under other IAM roles) and a data-exfiltration path through s3:*.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a user carrying a wildcard policy, with no rotation mechanism. Long-lived static keys attached to broad privileges are a prime credential-theft target; temporary role-based credentials should be used instead. Because no pgp_key is supplied, Terraform also writes the plaintext secret access key into state, exposing working account credentials to anyone who can read the state backend.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The 'secret' output exports the access key's encrypted_secret attribute without marking the output sensitive. Since no pgp_key was provided, encrypted_secret is unpopulated/unprotected and the corresponding secret exists in plaintext state; exporting key material as a module output propagates it into plan/apply logs, CI artefacts and parent-module state.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "broad privileges attached directly to user",
+      "description": "Permissions are attached directly to a standalone IAM user via inline policy rather than through a group or assumable role, with no permissions boundary and no MFA condition constraining the wildcard grants. This bypasses centralized permission management and federated/MFA-enforced access, leaving a standing broad-privilege identity with static keys.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8335,
+  "output_tokens": 2280,
+  "latency_s": 30.783,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions on ec2, s3, lambda and cloudwatch against Resource \\\"*\\\", giving the user near-administrative control over compute and all bucket data across the account. This violates least privilege and creates a privilege-escalation path (lambda:* plus ec2:* allows executing code under other IAM roles) and a data-exfiltration path through s3:*.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a user carrying a wildcard policy, with no rotation mechanism. Long-lived static keys attached to broad privileges are a prime credential-theft target; temporary role-based credentials should be used instead. Because no pgp_key is supplied, Terraform also writes the plaintext secret access key into state, exposing working account credentials to anyone who can read the state backend.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The 'secret' output exports the access key's encrypted_secret attribute without marking the output sensitive. Since no pgp_key was provided, encrypted_secret is unpopulated/unprotected and the corresponding secret exists in plaintext state; exporting key material as a module output propagates it into plan/apply logs, CI artefacts and parent-module state.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"broad privileges attached directly to user\", \"description\": \"Permissions are attached directly to a standalone IAM user via inline policy rather than through a group or assumable role, with no permissions boundary and no MFA condition constraining the wildcard grants. This bypasses centralized permission management and federated/MFA-enforced access, leaving a standing broad-privilege identity with static keys.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2197,
+      "output_tokens": 664,
+      "latency_s": 9.976,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027585
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2197,
+      "output_tokens": 828,
+      "latency_s": 11.101,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031685
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3941,
+      "output_tokens": 788,
+      "latency_s": 9.706,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.039405
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.098675
+}

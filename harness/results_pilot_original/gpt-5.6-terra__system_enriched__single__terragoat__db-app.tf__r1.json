@@ -1,0 +1,63 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:13Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, snapshots, and automated backups unencrypted at rest."
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "The RDS instance sets `publicly_accessible = true`, assigning a public endpoint and unnecessarily exposing the database to network paths outside the VPC. Its security group currently limits inbound traffic to the VPC CIDR, but the public exposure weakens network segmentation and increases attack surface."
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound access",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0`. This violates least privilege and allows a compromised database instance to initiate arbitrary outbound connections."
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732",
+      "description": "The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached EC2 instance can obtain credentials capable of broad data access and destructive or privilege-escalating actions across these services."
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext database credential",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The database password is interpolated into EC2 user data and written to `/var/www/inc/dbinfo.inc`. User data is accessible through instance metadata to processes with instance access and may be retained in Terraform state or provisioning records, exposing the database credential."
+    }
+  ],
+  "input_tokens": 4225,
+  "output_tokens": 420,
+  "latency_s": 5.851,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, snapshots, and automated backups unencrypted at rest.\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"The RDS instance sets `publicly_accessible = true`, assigning a public endpoint and unnecessarily exposing the database to network paths outside the VPC. Its security group currently limits inbound traffic to the VPC CIDR, but the public exposure weakens network segmentation and increases attack surface.\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound access\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0`. This violates least privilege and allows a compromised database instance to initiate arbitrary outbound connections.\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive IAM policy\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-732\",\"description\":\"The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached EC2 instance can obtain credentials capable of broad data access and destructive or privilege-escalating actions across these services.\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"plaintext database credential\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The database password is interpolated into EC2 user data and written to `/var/www/inc/dbinfo.inc`. User data is accessible through instance metadata to processes with instance access and may be retained in Terraform state or provisioning records, exposing the database credential.\"}]}",
+  "cost_usd": 0.01349
+}

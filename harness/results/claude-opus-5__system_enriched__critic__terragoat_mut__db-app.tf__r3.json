@@ -1,0 +1,134 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__db-app.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:16:40Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving MySQL a public endpoint resolvable from the internet and removing the VPC network boundary as a control. Only the security group stands between the master 'admin' account and untrusted networks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables KMS encryption of the RDS volume and its snapshots, leaving stored catalog data unprotected on disk and in any snapshot copies.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "transport encryption not enforced",
+      "description": "The attached parameter group sets only character set parameters; require_secure_transport is not enabled, so the publicly reachable MySQL endpoint accepts unencrypted client connections, permitting cleartext transmission of credentials and query data.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\". This role is attached through aws_iam_instance_profile.catalog_app_profile to an internet-facing web server, so compromise of the PHP application yields near-total control of S3, EC2 and RDS in the account, enabling data exfiltration and privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in EC2 user data",
+      "description": "The user_data script interpolates the RDS master username and var.password into a PHP include file. User data is stored unencrypted in instance metadata (retrievable via IMDS or by any local process/SSRF) and in Terraform state, leaking the database master credential.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "instance metadata service not hardened",
+      "description": "No metadata_options block is configured, so IMDSv1 remains available. Combined with the wildcard IAM role, a server-side request forgery or application flaw in the PHP app can be used to harvest role credentials.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted EBS root volume",
+      "description": "No root_block_device with encrypted = true is specified, so the root volume holding /var/www/inc/dbinfo.inc with the plaintext database password may be created unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext HTTP application exposure",
+      "description": "The bootstrap installs and starts httpd serving a PHP form over plain HTTP with no TLS configuration, and the instance's public DNS is exported, so submitted employee data traverses the network in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress from the database security group allows all protocols and ports to 0.0.0.0/0, giving a compromised database endpoint an unrestricted outbound channel for exfiltration or callback.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "Ingress on 3306 is permitted from the entire VPC CIDR rather than only the application server's security group, so every workload in the VPC can reach the database directly; this is the sole control protecting a publicly_accessible instance.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 13371,
+  "output_tokens": 3006,
+  "latency_s": 35.112,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving MySQL a public endpoint resolvable from the internet and removing the VPC network boundary as a control. Only the security group stands between the master 'admin' account and untrusted networks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables KMS encryption of the RDS volume and its snapshots, leaving stored catalog data unprotected on disk and in any snapshot copies.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"transport encryption not enforced\", \"description\": \"The attached parameter group sets only character set parameters; require_secure_transport is not enabled, so the publicly reachable MySQL endpoint accepts unencrypted client connections, permitting cleartext transmission of credentials and query data.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\". This role is attached through aws_iam_instance_profile.catalog_app_profile to an internet-facing web server, so compromise of the PHP application yields near-total control of S3, EC2 and RDS in the account, enabling data exfiltration and privilege escalation.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets in EC2 user data\", \"description\": \"The user_data script interpolates the RDS master username and var.password into a PHP include file. User data is stored unencrypted in instance metadata (retrievable via IMDS or by any local process/SSRF) and in Terraform state, leaking the database master credential.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"instance metadata service not hardened\", \"description\": \"No metadata_options block is configured, so IMDSv1 remains available. Combined with the wildcard IAM role, a server-side request forgery or application flaw in the PHP app can be used to harvest role credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted EBS root volume\", \"description\": \"No root_block_device with encrypted = true is specified, so the root volume holding /var/www/inc/dbinfo.inc with the plaintext database password may be created unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"cleartext HTTP application exposure\", \"description\": \"The bootstrap installs and starts httpd serving a PHP form over plain HTTP with no TLS configuration, and the instance's public DNS is exported, so submitted employee data traverses the network in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress from the database security group allows all protocols and ports to 0.0.0.0/0, giving a compromised database endpoint an unrestricted outbound channel for exfiltration or callback.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad database ingress\", \"description\": \"Ingress on 3306 is permitted from the entire VPC CIDR rather than only the application server's security group, so every workload in the VPC can reach the database directly; this is",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5799,
+      "output_tokens": 1496,
+      "latency_s": 17.948,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.066395
+    },
+    {
+      "step": "critique",
+      "input_tokens": 7572,
+      "output_tokens": 1510,
+      "latency_s": 17.164,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.07561
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.142005
+}

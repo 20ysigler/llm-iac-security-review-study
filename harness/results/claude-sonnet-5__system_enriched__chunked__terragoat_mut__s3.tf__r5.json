@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__s3.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:31:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects stored in this bucket are not encrypted at rest by default.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no bucket ACL / public exposure risk",
+      "description": "No acl attribute is set, leaving the bucket to fall back to the AWS default (private) but without explicit enforcement, and no public access block is defined, increasing risk of accidental public exposure given also lacking encryption and access control on this resource.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, which stores ledger exports (likely sensitive financial data), leaving data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined for this bucket holding model artifacts, so data is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so operational runbook contents (potentially containing sensitive operational details) are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly permissive ACL",
+      "description": "The bucket uses the canned ACL 'log-delivery-write', which grants the S3 log delivery group WRITE and READ_ACP permissions; combined with force_destroy and no public access block, this could allow unintended write access if not tightly scoped.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "The vendor-roster.xlsx object is uploaded to reports_archive, a bucket without server-side encryption configured, meaning this potentially sensitive vendor file is stored in cleartext at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2751,
+  "output_tokens": 1021,
+  "latency_s": 8.844,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects stored in this bucket are not encrypted at rest by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no bucket ACL / public exposure risk\", \"description\": \"No acl attribute is set, leaving the bucket to fall back to the AWS default (private) but without explicit enforcement, and no public access block is defined, increasing risk of accidental public exposure given also lacking encryption and access control on this resource.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, which stores ledger exports (likely sensitive financial data), leaving data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined for this bucket holding model artifacts, so data is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so operational runbook contents (potentially containing sensitive operational details) are stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly permissive ACL\", \"description\": \"The bucket uses the canned ACL 'log-delivery-write', which grants the S3 log delivery group WRITE and READ_ACP permissions; combined with force_destroy and no public access block, this could allow unintended write access if not tightly scoped.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"The vendor-roster.xlsx object is uploaded to reports_archive, a bucket without server-side encryption configured, meaning this potentially sensitive vendor file is stored in cleartext at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2751,
+      "output_tokens": 1021,
+      "latency_s": 8.844,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.015712
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.015712
+}

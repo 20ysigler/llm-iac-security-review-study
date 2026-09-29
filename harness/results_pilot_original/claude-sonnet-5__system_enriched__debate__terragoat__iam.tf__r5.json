@@ -1,0 +1,98 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:07:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and allowing broad account-wide access, including potential privilege escalation and data exfiltration, if the user's credentials are compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived IAM user access key",
+      "description": "A static, long-lived access key/secret is created for an IAM user with excessive permissions. Unlike role-based temporary credentials, this key does not expire or rotate automatically, increasing the risk and impact of credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret exposed via output/state",
+      "description": "The access key's encrypted secret is referenced in an output value and stored in Terraform state, which is often not encrypted by default; surfacing it via an output increases the risk that the credential material is inadvertently logged or displayed by tooling/CI systems.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive data exposure via output",
+      "description": "The 'secret' output exposes the access key's encrypted secret value, which can be inadvertently captured in CI/CD logs or terminal output and is stored in the state file, increasing the risk of credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standalone IAM user with attached credentials",
+      "description": "Creating an individual IAM user with directly attached long-lived access keys and an overly permissive inline policy, rather than using roles or federated/temporary access, expands the attack surface and makes credential rotation and revocation harder to manage securely.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8154,
+  "output_tokens": 2035,
+  "latency_s": 20.828,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and allowing broad account-wide access, including potential privilege escalation and data exfiltration, if the user's credentials are compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived IAM user access key\", \"description\": \"A static, long-lived access key/secret is created for an IAM user with excessive permissions. Unlike role-based temporary credentials, this key does not expire or rotate automatically, increasing the risk and impact of credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret exposed via output/state\", \"description\": \"The access key's encrypted secret is referenced in an output value and stored in Terraform state, which is often not encrypted by default; surfacing it via an output increases the risk that the credential material is inadvertently logged or displayed by tooling/CI systems.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive data exposure via output\", \"description\": \"The 'secret' output exposes the access key's encrypted secret value, which can be inadvertently captured in CI/CD logs or terminal output and is stored in the state file, increasing the risk of credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standalone IAM user with attached credentials\", \"description\": \"Creating an individual IAM user with directly attached long-lived access keys and an overly permissive inline policy, rather than using roles or federated/temporary access, expands the attack surface and makes credential rotation and revocation harder to manage securely.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2265,
+      "output_tokens": 633,
+      "latency_s": 7.053,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.01086
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2265,
+      "output_tokens": 585,
+      "latency_s": 6.448,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.01038
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3624,
+      "output_tokens": 817,
+      "latency_s": 7.327,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.015418
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.036658
+}

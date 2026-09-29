@@ -1,0 +1,97 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__ec2.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:44:34Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded AWS credentials",
+      "description": "The user-data script contains an AWS access key ID and secret access key in plaintext. User data is stored in Terraform state and can be retrieved by principals allowed to describe the instance, exposing reusable credentials to a broader audience.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block requires IMDSv2 tokens, so the instance permits the legacy IMDSv1 credential endpoint by default. An SSRF flaw on this internet-facing host could then be used to retrieve instance-profile credentials if a role is attached now or later.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "unencrypted EBS volume",
+      "description": "The volume does not set encrypted = true or specify a KMS key, leaving encryption dependent on an external account default; the configuration itself does not enforce encryption at rest. Data on the attached volume can therefore be stored unencrypted where default EBS encryption is not enabled.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted EBS snapshot",
+      "description": "This snapshot is created from the volume that does not enforce encryption. EBS snapshots inherit source-volume encryption status, so it can preserve the volume's data without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is allowed from 0.0.0.0/0, exposing remote administration to every internet host. This enables brute-force and exploitation attempts against SSH on the publicly addressed instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The egress rule allows all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet automatically receive public IPv4 addresses. This unnecessarily makes future workloads internet-addressable unless each is explicitly placed elsewhere or protected with restrictive security groups.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet automatically receive public IPv4 addresses. This expands internet exposure to future workloads independently of an explicit public-access decision per instance.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "encryption not enforced",
+      "description": "The bucket used to store VPC flow logs has no server-side encryption configuration or bucket policy requiring encrypted uploads. Encryption of sensitive network telemetry is therefore not enforced by this Terraform configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4577,
+  "output_tokens": 1082,
+  "latency_s": 13.136,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded AWS credentials\",\"description\":\"The user-data script contains an AWS access key ID and secret access key in plaintext. User data is stored in Terraform state and can be retrieved by principals allowed to describe the instance, exposing reusable credentials to a broader audience.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No metadata_options block requires IMDSv2 tokens, so the instance permits the legacy IMDSv1 credential endpoint by default. An SSRF flaw on this internet-facing host could then be used to retrieve instance-profile credentials if a role is attached now or later.\",\"severity\":\"medium\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"unencrypted EBS volume\",\"description\":\"The volume does not set encrypted = true or specify a KMS key, leaving encryption dependent on an external account default; the configuration itself does not enforce encryption at rest. Data on the attached volume can therefore be stored unencrypted where default EBS encryption is not enabled.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted EBS snapshot\",\"description\":\"This snapshot is created from the volume that does not enforce encryption. EBS snapshots inherit source-volume encryption status, so it can preserve the volume's data without encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP port 22 is allowed from 0.0.0.0/0, exposing remote administration to every internet host. This enables brute-force and exploitation attempts against SSH on the publicly addressed instance.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The egress rule allows all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"Instances launched in this subnet automatically receive public IPv4 addresses. This unnecessarily makes future workloads internet-addressable unless each is explicitly placed elsewhere or protected with restrictive security groups.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet2\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"Instances launched in this subnet automatically receive public IPv4 addresses. This expands internet exposure to future workloads independently of an explicit public-access decision per instance.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"encryption not enforced\",\"description\":\"The bucket used to store VPC flow logs has no server-side encryption configuration or bucket policy requiring encrypted uploads. Encryption of sensitive network telemetry is therefore not enforced by this Terraform configuration.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.022138
+}

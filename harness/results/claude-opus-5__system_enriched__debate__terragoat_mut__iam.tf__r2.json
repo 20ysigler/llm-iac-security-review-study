@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__iam.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:12:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "Overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) over Resource \"*\", giving a single programmatic service account near-administrative control of compute, storage, and serverless resources. ec2:* and lambda:* additionally enable privilege escalation by launching instances or functions with other roles attached.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Long-lived static credentials in state",
+      "description": "A permanent IAM access key is provisioned in Terraform for a highly privileged user. With no pgp_key supplied, the secret is persisted in cleartext in Terraform state, so anyone with read access to the state backend obtains non-rotating credentials with wildcard ec2/s3/lambda permissions. Short-lived role-based credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Secret stored unencrypted",
+      "description": "No pgp_key argument is set, so the access key secret is not encrypted at rest in state and the encrypted_secret attribute referenced by the output is not populated with usable encrypted material. Credential material is therefore stored and handled in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "Credential disclosure via output",
+      "description": "Access key material is exported as a Terraform output without sensitive = true, so it can be rendered to the console and captured in plan/apply logs and CI artifacts that are commonly archived or shared.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "Privileged IAM user without boundary",
+      "description": "A long-lived IAM user is created for programmatic access with wildcard permissions, no permissions boundary, and no MFA/condition constraints, widening the blast radius of credential compromise compared with an assumable role issuing temporary credentials.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    }
+  ],
+  "input_tokens": 8185,
+  "output_tokens": 2604,
+  "latency_s": 30.808,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"Overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) over Resource \\\"*\\\", giving a single programmatic service account near-administrative control of compute, storage, and serverless resources. ec2:* and lambda:* additionally enable privilege escalation by launching instances or functions with other roles attached.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Long-lived static credentials in state\", \"description\": \"A permanent IAM access key is provisioned in Terraform for a highly privileged user. With no pgp_key supplied, the secret is persisted in cleartext in Terraform state, so anyone with read access to the state backend obtains non-rotating credentials with wildcard ec2/s3/lambda permissions. Short-lived role-based credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Secret stored unencrypted\", \"description\": \"No pgp_key argument is set, so the access key secret is not encrypted at rest in state and the encrypted_secret attribute referenced by the output is not populated with usable encrypted material. Credential material is therefore stored and handled in cleartext.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"Credential disclosure via output\", \"description\": \"Access key material is exported as a Terraform output without sensitive = true, so it can be rendered to the console and captured in plan/apply logs and CI artifacts that are commonly archived or shared.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"Privileged IAM user without boundary\", \"description\": \"A long-lived IAM user is created for programmatic access with wildcard permissions, no permissions boundary, and no MFA/condition constraints, widening the blast radius of credential compromise compared with an assumable role issuing temporary credentials.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2060,
+      "output_tokens": 907,
+      "latency_s": 11.028,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.032975
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2060,
+      "output_tokens": 831,
+      "latency_s": 10.313,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031075
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4065,
+      "output_tokens": 866,
+      "latency_s": 9.467,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.041975
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.106025
+}

@@ -1,0 +1,110 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__ec2.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:43:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials",
+      "description": "AWS access key ID and secret access key are hard-coded in the EC2 user_data script, which is stored in plaintext in Terraform state and instance metadata, exposing long-lived credentials to anyone with access to the instance metadata service or state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing management access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "Ingress rule allows TCP port 80 from 0.0.0.0/0 with no compensating controls (no TLS, no WAF), exposing the web service and its plaintext traffic to the entire internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without the encrypted attribute set, leaving data at rest unencrypted and violating encryption-at-rest requirements.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration, allowing sensitive network traffic metadata to be stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access controls / public exposure risk",
+      "description": "No bucket policy, public access block, or ACL restriction is defined for this bucket, leaving it reliant on account defaults and at risk of being publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "public network exposure",
+      "description": "The instance is deployed into a subnet with map_public_ip_on_launch enabled and protected only by a security group open to 0.0.0.0/0 on SSH and HTTP, directly exposing it to the internet with no network segmentation such as a bastion host or load balancer in front.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 9621,
+  "output_tokens": 2520,
+  "latency_s": 19.964,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials\", \"description\": \"AWS access key ID and secret access key are hard-coded in the EC2 user_data script, which is stored in plaintext in Terraform state and instance metadata, exposing long-lived credentials to anyone with access to the instance metadata service or state file.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing management access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"Ingress rule allows TCP port 80 from 0.0.0.0/0 with no compensating controls (no TLS, no WAF), exposing the web service and its plaintext traffic to the entire internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without the encrypted attribute set, leaving data at rest unencrypted and violating encryption-at-rest requirements.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration, allowing sensitive network traffic metadata to be stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing access controls / public exposure risk\", \"description\": \"No bucket policy, public access block, or ACL restriction is defined for this bucket, leaving it reliant on account defaults and at risk of being publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"public network exposure\", \"description\": \"The instance is deployed into a subnet with map_public_ip_on_launch enabled and protected only by a security group open to 0.0.0.0/0 on SSH and HTTP, directly exposing it to the internet with no network segmentation such as a bastion host or load balancer in front.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 4038,
+      "output_tokens": 1420,
+      "latency_s": 12.403,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.022276
+    },
+    {
+      "step": "critique",
+      "input_tokens": 5583,
+      "output_tokens": 1100,
+      "latency_s": 7.561,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.022166
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.044442
+}

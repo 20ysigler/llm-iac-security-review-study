@@ -1,0 +1,139 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__ec2.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to any instance launched in this subnet, increasing exposure to the internet and expanding attack surface for instances that may not need direct public access.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to instances launched in this subnet, which combined with the internet gateway route creates unnecessary public exposure of resources placed here.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (nor a kms_key_id), so data stored on this volume, which is attached to the portal server instance, is unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_route.portal_default_route",
+      "issue_category": "unrestricted internet route",
+      "description": "A default route (0.0.0.0/0) to the internet gateway is associated with the route table used by both public subnets, which combined with map_public_ip_on_launch exposes any attached instances directly to the internet without network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials",
+      "description": "AWS access key ID and secret access key are embedded in plaintext in the user_data startup script, exposing long-lived IAM credentials to anyone with access to instance metadata, the Terraform state, or console/API describe-instance calls.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress - SSH",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing the management interface of the instance to the entire internet.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress - HTTP",
+      "description": "The security group allows inbound TCP port 80 from 0.0.0.0/0 with no compensating controls (e.g., no TLS/HTTPS), exposing the web service broadly and only over plaintext HTTP.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket storing VPC flow logs has no server-side encryption configuration, leaving potentially sensitive network traffic metadata stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access controls / public access block",
+      "description": "The bucket has no public access block or bucket policy restricting access, and force_destroy is enabled, increasing risk that flow log data could be exposed or accidentally deleted without safeguard.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted snapshot / no encryption verification",
+      "description": "The snapshot is created from aws_ebs_volume.portal_server_disk without any visibility into whether the source volume is encrypted; if the source volume lacks encryption, this snapshot will also store data at rest unencrypted, and snapshots of this type are easy to share/copy publicly, increasing exposure risk of sensitive data.",
+      "severity": "medium",
+      "confidence": "low",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 8654,
+  "output_tokens": 1587,
+  "latency_s": 19.977,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"unencrypted snapshot / no encryption verification\", \"description\": \"The snapshot is created from aws_ebs_volume.portal_server_disk without any visibility into whether the source volume is encrypted; if the source volume lacks encryption, this snapshot will also store data at rest unencrypted, and snapshots of this type are easy to share/copy publicly, increasing exposure risk of sensitive data.\", \"severity\": \"medium\", \"confidence\": \"low\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2992,
+      "output_tokens": 575,
+      "latency_s": 9.216,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011734
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3330,
+      "output_tokens": 785,
+      "latency_s": 7.093,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.01451
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 2332,
+      "output_tokens": 227,
+      "latency_s": 3.668,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.006934
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.033178
+}

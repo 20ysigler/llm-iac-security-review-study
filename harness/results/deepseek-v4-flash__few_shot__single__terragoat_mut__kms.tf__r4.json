@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__kms.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing IAM key policy",
+      "description": "The KMS key defines no `policy` attribute, so AWS applies the default key policy that grants the root account full control. More importantly, there is no explicit, least-privilege key policy restricting which principals may use the key for encryption/decryption; any identity that the (possibly broad) account-level IAM policies allow can use the key. Define an explicit key policy limiting principals and key usage.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "key rotation disabled",
+      "description": "`enable_key_rotation` is not set to true, so automatic annual rotation of the backing key material is disabled. Without rotation, a compromised or leaked key material remains valid indefinitely, increasing the impact of any exposure.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-320"
+    }
+  ],
+  "input_tokens": 1227,
+  "output_tokens": 268,
+  "latency_s": 1.854,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing IAM key policy\", \"description\": \"The KMS key defines no `policy` attribute, so AWS applies the default key policy that grants the root account full control. More importantly, there is no explicit, least-privilege key policy restricting which principals may use the key for encryption/decryption; any identity that the (possibly broad) account-level IAM policies allow can use the key. Define an explicit key policy limiting principals and key usage.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"key rotation disabled\", \"description\": \"`enable_key_rotation` is not set to true, so automatic annual rotation of the backing key material is disabled. Without rotation, a compromised or leaked key material remains valid indefinitely, increasing the impact of any exposure.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-320\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1227,
+      "output_tokens": 268,
+      "latency_s": 1.854,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000247
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000247
+}

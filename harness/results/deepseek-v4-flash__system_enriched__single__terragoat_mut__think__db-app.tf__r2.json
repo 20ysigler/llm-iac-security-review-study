@@ -1,0 +1,94 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:07:38Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the RDS instance a public IP/DNS, exposing the MySQL endpoint (port 3306) to the internet. Combined with the security group ingress rule it materially enlarges the attack surface of a database holding application data.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS instance's data, automated backups, and snapshots unencrypted at rest, so anyone gaining access to the underlying storage or a snapshot can read the catalog database in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data startup script interpolates the database password ('${var.password}') and username directly into /var/www/inc/dbinfo.inc as plaintext. EC2 user data is retrievable from the instance metadata service by any process or SSRF on the host, is stored in Terraform state, and is written to disk unencrypted, disclosing live DB credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the EC2-assumed role full control of storage, compute, and database services account-wide. This is far beyond what the app needs and enables privilege escalation and destructive access if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "Ingress to MySQL (3306) is permitted from the entire VPC CIDR rather than the application server's security group, so any host (including future or compromised workloads) in the VPC can reach the database. This violates least-privilege network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak database admin username",
+      "description": "The master username is set to the predictable value \"admin\", a well-known default that aids credential-guessing and does not reflect a uniquely provisioned administrative identity.",
+      "severity": "low",
+      "cwe": "CWE-1391",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 3124,
+  "latency_s": 13.818,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true assigns the RDS instance a public IP/DNS, exposing the MySQL endpoint (port 3306) to the internet. Combined with the security group ingress rule it materially enlarges the attack surface of a database holding application data.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS instance's data, automated backups, and snapshots unencrypted at rest, so anyone gaining access to the underlying storage or a snapshot can read the catalog database in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data startup script interpolates the database password ('${var.password}') and username directly into /var/www/inc/dbinfo.inc as plaintext. EC2 user data is retrievable from the instance metadata service by any process or SSRF on the host, is stored in Terraform state, and is written to disk unencrypted, disclosing live DB credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the EC2-assumed role full control of storage, compute, and database services account-wide. This is far beyond what the app needs and enables privilege escalation and destructive access if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"Ingress to MySQL (3306) is permitted from the entire VPC CIDR rather than the application server's security group, so any host (including future or compromised workloads) in the VPC can reach the database. This violates least-privilege network segmentation.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"weak database admin username\", \"description\": \"The master username is set to the predictable value \\\"admin\\\", a well-known default that aids credential-guessing and does not reflect a uniquely provisioned administrative identity.\", \"severity\": \"low\", \"cwe\": \"CWE-1391\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 3124,
+      "latency_s": 13.818,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.001378
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001378
+}

@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__lambda.tf__r1",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded cloud credentials in environment",
+      "description": "AWS access key ID and secret access key are hardcoded in plaintext as Lambda environment variables, committed to source control and visible to anyone with lambda:GetFunctionConfiguration. This leaks long-lived credentials and enables account compromise.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "No kms_key_arn is specified, so Lambda environment variables (which here contain secrets) are encrypted only with the default AWS-managed key rather than a customer-managed CMK, providing no separate access control over the secrets at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security group or network ACL controls, increasing exfiltration attack surface for a function handling credentials.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no code signing configuration",
+      "description": "No code_signing_config_arn is attached, so unsigned or tampered deployment packages can be deployed to the function without integrity verification.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses nodejs12.x, an end-of-life runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unremediated.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 1657,
+  "output_tokens": 730,
+  "latency_s": 8.205,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded cloud credentials in environment\", \"description\": \"AWS access key ID and secret access key are hardcoded in plaintext as Lambda environment variables, committed to source control and visible to anyone with lambda:GetFunctionConfiguration. This leaks long-lived credentials and enables account compromise.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"No kms_key_arn is specified, so Lambda environment variables (which here contain secrets) are encrypted only with the default AWS-managed key rather than a customer-managed CMK, providing no separate access control over the secrets at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security group or network ACL controls, increasing exfiltration attack surface for a function handling credentials.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no code signing configuration\", \"description\": \"No code_signing_config_arn is attached, so unsigned or tampered deployment packages can be deployed to the function without integrity verification.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses nodejs12.x, an end-of-life runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unremediated.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1657,
+      "output_tokens": 730,
+      "latency_s": 8.205,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.026535
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026535
+}

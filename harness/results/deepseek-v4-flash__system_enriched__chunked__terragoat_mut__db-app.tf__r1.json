@@ -1,0 +1,152 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:21Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance user_data embeds the database password via `${var.password}` into /var/www/inc/dbinfo.inc. Instance user data is retrievable in cleartext from the EC2 metadata service (and stored unencrypted by AWS) by any process or SSRF path reaching 169.254.169.254 on the host, and it is also visible to anyone with ec2:DescribeInstanceAttribute. The database credential is therefore exposed beyond the application.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unrestricted ingress to application server",
+      "description": "The instance is placed in the portal security group rather than a group scoped to the catalog app, and the instance is referenced in the file as publicly addressed (output.catalog_app_public_dns). With an internet-facing placement and an httpd/PHP stack serving a write-capable form, the sample application provides a directly reachable attack surface for the database credentials discussed above.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "security group misbinding",
+      "description": "The catalog application server is attached to `aws_security_group.portal_sg` and `aws_subnet.portal_subnet_a` instead of a catalog-scoped security group, so its network exposure is governed by a group shared with the portal rather than by the catalog_db_sg/catalog security boundary. This breaks the intended segmentation between the application tier and other services.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the MySQL database's data, automated snapshots and any subsequent replicas are stored unencrypted at rest, exposing credentials and application data to anyone with access to the underlying storage or a snapshot.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the catalog RDS instance a public DNS name and a route to the internet, so the database port is reachable from outside the VPC and the only remaining control is the security group ingress rule.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "unencrypted transmission to database",
+      "description": "No explicit rds.force_ssl / require_secure_transport parameter is shown for the catalog DB parameter group, so the MySQL instance can accept cleartext connections by default. Note: reasoning is based on the referenced parameter group, whose definition is not in this excerpt.",
+      "severity": "low",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols to 0.0.0.0/0, so a compromised database or anything able to use this group can reach arbitrary internet hosts and exfiltrate data.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive wildcard policy",
+      "description": "The policy attached to catalog_app_role grants s3:*, ec2:* and rds:* on Resource \"*\", giving the application full read/write/delete control over all buckets, all EC2 resources and all databases in the account rather than a scoped set of resources.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "unrestricted ingress on database port",
+      "description": "Ingress permits TCP 3306 from the entire VPC CIDR, not just the application security group, so every host in the VPC (including any compromised or attacker-deployed instance) can attempt to authenticate to the database. This compounds with publicly_accessible = true.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_option_group.catalog_db_options",
+      "issue_category": "Outdated database engine version",
+      "description": "The option group pins the MySQL major engine version to \"8.0\", an older, currently deprecated release no longer receiving security fixes. A misconfigured or unpatched engine version exposes the catalog database to known vulnerabilities.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7420,
+  "output_tokens": 1261,
+  "latency_s": 9.28,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_option_group.catalog_db_options\", \"issue_category\": \"Outdated database engine version\", \"description\": \"The option group pins the MySQL major engine version to \\\"8.0\\\", an older, currently deprecated release no longer receiving security fixes. A misconfigured or unpatched engine version exposes the catalog database to known vulnerabilities.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1674,
+      "output_tokens": 35,
+      "latency_s": 0.891,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000244
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2466,
+      "output_tokens": 435,
+      "latency_s": 3.334,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000467
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1896,
+      "output_tokens": 658,
+      "latency_s": 3.549,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.00045
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1384,
+      "output_tokens": 133,
+      "latency_s": 1.506,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.000231
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.001392
+}

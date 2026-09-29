@@ -1,0 +1,101 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-22T02:07:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public endpoint and weakening the database network boundary. Although the shown security-group ingress is VPC-scoped, this still exposes the service to an internet-routable interface and increases attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The database explicitly sets storage_encrypted = false, leaving database storage and snapshots unencrypted at rest. A compromise of underlying storage or a snapshot can expose stored application data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "embedded database credentials",
+      "description": "The startup script renders the database username and var.password into /var/www/inc/dbinfo.inc on the instance. This leaves long-lived database credentials in a local web-server configuration file and in rendered instance user data, where they can be recovered by parties able to access the host or its instance metadata/configuration.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The application connects using mysqli_connect without configuring TLS/SSL, so database credentials and application data may traverse the network in cleartext. No shown database setting requires encrypted client transport.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly broad instance permissions",
+      "description": "The EC2 instance role is granted every S3, EC2, and RDS action against every resource. Compromise of the application instance would provide broad account-level capabilities, including access to data and the ability to alter infrastructure.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overbroad database ingress",
+      "description": "MySQL ingress is allowed from the entire VPC CIDR rather than being restricted to the application security group or specific approved clients. Any workload or compromised host in the VPC can attempt to reach the database service.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted database egress",
+      "description": "The database security group permits all outbound protocols and ports to 0.0.0.0/0. This provides no egress containment if the database service is compromised and permits unintended outbound communications.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3010,
+  "output_tokens": 1098,
+  "latency_s": 19.141,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, assigning it a public endpoint and weakening the database network boundary. Although the shown security-group ingress is VPC-scoped, this still exposes the service to an internet-routable interface and increases attack surface.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The database explicitly sets storage_encrypted = false, leaving database storage and snapshots unencrypted at rest. A compromise of underlying storage or a snapshot can expose stored application data.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"embedded database credentials\",\"description\":\"The startup script renders the database username and var.password into /var/www/inc/dbinfo.inc on the instance. This leaves long-lived database credentials in a local web-server configuration file and in rendered instance user data, where they can be recovered by parties able to access the host or its instance metadata/configuration.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"unencrypted database connection\",\"description\":\"The application connects using mysqli_connect without configuring TLS/SSL, so database credentials and application data may traverse the network in cleartext. No shown database setting requires encrypted client transport.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly broad instance permissions\",\"description\":\"The EC2 instance role is granted every S3, EC2, and RDS action against every resource. Compromise of the application instance would provide broad account-level capabilities, including access to data and the ability to alter infrastructure.\",\"severity\":\"critical\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_inbound\",\"issue_category\":\"overbroad database ingress\",\"description\":\"MySQL ingress is allowed from the entire VPC CIDR rather than being restricted to the application security group or specific approved clients. Any workload or compromised host in the VPC can attempt to reach the database service.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_outbound\",\"issue_category\":\"unrestricted database egress\",\"description\":\"The database security group permits all outbound protocols and ports to 0.0.0.0/0. This provides no egress containment if the database service is compromised and permits unintended outbound communications.\",\"severity\":\"low\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3010,
+      "output_tokens": 1098,
+      "latency_s": 19.141,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.019196
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.019196
+}

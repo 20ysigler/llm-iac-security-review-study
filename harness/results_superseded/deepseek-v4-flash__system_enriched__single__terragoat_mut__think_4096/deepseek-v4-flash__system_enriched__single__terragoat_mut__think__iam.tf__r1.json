@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:30:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "Overly permissive wildcard IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\" to a long-lived IAM user. This violates least privilege, grants unconditional access to all S3 data and all compute in the account, and enables privilege escalation (e.g. via lambda:*/ec2 to assume higher-privileged roles or exfiltrate data). Any compromise of this user's static credentials yields full control over storage and compute.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "Credential material exposed in output",
+      "description": "The output publishes the access key's secret material (aws_iam_access_key.svc_deploy_key.encrypted_secret) without `sensitive = true`, so it is rendered in CLI/plan output and persisted in readable Terraform state. Combined with the accompanying static key pair, this leaks deploy credentials to anyone with plan/state access.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Long-lived static access key",
+      "description": "A permanent, non-rotating access key is created for the svc_deploy IAM user. Static long-lived keys that grant wildcard ec2/s3/lambda/cloudwatch permissions are a high-value credential that cannot be scoped, expires only manually, and is stored in Terraform state; a role with temporary STS credentials would be the secure alternative.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 1462,
+  "latency_s": 6.702,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"Overly permissive wildcard IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\" to a long-lived IAM user. This violates least privilege, grants unconditional access to all S3 data and all compute in the account, and enables privilege escalation (e.g. via lambda:*/ec2 to assume higher-privileged roles or exfiltrate data). Any compromise of this user's static credentials yields full control over storage and compute.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"Credential material exposed in output\", \"description\": \"The output publishes the access key's secret material (aws_iam_access_key.svc_deploy_key.encrypted_secret) without `sensitive = true`, so it is rendered in CLI/plan output and persisted in readable Terraform state. Combined with the accompanying static key pair, this leaks deploy credentials to anyone with plan/state access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Long-lived static access key\", \"description\": \"A permanent, non-rotating access key is created for the svc_deploy IAM user. Static long-lived keys that grant wildcard ec2/s3/lambda/cloudwatch permissions are a high-value credential that cannot be scoped, expires only manually, and is stored in Terraform state; a role with temporary STS credentials would be the secure alternative.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 1462,
+      "latency_s": 6.702,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00059
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00059
+}

@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:54:14Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on a wildcard resource (\"*\"), violating least privilege and effectively granting broad administrative-equivalent access across multiple services.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "An IAM user is created with static long-lived credentials via an associated access key instead of using temporary credentials or role assumption, increasing the risk of credential leakage and misuse.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "static access key generation",
+      "description": "Creating a static IAM access key for a service account produces long-lived credentials that persist until manually rotated, which is a recurring source of credential compromise and should be replaced with federated/temporary credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The output 'svc_deploy_key_material' exposes the encrypted_secret of the access key, which will be stored in Terraform state and CLI output; this secret material can be exposed to anyone with access to state files or logs, effectively leaking credentials.",
+      "severity": "critical",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3502,
+  "output_tokens": 646,
+  "latency_s": 6.278,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on a wildcard resource (\\\"*\\\"), violating least privilege and effectively granting broad administrative-equivalent access across multiple services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"An IAM user is created with static long-lived credentials via an associated access key instead of using temporary credentials or role assumption, increasing the risk of credential leakage and misuse.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"static access key generation\", \"description\": \"Creating a static IAM access key for a service account produces long-lived credentials that persist until manually rotated, which is a recurring source of credential compromise and should be replaced with federated/temporary credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The output 'svc_deploy_key_material' exposes the encrypted_secret of the access key, which will be stored in Terraform state and CLI output; this secret material can be exposed to anyone with access to state files or logs, effectively leaking credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3502,
+      "output_tokens": 646,
+      "latency_s": 6.278,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.013464
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.013464
+}

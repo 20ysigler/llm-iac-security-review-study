@@ -1,0 +1,149 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__ec2.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:32:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials in user data",
+      "description": "The user_data boot script exports a static AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. User data is stored unencrypted in the instance metadata service and is readable by any process or user on the host, and by anyone who can call ec2:DescribeInstanceAttribute or reach the metadata endpoint through an SSRF on the public web server. An IAM instance profile should be used instead.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress from internet",
+      "description": "Ingress on TCP/22 is permitted from 0.0.0.0/0, exposing SSH on a publicly addressed instance to the entire internet and enabling credential brute-force and exploitation of any SSH daemon weakness. SSH should be restricted to a bastion, VPN CIDR, or replaced with SSM Session Manager.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "cleartext HTTP exposed publicly",
+      "description": "Ingress on TCP/80 is open to 0.0.0.0/0 and the instance is provisioned with plain Apache serving HTTP only, with no TLS listener anywhere in the configuration. All traffic to the portal, including any session data, traverses the internet in cleartext.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress to any destination",
+      "description": "Egress allows all protocols to 0.0.0.0/0. Combined with the hard-coded credentials and public exposure of the host, this gives an attacker who gains code execution an unconstrained channel for data exfiltration and command-and-control.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server does not set encrypted = true and specifies no KMS key, so data written to /dev/sdh is stored unencrypted on the underlying storage and in any copies of the volume.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted volume snapshot",
+      "description": "The snapshot is taken from an unencrypted EBS volume and is therefore itself unencrypted. Snapshots are independently shareable artefacts, so an unencrypted snapshot widens the blast radius of any accidental or malicious sharing of the snapshot ID.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "unencrypted root volume",
+      "description": "No root_block_device block with encrypted = true is defined, so the root EBS volume \u2014 which holds the OS, application data, and the user_data-derived shell environment containing the AWS keys \u2014 is stored unencrypted unless account-level EBS default encryption happens to be enabled.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "IMDSv1 permitted (SSRF exposure)",
+      "description": "No metadata_options block is configured, so the instance defaults to allowing IMDSv1 (http_tokens = \"optional\"). On an internet-facing web server this makes instance metadata and any attached role credentials retrievable via a simple server-side request forgery. http_tokens should be set to \"required\".",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket receiving VPC flow logs has no server_side_encryption_configuration. Flow logs reveal internal addressing, traffic patterns, and peer endpoints, and are stored without enforced encryption at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "no public access block configured",
+      "description": "No aws_s3_bucket_public_access_block, bucket policy, or ACL controls accompany this bucket, leaving it reliant on account-level defaults to prevent a future policy or ACL change from exposing network telemetry publicly.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "destructive force_destroy on audit log store",
+      "description": "force_destroy = true allows Terraform to delete the bucket together with all stored flow logs. For a security-telemetry bucket this undermines log integrity and the availability of forensic evidence, and no versioning or object lock offsets it.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true combined with the 0.0.0.0/0 route to the internet gateway means every instance launched here, including the portal server, is directly internet-reachable with no NAT or private-subnet boundary in front of it.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true and association with the route table carrying the 0.0.0.0/0 internet gateway route make this a fully public subnet, so any future workload placed here is exposed directly to the internet by default.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    }
+  ],
+  "input_tokens": 3844,
+  "output_tokens": 2731,
+  "latency_s": 31.265,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded cloud credentials in user data\", \"description\": \"The user_data boot script exports a static AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. User data is stored unencrypted in the instance metadata service and is readable by any process or user on the host, and by anyone who can call ec2:DescribeInstanceAttribute or reach the metadata endpoint through an SSRF on the public web server. An IAM instance profile should be used instead.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress from internet\", \"description\": \"Ingress on TCP/22 is permitted from 0.0.0.0/0, exposing SSH on a publicly addressed instance to the entire internet and enabling credential brute-force and exploitation of any SSH daemon weakness. SSH should be restricted to a bastion, VPN CIDR, or replaced with SSM Session Manager.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"cleartext HTTP exposed publicly\", \"description\": \"Ingress on TCP/80 is open to 0.0.0.0/0 and the instance is provisioned with plain Apache serving HTTP only, with no TLS listener anywhere in the configuration. All traffic to the portal, including any session data, traverses the internet in cleartext.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress to any destination\", \"description\": \"Egress allows all protocols to 0.0.0.0/0. Combined with the hard-coded credentials and public exposure of the host, this gives an attacker who gains code execution an unconstrained channel for data exfiltration and command-and-control.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume attached to the portal server does not set encrypted = true and specifies no KMS key, so data written to /dev/sdh is stored unencrypted on the underlying storage and in any copies of the volume.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"unencrypted volume snapshot\", \"description\": \"The snapshot is taken from an unencrypted EBS volume and is therefore itself unencrypted. Snapshots are independently shareable artefacts, so an unencrypted snapshot widens the blast radius of any accidental or malicious sharing of the snapshot ID.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"unencrypted root volume\", \"description\": \"No root_block_device block with encrypted = true is defined, so the root EBS volume \\u2014 which holds the OS, application data, and the user_data-derived shell environment containing the AWS keys \\u2014 is stored unencrypted unless account-level EBS default encryption happens to be enabled.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"IMDSv1 permitted (SSRF exposure)\", \"description\": \"No metadata_options block is configured, so the instance defaults to allowing IMDSv1 (http_tokens = \\\"optional\\\"). On an internet-facing web server this makes instance metadata and any attached role credentials retrievable via a simple server-side request forgery. http_tokens should be set to \\\"required\\\".\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket receiving VPC flow logs has no server_side_encryption_configuration. Flow logs reveal internal addressing, traffic patterns, and peer endpoints, and are stored without enforced encryption at rest.\", \"s",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3844,
+      "output_tokens": 2731,
+      "latency_s": 31.265,
+      "n_findings": 13,
+      "error": "",
+      "cost_usd": 0.087495
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.087495
+}

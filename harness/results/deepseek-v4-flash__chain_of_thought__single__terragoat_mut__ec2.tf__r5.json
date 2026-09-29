@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__ec2.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The EC2 instance's user_data script embeds literal AWS access key ID and secret access key values (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). These are stored in the instance user data and Terraform state and are retrievable from instance metadata by anyone with access to the host, exposing long-lived credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress to SSH",
+      "description": "The security group allows ingress on port 22/tcp from 0.0.0.0/0, exposing SSH to the entire internet and permitting brute-force or credential-based attacks against the instance.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress to HTTP",
+      "description": "Ingress on port 80/tcp is open to 0.0.0.0/0. While HTTP is commonly public, it is unfiltered here and combined with the public IP and internet gateway exposes the web server to the internet without any source restriction or WAF/TLS termination.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket that receives VPC flow logs has no server-side encryption configuration, so flow log data is stored unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "public bucket access not blocked",
+      "description": "No aws_s3_bucket_public_access_block or public access block configuration is attached to the bucket, and force_destroy is set to true. Without block_public_acls/block_public_policy, the bucket for VPC flow logs can be made publicly accessible, potentially exposing network traffic metadata.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server has no encrypted attribute set, so data on the disk is stored unencrypted and can be read if the volume or its snapshots are accessed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true, so every instance launched in this subnet is automatically assigned a public IP, exposing it directly to the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true, so every instance launched in this subnet is automatically assigned a public IP, exposing it directly to the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2374,
+  "output_tokens": 834,
+  "latency_s": 3.705,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The EC2 instance's user_data script embeds literal AWS access key ID and secret access key values (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). These are stored in the instance user data and Terraform state and are retrievable from instance metadata by anyone with access to the host, exposing long-lived credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress to SSH\", \"description\": \"The security group allows ingress on port 22/tcp from 0.0.0.0/0, exposing SSH to the entire internet and permitting brute-force or credential-based attacks against the instance.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress to HTTP\", \"description\": \"Ingress on port 80/tcp is open to 0.0.0.0/0. While HTTP is commonly public, it is unfiltered here and combined with the public IP and internet gateway exposes the web server to the internet without any source restriction or WAF/TLS termination.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket that receives VPC flow logs has no server-side encryption configuration, so flow log data is stored unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"public bucket access not blocked\", \"description\": \"No aws_s3_bucket_public_access_block or public access block configuration is attached to the bucket, and force_destroy is set to true. Without block_public_acls/block_public_policy, the bucket for VPC flow logs can be made publicly accessible, potentially exposing network traffic metadata.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume attached to the portal server has no encrypted attribute set, so data on the disk is stored unencrypted and can be read if the volume or its snapshots are accessed.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true, so every instance launched in this subnet is automatically assigned a public IP, exposing it directly to the internet.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true, so every instance launched in this subnet is automatically assigned a public IP, exposing it directly to the internet.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2374,
+      "output_tokens": 834,
+      "latency_s": 3.705,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000566
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000566
+}

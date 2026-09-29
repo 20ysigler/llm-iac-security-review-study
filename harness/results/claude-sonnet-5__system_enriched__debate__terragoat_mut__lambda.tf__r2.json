@@ -1,0 +1,84 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__lambda.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:00:50Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials",
+      "description": "AWS access key and secret key are hard-coded in plaintext as Lambda environment variables, exposing long-lived AWS credentials in Terraform state, source control, and to anyone with read access to the function configuration via console or API.",
+      "severity": "critical",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "The Lambda function does not specify a customer-managed KMS key (kms_key_arn) for encrypting environment variables at rest, so sensitive values like the embedded credentials rely only on default AWS-managed encryption, reducing control over key access, rotation, and auditability.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses nodejs12.x, a deprecated Node.js runtime that no longer receives security patches from AWS, increasing exposure to unpatched vulnerabilities in the runtime environment.",
+      "severity": "medium",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 7571,
+  "output_tokens": 1513,
+  "latency_s": 14.254,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials\", \"description\": \"AWS access key and secret key are hard-coded in plaintext as Lambda environment variables, exposing long-lived AWS credentials in Terraform state, source control, and to anyone with read access to the function configuration via console or API.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"The Lambda function does not specify a customer-managed KMS key (kms_key_arn) for encrypting environment variables at rest, so sensitive values like the embedded credentials rely only on default AWS-managed encryption, reducing control over key access, rotation, and auditability.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses nodejs12.x, a deprecated Node.js runtime that no longer receives security patches from AWS, increasing exposure to unpatched vulnerabilities in the runtime environment.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2147,
+      "output_tokens": 505,
+      "latency_s": 4.869,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.009344
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2147,
+      "output_tokens": 512,
+      "latency_s": 5.389,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.009414
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3277,
+      "output_tokens": 496,
+      "latency_s": 3.996,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011514
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.030272
+}

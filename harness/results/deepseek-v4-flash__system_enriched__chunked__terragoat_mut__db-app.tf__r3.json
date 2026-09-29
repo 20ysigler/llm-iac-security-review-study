@@ -1,0 +1,160 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:41Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance user_data embeds the database password verbatim into /var/www/inc/dbinfo.inc via 'define('DB_PASSWORD', '${var.password}');'. User data is retrievable from instance metadata (IMDS) by anyone who can reach the instance or the metadata endpoint, and it is stored in the instance's launch configuration/console, exposing the RDS master credential; the DB username, endpoint and database name are likewise disclosed.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "broken access control",
+      "description": "The EC2 instance attaches aws_iam_instance_profile.catalog_app_profile, meaning the app server assumes aws_iam_role.catalog_app_role. Combined with the publicly reachable web server (httpd) started in user_data, any compromise of the web app yields the role's AWS credentials; the policy aws_iam_role_policy.catalog_app_policy is not visible here so its permissions cannot be verified and must be audited for least privilege.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "insecure transport to database",
+      "description": "The PHP application connects to the RDS endpoint with mysqli_connect() using only host, user and password arguments, with no TLS/SSL configuration, and dbinfo.inc contains no mysqli_ssl_set or MYSQLI_CLIENT_SSL usage. Credentials and all query data (employee names and addresses) are transmitted in cleartext to the database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "SQL injection via unescaped concatenation",
+      "description": "In AddEmployee, values are escaped with mysqli_real_escape_string but concatenated directly into the INSERT statement while VerifyEmployeesTable and TableExists build their queries by string concatenation as well; the escaping is applied inconsistently and the code relies entirely on manual quoting rather than prepared statements, leaving the application vulnerable to SQL injection through the NAME and ADDRESS form fields.",
+      "severity": "medium",
+      "cwe": "CWE-89",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "missing database password secrecy in state",
+      "description": "var.password is interpolated into user_data, so the database password becomes part of the instance's user_data attribute in Terraform state and in the EC2 console output, where it is readable by anyone with state or console access and persists after the instance is destroyed.",
+      "severity": "medium",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance has storage_encrypted = false, so the MySQL database's data, backups, and snapshots are stored unencrypted on disk. Any compromise of the underlying storage or a snapshot leak exposes all catalog data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the RDS instance a publicly resolvable endpoint and routes it into a public subnet, expanding the attack surface of the database beyond the VPC; combined with a broad CIDR ingress rule this makes the database reachable from outside the network boundary.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "The master password is supplied via var.password and would be stored in Terraform state and configuration; no manage_master_user_password or secrets manager integration is used, and the username is the well-known default \"admin\". This leaks database credentials and invites brute-force against a predictable admin account.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the application role full administrative control over storage, compute, and database services. This is a classic privilege-escalation and lateral-movement path if the attached instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The outbound rule allows all protocols, all ports, to 0.0.0.0/0. If the database or anything sharing this security group is compromised, it can exfiltrate data to any external host or be used as a pivot into other networks.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.catalog_app_public_dns",
+      "issue_category": "sensitive data exposure in output",
+      "description": "This output exposes the application server's public DNS name. It is not marked sensitive and reveals the publicly reachable host name of the compute instance, aiding reconnaissance and direct attack against an internet-facing instance.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7420,
+  "output_tokens": 1404,
+  "latency_s": 9.532,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1674,
+      "output_tokens": 35,
+      "latency_s": 1.201,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000244
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2466,
+      "output_tokens": 673,
+      "latency_s": 3.71,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000534
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1896,
+      "output_tokens": 661,
+      "latency_s": 3.576,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000451
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1384,
+      "output_tokens": 35,
+      "latency_s": 1.045,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000204
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.001432
+}

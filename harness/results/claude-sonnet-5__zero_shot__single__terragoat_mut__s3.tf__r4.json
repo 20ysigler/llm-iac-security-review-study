@@ -1,0 +1,125 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__s3.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:22:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is set, so objects stored in this bucket are not encrypted at rest by default, risking exposure of sensitive report data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block",
+      "description": "The bucket lacks an explicit ACL and no aws_s3_bucket_public_access_block is defined, leaving it potentially subject to default/public access settings and no protection against accidental public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket storing ledger exports (likely financial data) has no server_side_encryption_configuration, meaning data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block resource is associated with this sensitive bucket, so it could be misconfigured to allow public access without any guardrail.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "no public access block",
+      "description": "No public access block configuration exists for this bucket, leaving it without protection against accidental public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration, so operational runbooks (potentially containing sensitive operational/security details) are unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is configured for this bucket, leaving it exposed to potential public access misconfiguration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "Although the audit trail bucket uses KMS encryption, it uses the 'log-delivery-write' ACL and has no explicit public access block, and lacks bucket policy restrictions, which could allow unintended write access beyond the intended logging service.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "The object is uploaded to a bucket (reports_archive) that has no server-side encryption enabled, and no per-object server_side_encryption or kms_key_id parameter is specified, resulting in unencrypted storage of the vendor roster file, which may contain sensitive vendor data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2138,
+  "output_tokens": 1384,
+  "latency_s": 12.056,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is set, so objects stored in this bucket are not encrypted at rest by default, risking exposure of sensitive report data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block\", \"description\": \"The bucket lacks an explicit ACL and no aws_s3_bucket_public_access_block is defined, leaving it potentially subject to default/public access settings and no protection against accidental public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket storing ledger exports (likely financial data) has no server_side_encryption_configuration, meaning data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block resource is associated with this sensitive bucket, so it could be misconfigured to allow public access without any guardrail.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"no public access block\", \"description\": \"No public access block configuration exists for this bucket, leaving it without protection against accidental public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration, so operational runbooks (potentially containing sensitive operational/security details) are unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is configured for this bucket, leaving it exposed to potential public access misconfiguration.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"no public access block\", \"description\": \"Although the audit trail bucket uses KMS encryption, it uses the 'log-delivery-write' ACL and has no explicit public access block, and lacks bucket policy restrictions, which could allow unintended write access beyond the intended logging service.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"The object is uploaded to a bucket (reports_archive) that has no server-side encryption enabled, and no per-object server_side_encryption or kms_key_id parameter is specified, resulting in unencrypted storage of the vendor roster file, which may contain sensitive vendor data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2138,
+      "output_tokens": 1384,
+      "latency_s": 12.056,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.018116
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.018116
+}

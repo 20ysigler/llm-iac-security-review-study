@@ -1,0 +1,73 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__s3.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:31:21Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket exposure",
+      "description": "The configuration comment states this bucket is public, exposing the 'customer-master.xlsx' data it holds to unauthenticated access from the internet. No explicit acl/policy is shown in this file, so the public exposure rests on the stated configuration, but if public it constitutes an unrestricted-ingress access control failure.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest. This bucket holds the customer-master data and is flagged as public, compounding the exposure of plaintext customer data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "missing encryption at rest",
+      "description": "The uploaded object 'customer-master.xlsx' has no server_side_encryption argument and the destination bucket (aws_s3_bucket.data) is unencrypted, so sensitive customer data is persisted in plaintext at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so financial data is stored unencrypted at rest despite the bucket name indicating sensitive financial records.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so operational data is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so data science objects are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2603,
+  "output_tokens": 2660,
+  "latency_s": 21.931,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"public bucket exposure\", \"description\": \"The configuration comment states this bucket is public, exposing the 'customer-master.xlsx' data it holds to unauthenticated access from the internet. No explicit acl/policy is shown in this file, so the public exposure rests on the stated configuration, but if public it constitutes an unrestricted-ingress access control failure.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest. This bucket holds the customer-master data and is flagged as public, compounding the exposure of plaintext customer data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The uploaded object 'customer-master.xlsx' has no server_side_encryption argument and the destination bucket (aws_s3_bucket.data) is unencrypted, so sensitive customer data is persisted in plaintext at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so financial data is stored unencrypted at rest despite the bucket name indicating sensitive financial records.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so operational data is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so data science objects are stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001109
+}

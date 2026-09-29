@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:30:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the user full control over essentially every EC2, S3, Lambda and CloudWatch resource in the account. This violates least privilege and includes high-impact permissions such as s3:* (data exfiltration/deletion), lambda:* and iam-adjacent escalation paths, so any compromise of this principal is effectively account-wide.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static access credentials",
+      "description": "A static IAM access key pair is created for svc_deploy, which also holds the wildcard policy above. Long-lived access keys do not expire, are not protected by MFA, and if leaked (e.g. via state, CI logs, or source control) grant persistent, non-expiring access to the full set of wildcard permissions.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret material exposed via output",
+      "description": "This output deliberately surfaces the access key's secret material as a Terraform output. Outputs are persisted in the Terraform state file and echoed by plan/apply, so the credential is exposed to anyone with state access or console output, defeating the protection of the secret.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 2168,
+  "latency_s": 9.113,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the user full control over essentially every EC2, S3, Lambda and CloudWatch resource in the account. This violates least privilege and includes high-impact permissions such as s3:* (data exfiltration/deletion), lambda:* and iam-adjacent escalation paths, so any compromise of this principal is effectively account-wide.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static access credentials\", \"description\": \"A static IAM access key pair is created for svc_deploy, which also holds the wildcard policy above. Long-lived access keys do not expire, are not protected by MFA, and if leaked (e.g. via state, CI logs, or source control) grant persistent, non-expiring access to the full set of wildcard permissions.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret material exposed via output\", \"description\": \"This output deliberately surfaces the access key's secret material as a Terraform output. Outputs are persisted in the Terraform state file and echoed by plan/apply, so the credential is exposed to anyone with state access or console output, defeating the protection of the secret.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 2168,
+      "latency_s": 9.113,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000788
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000788
+}

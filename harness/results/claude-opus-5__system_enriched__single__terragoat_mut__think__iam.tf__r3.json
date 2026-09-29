@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:34:44Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive wildcard IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against \"Resource\": \"*\", giving this user effectively administrative control over all compute, storage, and serverless resources in the account. This violates least privilege and allows actions such as modifying any bucket policy, deleting any object, or launching arbitrary EC2/Lambda compute.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "cleartext credential in Terraform state",
+      "description": "The access key is created without a pgp_key argument, so the secret access key is written to Terraform state in cleartext. Anyone able to read the state backend obtains long-lived credentials for a near-administrative principal, and the key never expires or rotates automatically.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposed via unmarked output",
+      "description": "An output exposing IAM access key material is not declared sensitive = true, so its value is rendered in plan/apply output and CI logs. Because no pgp_key was set on the access key, encrypted_secret is also unpopulated, giving a false impression the secret is protected while the plaintext secret remains in state.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived static IAM user credentials",
+      "description": "A persistent IAM user with attached static access keys is used for what appears to be automated deployment, instead of an assumable role with short-lived credentials. Static user credentials cannot be automatically expired and are a common source of durable account compromise, made worse here by the near-administrative attached policy.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 1934,
+  "output_tokens": 1848,
+  "latency_s": 24.6,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive wildcard IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against \\\"Resource\\\": \\\"*\\\", giving this user effectively administrative control over all compute, storage, and serverless resources in the account. This violates least privilege and allows actions such as modifying any bucket policy, deleting any object, or launching arbitrary EC2/Lambda compute.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"cleartext credential in Terraform state\", \"description\": \"The access key is created without a pgp_key argument, so the secret access key is written to Terraform state in cleartext. Anyone able to read the state backend obtains long-lived credentials for a near-administrative principal, and the key never expires or rotates automatically.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposed via unmarked output\", \"description\": \"An output exposing IAM access key material is not declared sensitive = true, so its value is rendered in plan/apply output and CI logs. Because no pgp_key was set on the access key, encrypted_secret is also unpopulated, giving a false impression the secret is protected while the plaintext secret remains in state.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived static IAM user credentials\", \"description\": \"A persistent IAM user with attached static access keys is used for what appears to be automated deployment, instead of an assumable role with short-lived credentials. Static user credentials cannot be automatically expired and are a common source of durable account compromise, made worse here by the near-administrative attached policy.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1934,
+      "output_tokens": 1848,
+      "latency_s": 24.6,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.05587
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.05587
+}

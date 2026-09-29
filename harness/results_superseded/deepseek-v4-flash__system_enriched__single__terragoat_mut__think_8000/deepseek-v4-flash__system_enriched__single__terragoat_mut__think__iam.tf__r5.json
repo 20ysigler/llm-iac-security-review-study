@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:36:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \"*\", so the svc-deploy user has full control over every EC2 instance, S3 bucket/object, Lambda function and CloudWatch log in the account. This violates least privilege and enables account-wide data exfiltration, resource destruction, or service abuse (e.g. opening security groups via ec2:*) if the user's static credentials are ever compromised.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure via output",
+      "description": "The output surfaces the svc-deploy access key secret material (encrypted_secret) and is not marked sensitive. Terraform outputs are persisted in state and, unless sensitive = true, printed in cleartext to CLI/CI logs, so access key material for an all-services IAM user can leak to anyone with log or state read access.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static, non-expiring IAM access key is minted for a user holding wildcard permissions across EC2/S3/Lambda/CloudWatch. Such keys cannot be automatically rotated and act as a standing credential-stuffing/exfiltration target that grants broad access if leaked.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 4210,
+  "latency_s": 19.721,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \\\"*\\\", so the svc-deploy user has full control over every EC2 instance, S3 bucket/object, Lambda function and CloudWatch log in the account. This violates least privilege and enables account-wide data exfiltration, resource destruction, or service abuse (e.g. opening security groups via ec2:*) if the user's static credentials are ever compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure via output\", \"description\": \"The output surfaces the svc-deploy access key secret material (encrypted_secret) and is not marked sensitive. Terraform outputs are persisted in state and, unless sensitive = true, printed in cleartext to CLI/CI logs, so access key material for an all-services IAM user can leak to anyone with log or state read access.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static, non-expiring IAM access key is minted for a user holding wildcard permissions across EC2/S3/Lambda/CloudWatch. Such keys cannot be automatically rotated and act as a standing credential-stuffing/exfiltration target that grants broad access if leaked.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 4210,
+      "latency_s": 19.721,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00136
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00136
+}

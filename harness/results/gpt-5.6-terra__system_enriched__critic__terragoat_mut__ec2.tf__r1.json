@@ -1,0 +1,110 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__critic__terragoat_mut__ec2.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet is associated with an Internet Gateway default route and automatically assigns public IP addresses to launched instances. Workloads deployed here can become Internet-reachable when security-group rules permit it, weakening network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet is associated with an Internet Gateway default route and automatically assigns public IP addresses to launched instances. The portal_server is deployed in this subnet and has an Internet-reachable path when combined with its permissive security group.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not explicitly enable encryption. In the absence of independently enforced account-level default EBS encryption, data written to this volume is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "User data embeds an AWS access key ID and secret access key. These reusable credentials can be exposed through source control, Terraform state or deployment records, and instance user-data access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is allowed from 0.0.0.0/0. The attached portal_server is in a public, Internet-routed subnet and is assigned a public IP, making SSH directly reachable from untrusted networks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "TCP port 80 is allowed from 0.0.0.0/0. The attached portal_server is publicly reachable, exposing its HTTP service to all Internet sources without source-network restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket storing VPC flow logs has no explicit server-side encryption configuration. Sensitive network telemetry is therefore not protected by Terraform-enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5119,
+  "output_tokens": 1167,
+  "latency_s": 12.569,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_subnet.portal_subnet_b\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet is associated with an Internet Gateway default route and automatically assigns public IP addresses to launched instances. Workloads deployed here can become Internet-reachable when security-group rules permit it, weakening network segmentation.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.portal_subnet_a\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"This subnet is associated with an Internet Gateway default route and automatically assigns public IP addresses to launched instances. The portal_server is deployed in this subnet and has an Internet-reachable path when combined with its permissive security group.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not explicitly enable encryption. In the absence of independently enforced account-level default EBS encryption, data written to this volume is stored unencrypted at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"User data embeds an AWS access key ID and secret access key. These reusable credentials can be exposed through source control, Terraform state or deployment records, and instance user-data access.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP port 22 is allowed from 0.0.0.0/0. The attached portal_server is in a public, Internet-routed subnet and is assigned a public IP, making SSH directly reachable from untrusted networks.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted HTTP ingress\",\"description\":\"TCP port 80 is allowed from 0.0.0.0/0. The attached portal_server is publicly reachable, exposing its HTTP service to all Internet sources without source-network restriction.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The bucket storing VPC flow logs has no explicit server-side encryption configuration. Sensitive network telemetry is therefore not protected by Terraform-enforced encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2118,
+      "output_tokens": 630,
+      "latency_s": 7.6,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.011796
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3001,
+      "output_tokens": 537,
+      "latency_s": 4.969,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.012446
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.024242
+}

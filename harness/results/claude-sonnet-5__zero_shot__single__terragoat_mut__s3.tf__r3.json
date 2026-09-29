@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__s3.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:22:36Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default (no SSE-S3 or SSE-KMS enforced), risking exposure of data at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access restriction / missing ACL",
+      "description": "The bucket has no ACL specified and no aws_s3_bucket_public_access_block resource associated, leaving it potentially subject to default or overly permissive access settings.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "versioning disabled",
+      "description": "Versioning is not enabled on this bucket, which combined with force_destroy=true allows permanent, unrecoverable data loss or tampering of stored reports.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket holding ledger export data, meaning sensitive financial data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "versioning disabled",
+      "description": "Versioning is not enabled, and force_destroy is true, allowing accidental or malicious permanent deletion/overwrite of ledger export records without recovery.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket storing model artifacts, leaving potentially sensitive ML models/data unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so operational runbook documents (which may contain sensitive internal procedures/credentials) are stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly permissive ACL",
+      "description": "The bucket uses the 'log-delivery-write' canned ACL which grants the S3 log delivery group WRITE and READ_ACP permissions; combined with force_destroy=true, this increases risk to the integrity of the centralized audit trail bucket used for other buckets' logs.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload",
+      "description": "The object is uploaded without specifying server-side encryption (kms_key_id or server_side_encryption), and it resides in a bucket without default encryption, meaning this seed data file is stored in plaintext.",
+      "severity": "low",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "destructive operation enabled",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted via Terraform without additional safeguards, increasing risk of accidental or malicious irreversible data loss.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 2138,
+  "output_tokens": 1359,
+  "latency_s": 11.992,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default (no SSE-S3 or SSE-KMS enforced), risking exposure of data at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access restriction / missing ACL\", \"description\": \"The bucket has no ACL specified and no aws_s3_bucket_public_access_block resource associated, leaving it potentially subject to default or overly permissive access settings.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"versioning disabled\", \"description\": \"Versioning is not enabled on this bucket, which combined with force_destroy=true allows permanent, unrecoverable data loss or tampering of stored reports.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket holding ledger export data, meaning sensitive financial data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"versioning disabled\", \"description\": \"Versioning is not enabled, and force_destroy is true, allowing accidental or malicious permanent deletion/overwrite of ledger export records without recovery.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket storing model artifacts, leaving potentially sensitive ML models/data unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so operational runbook documents (which may contain sensitive internal procedures/credentials) are stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly permissive ACL\", \"description\": \"The bucket uses the 'log-delivery-write' canned ACL which grants the S3 log delivery group WRITE and READ_ACP permissions; combined with force_destroy=true, this increases risk to the integrity of the centralized audit trail bucket used for other buckets' logs.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object upload\", \"description\": \"The object is uploaded without specifying server-side encryption (kms_key_id or server_side_encryption), and it resides in a bucket without default encryption, meaning this seed data file is stored in plaintext.\", \"severity\": \"low\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"destructive operation enabled\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted via Terraform without additional safeguards, increasing risk of accidental or malicious irreversible data loss.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2138,
+      "output_tokens": 1359,
+      "latency_s": 11.992,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.017866
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.017866
+}

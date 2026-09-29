@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:33:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full service-wide wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \"*\", violating least privilege. This allows the service account to read or destroy any S3 object in the account, launch or terminate any EC2 instance, and modify security groups across every VPC.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "privilege escalation via lambda",
+      "description": "Unrestricted lambda:* combined with ec2:* on all resources creates a privilege-escalation path: the principal can create or update a Lambda function (or launch an EC2 instance with an instance profile) that executes under a more privileged existing role, effectively escaping the intended permission boundary of this service account.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "cleartext credential in state",
+      "description": "No pgp_key is supplied, so AWS returns the secret access key in cleartext and Terraform persists it unencrypted in the state file. Anyone with read access to the state backend obtains working long-lived credentials carrying the wildcard policy above.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM user access key is provisioned instead of a federated or assumable role with short-lived credentials. Static keys have no automatic expiry and remain valid indefinitely if leaked, and no rotation mechanism is defined here.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposed via output",
+      "description": "The output svc_deploy_key_material exports the access key material without sensitive = true, causing the value to be printed in plan/apply console output and CI logs and exposed to any consumer of this module.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 1934,
+  "output_tokens": 1939,
+  "latency_s": 26.075,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full service-wide wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \\\"*\\\", violating least privilege. This allows the service account to read or destroy any S3 object in the account, launch or terminate any EC2 instance, and modify security groups across every VPC.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"privilege escalation via lambda\", \"description\": \"Unrestricted lambda:* combined with ec2:* on all resources creates a privilege-escalation path: the principal can create or update a Lambda function (or launch an EC2 instance with an instance profile) that executes under a more privileged existing role, effectively escaping the intended permission boundary of this service account.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"cleartext credential in state\", \"description\": \"No pgp_key is supplied, so AWS returns the secret access key in cleartext and Terraform persists it unencrypted in the state file. Anyone with read access to the state backend obtains working long-lived credentials carrying the wildcard policy above.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM user access key is provisioned instead of a federated or assumable role with short-lived credentials. Static keys have no automatic expiry and remain valid indefinitely if leaked, and no rotation mechanism is defined here.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposed via output\", \"description\": \"The output svc_deploy_key_material exports the access key material without sensitive = true, causing the value to be printed in plan/apply console output and CI logs and exposed to any consumer of this module.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1934,
+      "output_tokens": 1939,
+      "latency_s": 26.075,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.058145
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.058145
+}

@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__zero_shot__single__terragoat_mut__iam.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The deployment user is granted wildcard permissions (ec2:*, s3:*, lambda:*, and cloudwatch:*) against every resource. Compromise of its access key would provide broad control over compute, storage, functions, and monitoring resources, enabling data exposure and privilege abuse.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived programmatic credentials",
+      "description": "A permanent IAM access key is created for a highly privileged user. If this key is exposed or stolen, it can be used remotely until it is rotated or disabled, with the broad privileges assigned by the attached user policy.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed in output",
+      "description": "The encrypted IAM access-key secret is exported as a Terraform output without being marked sensitive. Terraform outputs may be displayed in CLI output and persisted in state, increasing the risk of credential-material disclosure; encryption alone does not make it safe if the corresponding decryption key is accessible.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 731,
+  "output_tokens": 291,
+  "latency_s": 4.095,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The deployment user is granted wildcard permissions (ec2:*, s3:*, lambda:*, and cloudwatch:*) against every resource. Compromise of its access key would provide broad control over compute, storage, functions, and monitoring resources, enabling data exposure and privilege abuse.\",\"severity\":\"high\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"long-lived programmatic credentials\",\"description\":\"A permanent IAM access key is created for a highly privileged user. If this key is exposed or stolen, it can be used remotely until it is rotated or disabled, with the broad privileges assigned by the attached user policy.\",\"severity\":\"high\",\"cwe\":\"CWE-522\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"credential material exposed in output\",\"description\":\"The encrypted IAM access-key secret is exported as a Terraform output without being marked sensitive. Terraform outputs may be displayed in CLI output and persisted in state, increasing the risk of credential-material disclosure; encryption alone does not make it safe if the corresponding decryption key is accessible.\",\"severity\":\"high\",\"cwe\":\"CWE-200\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 731,
+      "output_tokens": 291,
+      "latency_s": 4.095,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.004954
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.004954
+}

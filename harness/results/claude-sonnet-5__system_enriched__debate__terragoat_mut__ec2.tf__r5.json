@@ -1,0 +1,135 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__ec2.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:57:51Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials",
+      "description": "AWS access key ID and secret access key are hard-coded in plaintext in the instance user_data script, exposing long-lived credentials to anyone with access to instance metadata, console, or Terraform state, and risking leakage via logs or version control.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "Ingress rule allows TCP port 80 from 0.0.0.0/0. Combined with public subnet placement and automatic public IP assignment, this fully exposes the web server to the internet with no compensating controls (e.g., WAF, TLS termination).",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing the attack surface by exposing resources directly to the internet by default.",
+      "severity": "medium",
+      "cwe": "CWE-1327",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, expanding the attack surface unnecessarily.",
+      "severity": "medium",
+      "cwe": "CWE-1327",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true, so data stored on this volume is not encrypted at rest, risking exposure of sensitive data if the underlying storage or a snapshot derived from it is compromised or shared.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot is created from the unencrypted portal_server_disk volume and inherits its unencrypted state, so backed-up data remains unencrypted at rest and could be exposed if the snapshot is shared or made public.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket storing VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving potentially sensitive network traffic metadata unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access controls / public access block",
+      "description": "No public access block, bucket policy, or ACL restricting access is defined for this bucket, and force_destroy is enabled, risking accidental exposure or deletion of flow log data without explicit access restriction.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 14901,
+  "output_tokens": 4130,
+  "latency_s": 32.73,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials\", \"description\": \"AWS access key ID and secret access key are hard-coded in plaintext in the instance user_data script, exposing long-lived credentials to anyone with access to instance metadata, console, or Terraform state, and risking leakage via logs or version control.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress rule allows TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"Ingress rule allows TCP port 80 from 0.0.0.0/0. Combined with public subnet placement and automatic public IP assignment, this fully exposes the web server to the internet with no compensating controls (e.g., WAF, TLS termination).\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to instances launched in this subnet, increasing the attack surface by exposing resources directly to the internet by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-1327\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IP addresses to any instance launched in this subnet, expanding the attack surface unnecessarily.\", \"severity\": \"medium\", \"cwe\": \"CWE-1327\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true, so data stored on this volume is not encrypted at rest, risking exposure of sensitive data if the underlying storage or a snapshot derived from it is compromised or shared.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot is created from the unencrypted portal_server_disk volume and inherits its unencrypted state, so backed-up data remains unencrypted at rest and could be exposed if the snapshot is shared or made public.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket storing VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving potentially sensitive network traffic metadata unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing access controls / public access block\", \"description\": \"No public access block, bucket policy, or ACL restricting access is defined for this bucket, and force_destroy is enabled, risking accidental exposure or deletion of flow log data without explicit access restriction.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 4038,
+      "output_tokens": 1462,
+      "latency_s": 12.305,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.022696
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 4038,
+      "output_tokens": 1212,
+      "latency_s": 10.038,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.020196
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 6825,
+      "output_tokens": 1456,
+      "latency_s": 10.387,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.02821
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.071102
+}

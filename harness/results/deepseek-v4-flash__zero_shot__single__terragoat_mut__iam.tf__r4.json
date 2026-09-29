@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:02Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \"*\", giving the svc_deploy user full administrative control over compute, storage, and serverless resources across the entire account. A compromise of this CI/deploy principal would allow an attacker to read all S3 data, launch instances, and backdoor Lambda functions.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key pair is created and attached to the svc_deploy user, with no expiration or rotation. Long-lived programmatic credentials that are never rotated can be exfiltrated and reused indefinitely.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "secret exposed in Terraform output",
+      "description": "The output exposes the access key secret material. Although it references `encrypted_secret`, the encrypted form is intended only for PGP-decryption in the operator's console; surfacing it (and thereby encouraging state-held key material retrieval) risks leaking credentials, and this output name suggests plaintext key material is made available. Access key secrets must not be surfaced via outputs as they persist in state and CI/CD logs.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "unprotected privileged IAM user",
+      "description": "The svc_deploy IAM user holds broad permissions but has no MFA enforcement and no permissions boundary. A console-enabled, non-MFA principal with wildcard administrative permissions can be taken over with only a password. Combined with force_destroy, the identity can also be deleted along with its attached policies.",
+      "severity": "medium",
+      "cwe": "CWE-308",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1010,
+  "output_tokens": 515,
+  "latency_s": 3.206,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full administrative control over compute, storage, and serverless resources across the entire account. A compromise of this CI/deploy principal would allow an attacker to read all S3 data, launch instances, and backdoor Lambda functions.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key pair is created and attached to the svc_deploy user, with no expiration or rotation. Long-lived programmatic credentials that are never rotated can be exfiltrated and reused indefinitely.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"secret exposed in Terraform output\", \"description\": \"The output exposes the access key secret material. Although it references `encrypted_secret`, the encrypted form is intended only for PGP-decryption in the operator's console; surfacing it (and thereby encouraging state-held key material retrieval) risks leaking credentials, and this output name suggests plaintext key material is made available. Access key secrets must not be surfaced via outputs as they persist in state and CI/CD logs.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"unprotected privileged IAM user\", \"description\": \"The svc_deploy IAM user holds broad permissions but has no MFA enforcement and no permissions boundary. A console-enabled, non-MFA principal with wildcard administrative permissions can be taken over with only a password. Combined with force_destroy, the identity can also be deleted along with its attached policies.\", \"severity\": \"medium\", \"cwe\": \"CWE-308\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1010,
+      "output_tokens": 515,
+      "latency_s": 3.206,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000286
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000286
+}

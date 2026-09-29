@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:10:47Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "This policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\" to the svc_deploy user, which is effectively broad administrative control across compute, object storage, and serverless. It permits full data access/exfiltration across all S3 buckets and enables privilege escalation via ec2:RunInstances combined with an existing instance profile (and via lambda:CreateFunction/InvokeFunction executing arbitrary code), far exceeding least privilege for a deployment identity.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposure via output",
+      "description": "This output publishes the access key's secret material (encrypted_secret), which is written to stdout, plan/apply logs, and the plaintext Terraform state file, and it is not marked sensitive = true. Anyone with access to CI logs or state can obtain usable long-lived AWS credentials for the svc_deploy user.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for the svc_deploy user that is paired with the wildcard policy above. Static access keys do not expire or rotate automatically, so a single leak yields persistent, broadly privileged API access; an IAM role with temporary credentials would be the secure alternative.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 5828,
+  "latency_s": 28.051,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"This policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\" to the svc_deploy user, which is effectively broad administrative control across compute, object storage, and serverless. It permits full data access/exfiltration across all S3 buckets and enables privilege escalation via ec2:RunInstances combined with an existing instance profile (and via lambda:CreateFunction/InvokeFunction executing arbitrary code), far exceeding least privilege for a deployment identity.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposure via output\", \"description\": \"This output publishes the access key's secret material (encrypted_secret), which is written to stdout, plan/apply logs, and the plaintext Terraform state file, and it is not marked sensitive = true. Anyone with access to CI logs or state can obtain usable long-lived AWS credentials for the svc_deploy user.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for the svc_deploy user that is paired with the wildcard policy above. Static access keys do not expire or rotate automatically, so a single leak yields persistent, broadly privileged API access; an IAM role with temporary credentials would be the secure alternative.\", \"severity\": \"medium\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 5828,
+      "latency_s": 28.051,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.001813
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001813
+}

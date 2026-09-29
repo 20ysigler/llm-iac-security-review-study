@@ -1,0 +1,73 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:46:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege. A compromised access key for this user would allow full control over EC2, S3, Lambda, and CloudWatch across the account.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived credential creation",
+      "description": "Creating a static IAM access key for a service user introduces a long-lived credential that can be leaked or exfiltrated; combined with the overly broad attached policy, compromise of this key leads to broad account compromise. Prefer roles/temporary credentials instead of static access keys.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The output 'svc_deploy_key_material' exposes the encrypted_secret of the access key as a Terraform output, which is stored in state and CLI output, risking leakage of sensitive secret material (or at least metadata enabling secret retrieval) to anyone with access to state/output logs.",
+      "severity": "high",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Provisioning a dedicated IAM user with long-term credentials for a service/deployment process increases attack surface compared to using an IAM role with temporary STS credentials, and force_destroy=true allows silent removal of the user along with any attached access keys during automated runs.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2291,
+  "output_tokens": 706,
+  "latency_s": 8.779,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege. A compromised access key for this user would allow full control over EC2, S3, Lambda, and CloudWatch across the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived credential creation\", \"description\": \"Creating a static IAM access key for a service user introduces a long-lived credential that can be leaked or exfiltrated; combined with the overly broad attached policy, compromise of this key leads to broad account compromise. Prefer roles/temporary credentials instead of static access keys.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The output 'svc_deploy_key_material' exposes the encrypted_secret of the access key as a Terraform output, which is stored in state and CLI output, risking leakage of sensitive secret material (or at least metadata enabling secret retrieval) to anyone with access to state/output logs.\", \"severity\": \"high\", \"cwe\": \"CWE-522\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Provisioning a dedicated IAM user with long-term credentials for a service/deployment process increases attack surface compared to using an IAM role with temporary STS credentials, and force_destroy=true allows silent removal of the user along with any attached access keys during automated runs.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2291,
+      "output_tokens": 706,
+      "latency_s": 8.779,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011642
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.011642
+}

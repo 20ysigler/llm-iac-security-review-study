@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:02:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and allowing broad account-wide access including data exfiltration, resource creation/deletion, and privilege escalation via EC2/Lambda.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key for a user with broad wildcard permissions creates a durable, exfiltratable credential that is not scoped, rotated, or time-limited, increasing the blast radius if leaked.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The output svc_deploy_key_material exposes the encrypted_secret of the access key; if no PGP key is used this attribute may be empty, but exporting key-related material through outputs risks leaking it into state files, logs, or CI/CD output, which are often less protected than secret stores.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Using a standalone IAM user with an attached access key for service/deploy access instead of an assumable IAM role introduces standing credentials that can be leaked or misused, rather than short-lived, auditable temporary credentials.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2128,
+  "output_tokens": 746,
+  "latency_s": 7.024,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and allowing broad account-wide access including data exfiltration, resource creation/deletion, and privilege escalation via EC2/Lambda.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key for a user with broad wildcard permissions creates a durable, exfiltratable credential that is not scoped, rotated, or time-limited, increasing the blast radius if leaked.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The output svc_deploy_key_material exposes the encrypted_secret of the access key; if no PGP key is used this attribute may be empty, but exporting key-related material through outputs risks leaking it into state files, logs, or CI/CD output, which are often less protected than secret stores.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Using a standalone IAM user with an attached access key for service/deploy access instead of an assumable IAM role introduces standing credentials that can be leaked or misused, rather than short-lived, auditable temporary credentials.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2128,
+      "output_tokens": 746,
+      "latency_s": 7.024,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011716
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.011716
+}

@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:44:21Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to a single IAM user, violating least privilege and enabling broad account compromise if the user's credentials are leaked.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key for a service user (rather than using roles or short-lived credentials) increases the risk of credential leakage and misuse, especially combined with the highly permissive attached policy.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "sensitive value exposed via output",
+      "description": "The output 'svc_deploy_key_material' exposes the access key's encrypted_secret value without being marked sensitive, causing it to be displayed in plan/apply output and persisted in state, risking credential disclosure even though it is KMS-encrypted ciphertext requiring decryption to use.",
+      "severity": "medium",
+      "cwe": "CWE-312"
+    }
+  ],
+  "input_tokens": 5025,
+  "output_tokens": 1131,
+  "latency_s": 11.591,
+  "attempts": 1,
+  "schema_problems": [
+    "critique: finding[2] resource 'svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to a single IAM user, violating least privilege and enabling broad account compromise if the user's credentials are leaked.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key for a service user (rather than using roles or short-lived credentials) increases the risk of credential leakage and misuse, especially combined with the highly permissive attached policy.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"sensitive value exposed via output\", \"description\": \"The output 'svc_deploy_key_material' exposes the access key's encrypted_secret value without being marked sensitive, causing it to be displayed in plan/apply output and persisted in state, risking credential disclosure even though it is KMS-encrypted ciphertext requiring decryption to use.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2128,
+      "output_tokens": 644,
+      "latency_s": 6.549,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010696
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2897,
+      "output_tokens": 487,
+      "latency_s": 5.042,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.010664
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.02136
+}

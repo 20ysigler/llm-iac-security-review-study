@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:19:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Compromise of this user's key would allow full control of compute, storage and serverless resources account-wide, including data exfiltration from any S3 bucket and privilege escalation via ec2:RunInstances or lambda function creation with attached instance profiles/roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials in state",
+      "description": "A permanent IAM access key/secret pair is created for a user holding wildcard permissions, with no pgp_key specified, so the secret is written in cleartext to the Terraform state file. Anyone with read access to the state or remote backend obtains a non-rotating credential with broad account access.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential disclosure via output",
+      "description": "The 'secret' output surfaces the access key secret material (and 'username' the matching identity), making the credential pair readable from state and liable to be captured in CI/CD logs or by any consumer of the module's outputs. The output is not marked sensitive.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "policy attached directly to user",
+      "description": "The privileged policy is attached inline to an IAM user rather than granted through a group or an assumable role issuing temporary credentials, and no MFA condition constrains its use, so a single leaked static key yields the full permission set with no second factor or central revocation point.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8308,
+  "output_tokens": 2169,
+  "latency_s": 29.942,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Compromise of this user's key would allow full control of compute, storage and serverless resources account-wide, including data exfiltration from any S3 bucket and privilege escalation via ec2:RunInstances or lambda function creation with attached instance profiles/roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials in state\", \"description\": \"A permanent IAM access key/secret pair is created for a user holding wildcard permissions, with no pgp_key specified, so the secret is written in cleartext to the Terraform state file. Anyone with read access to the state or remote backend obtains a non-rotating credential with broad account access.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential disclosure via output\", \"description\": \"The 'secret' output surfaces the access key secret material (and 'username' the matching identity), making the credential pair readable from state and liable to be captured in CI/CD logs or by any consumer of the module's outputs. The output is not marked sensitive.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"policy attached directly to user\", \"description\": \"The privileged policy is attached inline to an IAM user rather than granted through a group or an assumable role issuing temporary credentials, and no MFA condition constrains its use, so a single leaked static key yields the full permission set with no second factor or central revocation point.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2197,
+      "output_tokens": 800,
+      "latency_s": 11.906,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.030985
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2197,
+      "output_tokens": 665,
+      "latency_s": 9.496,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02761
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3914,
+      "output_tokens": 704,
+      "latency_s": 8.54,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03717
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.095765
+}

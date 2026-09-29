@@ -1,0 +1,143 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:19:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, so archived reports are stored without an explicitly enforced encryption-at-rest policy and are not protected by the customer-managed KMS key used elsewhere in this configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket holds financial ledger exports but defines no server_side_encryption_configuration, leaving this sensitive data without an explicitly configured encryption-at-rest policy.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket has versioning and logging but no server_side_encryption_configuration block, so proprietary model artifacts are stored without enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket stores operational runbooks, which commonly contain internal procedures and credentials, but defines no server_side_encryption_configuration, so contents are not covered by an enforced encryption-at-rest policy.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly broad log delivery ACL",
+      "description": "The audit_trail bucket is configured with acl = \"log-delivery-write\", which grants the S3 log delivery group write access and read-ACP permission on a bucket containing tamper-sensitive audit logs; the ACL is broader than required and allows log-delivery principals to alter bucket ACLs.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the reports bucket and no acl is specified, so there is no account- or bucket-level guardrail (block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets) preventing the bucket from being made public by a future ACL or policy change.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing public access block",
+      "description": "The model_artifacts bucket relies only on acl = \"private\" with no public access block resource, so it can be made public through a future ACL or bucket policy change without a guardrail.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing public access block",
+      "description": "The ops_runbooks bucket sets acl = \"private\" but has no accompanying public access block, so it can be made public by a later policy or ACL change without an account- or bucket-level safeguard.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing public access block",
+      "description": "The audit_trail bucket has no public access block and carries a non-private canned ACL, leaving audit logs without a guardrail against later permissive policy or ACL changes.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "log delivery write disabled",
+      "description": "The reports_archive bucket differs from the other buckets in this configuration by not enabling access logging via a logging block, so access to archived reports is not recorded and cannot be audited.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6826,
+  "output_tokens": 2982,
+  "latency_s": 12.903,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, so archived reports are stored without an explicitly enforced encryption-at-rest policy and are not protected by the customer-managed KMS key used elsewhere in this configuration.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket holds financial ledger exports but defines no server_side_encryption_configuration, leaving this sensitive data without an explicitly configured encryption-at-rest policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket has versioning and logging but no server_side_encryption_configuration block, so proprietary model artifacts are stored without enforced encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket stores operational runbooks, which commonly contain internal procedures and credentials, but defines no server_side_encryption_configuration, so contents are not covered by an enforced encryption-at-rest policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly broad log delivery ACL\", \"description\": \"The audit_trail bucket is configured with acl = \\\"log-delivery-write\\\", which grants the S3 log delivery group write access and read-ACP permission on a bucket containing tamper-sensitive audit logs; the ACL is broader than required and allows log-delivery principals to alter bucket ACLs.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the reports bucket and no acl is specified, so there is no account- or bucket-level guardrail (block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets) preventing the bucket from being made public by a future ACL or policy change.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing public access block\", \"description\": \"The model_artifacts bucket relies only on acl = \\\"private\\\" with no public access block resource, so it can be made public through a future ACL or bucket policy change without a guardrail.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing public access block\", \"description\": \"The ops_runbooks bucket sets acl = \\\"private\\\" but has no accompanying public access block, so it can be made public by a later policy or ACL change without an account- or bucket-level safeguard.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing public access block\", \"description\": \"The audit_trail bucket has no public access block and carries a non-private canned ACL, leaving audit logs without a guardrail against later permissive policy or ACL changes.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"log delivery write disabled\", \"description\": \"The reports_archive bucket differs from the other buckets in this configuration by not enabling access logging via a logging block, so access to archived reports is not recorded and cannot be audited.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1538,
+      "output_tokens": 698,
+      "latency_s": 3.318,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000411
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1538,
+      "output_tokens": 1278,
+      "latency_s": 5.577,
+      "n_findings": 13,
+      "error": "",
+      "cost_usd": 0.000573
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3750,
+      "output_tokens": 1006,
+      "latency_s": 4.008,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000807
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001791
+}

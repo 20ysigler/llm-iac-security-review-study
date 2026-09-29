@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__few_shot__single__terragoat_mut__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:57Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), far exceeding least privilege. A compromise of this deploy user's credentials would allow an attacker to read or destroy every S3 bucket, launch or terminate any EC2 instance, and modify all Lambda functions in the account.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a human-less deploy user and its secret is stored in Terraform state in plaintext (no pgp_key is supplied, so `secret` is stored unencrypted in state). Long-lived static keys with broad privileges are a prime target for credential theft; an IAM role with temporary credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure in state",
+      "description": "Because no pgp_key is configured, `encrypted_secret` will be empty and the plaintext secret access key is persisted in the Terraform state file, which is frequently stored in shared remote backends or CI artifacts accessible to a broad audience.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged IAM user without MFA",
+      "description": "A standalone IAM user is provisioned with broad permissions and no MFA or permissions boundary attached, so a single leaked credential provides unrestricted access to the granted services.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed via output",
+      "description": "The access key material is exported as a Terraform output without `sensitive = true`, causing it to be printed to console logs and CI output and stored readable in state.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 2223,
+  "output_tokens": 830,
+  "latency_s": 10.309,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), far exceeding least privilege. A compromise of this deploy user's credentials would allow an attacker to read or destroy every S3 bucket, launch or terminate any EC2 instance, and modify all Lambda functions in the account.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a human-less deploy user and its secret is stored in Terraform state in plaintext (no pgp_key is supplied, so `secret` is stored unencrypted in state). Long-lived static keys with broad privileges are a prime target for credential theft; an IAM role with temporary credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure in state\", \"description\": \"Because no pgp_key is configured, `encrypted_secret` will be empty and the plaintext secret access key is persisted in the Terraform state file, which is frequently stored in shared remote backends or CI artifacts accessible to a broad audience.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged IAM user without MFA\", \"description\": \"A standalone IAM user is provisioned with broad permissions and no MFA or permissions boundary attached, so a single leaked credential provides unrestricted access to the granted services.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed via output\", \"description\": \"The access key material is exported as a Terraform output without `sensitive = true`, causing it to be printed to console logs and CI output and stored readable in state.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2223,
+      "output_tokens": 830,
+      "latency_s": 10.309,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031865
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.031865
+}

@@ -1,0 +1,71 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:19Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated backups, snapshots, and replicas derived from it unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets `publicly_accessible = true`, assigning a public endpoint/IP-capable network interface and unnecessarily exposing the database to internet-reachable network paths. The attached rule currently limits port 3306 to the VPC CIDR, but public accessibility weakens the intended network boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound access",
+      "description": "The database security group allows all protocols and ports to `0.0.0.0/0`. This violates least-privilege network egress and permits unrestricted outbound connections from the database network interface if it is compromised.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The EC2 instance role is granted `s3:*`, `ec2:*`, and `rds:*` against every resource. Any compromise of the attached instance can obtain credentials capable of broad data access and infrastructure modification, including potentially destructive or privilege-escalating actions.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext database credential",
+      "description": "The database password is interpolated into EC2 user data and written as plaintext PHP configuration at `/var/www/inc/dbinfo.inc`. User data is retrievable from the instance metadata service and may be retained in Terraform state, while the deployed file exposes the credential to processes/users able to read it.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted database transport",
+      "description": "The application connects to MySQL with `mysqli_connect` without SSL/TLS parameters, and the RDS parameter group does not enforce secure transport. Database credentials and application data can therefore traverse the VPC network without verified encryption in transit.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 4225,
+  "output_tokens": 522,
+  "latency_s": 5.119,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated backups, snapshots, and replicas derived from it unencrypted at rest.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets `publicly_accessible = true`, assigning a public endpoint/IP-capable network interface and unnecessarily exposing the database to internet-reachable network paths. The attached rule currently limits port 3306 to the VPC CIDR, but public accessibility weakens the intended network boundary.\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound access\",\"description\":\"The database security group allows all protocols and ports to `0.0.0.0/0`. This violates least-privilege network egress and permits unrestricted outbound connections from the database network interface if it is compromised.\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The EC2 instance role is granted `s3:*`, `ec2:*`, and `rds:*` against every resource. Any compromise of the attached instance can obtain credentials capable of broad data access and infrastructure modification, including potentially destructive or privilege-escalating actions.\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-284\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"plaintext database credential\",\"description\":\"The database password is interpolated into EC2 user data and written as plaintext PHP configuration at `/var/www/inc/dbinfo.inc`. User data is retrievable from the instance metadata service and may be retained in Terraform state, while the deployed file exposes the credential to processes/users able to read it.\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"unencrypted database transport\",\"description\":\"The application connects to MySQL with `mysqli_connect` without SSL/TLS parameters, and the RDS parameter group does not enforce secure transport. Database credentials and application data can therefore traverse the VPC network without verified encryption in transit.\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-319\"}]}",
+  "cost_usd": 0.014714
+}

@@ -1,0 +1,126 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:37Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database contents, automated backups, and snapshots are stored unencrypted; anyone with access to the underlying storage or a snapshot can read all catalog data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the RDS instance a publicly resolvable DNS address, and the VPC-only ingress rule is a fragile boundary: any change to the SG or the VPC CIDR (e.g. a /16 or peered network) directly exposes MySQL/3306 to the internet. The database does not need a public endpoint.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in instance user data",
+      "description": "user_data renders the live DB password and admin username into /var/www/inc/dbinfo.inc via Terraform interpolation, and also writes the admin DB credentials into a world-readable-in-context webroot path. The plaintext secret is stored in Terraform state and in EC2 instance metadata, readable by any process or SSRF vector on the host.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\" to a role assumed by the catalog application instance, allowing full control of all S3, EC2, and RDS resources in the account (including privilege escalation via IAM-adjacent service actions) if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "network-level ingress scope",
+      "description": "Ingress to TCP/3306 is scoped to the entire VPC CIDR rather than to the application instance's security group, so any host that can be placed in the VPC reaches the database, and the rule's scope scales with the VPC. Least-privilege network segmentation would reference the app SG as the source.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols and ports to 0.0.0.0/0 from the database security group, so any compromised workload using this SG can exfiltrate data to arbitrary internet hosts.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext transmission to database",
+      "description": "Neither the RDS instance nor the mysql8.0 parameter group enforces TLS (no require_secure_transport=ON, no RDS force_ssl equivalent), and the application connects with mysqli_connect without TLS parameters, so DB credentials and query data can traverse the network unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "TLS not enforced for database",
+      "description": "The MySQL 8.0 parameter group is applied to catalog_db with no require_secure_transport parameter set to ON, so the database accepts cleartext client connections. This is the resource where the fix (and the Terraform-declared misconfiguration) actually lives.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unrestricted ingress to application server",
+      "description": "The instance is attached to aws_security_group.portal_sg (defined outside this file) and is associated with a public DNS output. The configuration places a public-facing web server that handles database credentials directly onto a shared \"portal\" security group; the inbound exposure of that SG cannot be validated here but the instance is treated as internet-reachable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 8076,
+  "output_tokens": 1846,
+  "latency_s": 8.77,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database contents, automated backups, and snapshots are stored unencrypted; anyone with access to the underlying storage or a snapshot can read all catalog data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true gives the RDS instance a publicly resolvable DNS address, and the VPC-only ingress rule is a fragile boundary: any change to the SG or the VPC CIDR (e.g. a /16 or peered network) directly exposes MySQL/3306 to the internet. The database does not need a public endpoint.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in instance user data\", \"description\": \"user_data renders the live DB password and admin username into /var/www/inc/dbinfo.inc via Terraform interpolation, and also writes the admin DB credentials into a world-readable-in-context webroot path. The plaintext secret is stored in Terraform state and in EC2 instance metadata, readable by any process or SSRF vector on the host.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\" to a role assumed by the catalog application instance, allowing full control of all S3, EC2, and RDS resources in the account (including privilege escalation via IAM-adjacent service actions) if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"network-level ingress scope\", \"description\": \"Ingress to TCP/3306 is scoped to the entire VPC CIDR rather than to the application instance's security group, so any host that can be placed in the VPC reaches the database, and the rule's scope scales with the VPC. Least-privilege network segmentation would reference the app SG as the source.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols and ports to 0.0.0.0/0 from the database security group, so any compromised workload using this SG can exfiltrate data to arbitrary internet hosts.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext transmission to database\", \"description\": \"Neither the RDS instance nor the mysql8.0 parameter group enforces TLS (no require_secure_transport=ON, no RDS force_ssl equivalent), and the application connects with mysqli_connect without TLS parameters, so DB credentials and query data can traverse the network unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_parameter_group.catalog_db_params\", \"issue_category\": \"TLS not enforced for database\", \"description\": \"The MySQL 8.0 parameter group is applied to catalog_db with no require_secure_transport parameter set to ON, so the database accepts cleartext client connections. This is the resource where the fix (and the Terraform-declared misconfiguration) actually lives.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unrestricted ingress to application server\", \"description\": \"The instance is attached to aws_security_group.portal_sg (defined outside this file) and is associated with a public DNS output. The configuration places a public-facing web server that handles database credentials directly onto a shared \\\"portal\\\" security g",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3574,
+      "output_tokens": 797,
+      "latency_s": 3.732,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000724
+    },
+    {
+      "step": "critique",
+      "input_tokens": 4502,
+      "output_tokens": 1049,
+      "latency_s": 5.038,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000924
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.001648
+}

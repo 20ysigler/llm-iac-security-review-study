@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__think__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:17:40Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*'), effectively granting broad administrative-level access across multiple services in violation of least privilege.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "An IAM access key (long-lived static credential) is created for the IAM user instead of relying on temporary credentials or federated roles, increasing the risk of credential leakage and requiring manual rotation.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Creating a standalone IAM user with attached access keys and an inline excessive policy encourages long-lived credential usage rather than temporary, role-based access, increasing the attack surface for credential theft.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret exposure via output",
+      "description": "The 'secret' output exposes the access key's encrypted_secret value, which surfaces sensitive credential material in Terraform outputs/state and CI logs, widening the audience with access far beyond those who should manage the secret.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3513,
+  "output_tokens": 954,
+  "latency_s": 9.627,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*'), effectively granting broad administrative-level access across multiple services in violation of least privilege.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"An IAM access key (long-lived static credential) is created for the IAM user instead of relying on temporary credentials or federated roles, increasing the risk of credential leakage and requiring manual rotation.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Creating a standalone IAM user with attached access keys and an inline excessive policy encourages long-lived credential usage rather than temporary, role-based access, increasing the attack surface for credential theft.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret exposure via output\", \"description\": \"The 'secret' output exposes the access key's encrypted_secret value, which surfaces sensitive credential material in Terraform outputs/state and CI logs, widening the audience with access far beyond those who should manage the secret.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.016566
+}

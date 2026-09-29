@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r13",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 13,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:20:18Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest (including any sensitive employee data) is not encrypted, violating encryption-at-rest best practices.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance to the public internet and significantly increasing attack surface for a database that should only be reachable from the application tier.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credential exposure",
+      "description": "The database password is sourced from var.password and used in cleartext both in the resource and in EC2 user data; combined with skip_final_snapshot and lifecycle ignore_changes on password, secrets management is weak and password rotation is effectively bypassed by Terraform.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and cleartext password (var.password) directly into a script that is stored in instance metadata, which is often readable by other processes/users on the instance or via the EC2 API, leaking DB credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege and allowing the EC2 instance (which also has plaintext DB credentials and public exposure) to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols and ports to 0.0.0.0/0 from the RDS security group, which is broader than necessary and facilitates data exfiltration if the database or associated resources are compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "weak backup/recovery posture enabling data loss risk",
+      "description": "backup_retention_period is set to 0 and skip_final_snapshot is true, meaning no automated backups or final snapshot are taken; while primarily an availability concern, this also removes the ability to recover data after a security incident such as ransomware or accidental/malicious deletion.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1182,
+  "latency_s": 10.891,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest (including any sensitive employee data) is not encrypted, violating encryption-at-rest best practices.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance to the public internet and significantly increasing attack surface for a database that should only be reachable from the application tier.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credential exposure\", \"description\": \"The database password is sourced from var.password and used in cleartext both in the resource and in EC2 user data; combined with skip_final_snapshot and lifecycle ignore_changes on password, secrets management is weak and password rotation is effectively bypassed by Terraform.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and cleartext password (var.password) directly into a script that is stored in instance metadata, which is often readable by other processes/users on the instance or via the EC2 API, leaking DB credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege and allowing the EC2 instance (which also has plaintext DB credentials and public exposure) to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols and ports to 0.0.0.0/0 from the RDS security group, which is broader than necessary and facilitates data exfiltration if the database or associated resources are compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"weak backup/recovery posture enabling data loss risk\", \"description\": \"backup_retention_period is set to 0 and skip_final_snapshot is true, meaning no automated backups or final snapshot are taken; while primarily an availability concern, this also removes the ability to recover data after a security incident such as ransomware or accidental/malicious deletion.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.02658
+}

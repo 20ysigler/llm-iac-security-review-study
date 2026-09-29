@@ -1,0 +1,141 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__db-app.tf__r7",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 7,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:43:04Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the RDS MySQL instance and its underlying EBS volumes/snapshots store data in cleartext. Any exposure of the underlying storage or snapshots leaks database contents.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the RDS instance a public endpoint reachable from the internet, dramatically expanding the attack surface of a database that also uses a well-known 'admin' username. The endpoint is also exposed via the db_endpoint output.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "credentials passed in configuration",
+      "description": "The master password is supplied through var.password and the same variable is interpolated into EC2 user data, meaning the credential is stored in Terraform state and instance metadata in cleartext. The default username 'admin' is also predictable, aiding brute force.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing TLS enforcement in transit",
+      "description": "No parameter/option enforcing SSL is configured (see also the parameter group), so the MySQL instance accepts unencrypted client connections; combined with public accessibility, credentials and query data can be intercepted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "TLS not required for connections",
+      "description": "The MySQL parameter group does not set require_secure_transport = 1, so clients may connect to the database over cleartext channels.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound access",
+      "description": "Egress allows all protocols and ports to 0.0.0.0/0 from the database security group, permitting unrestricted outbound traffic that facilitates data exfiltration or C2 communication after compromise.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.default",
+      "issue_category": "missing rule descriptions and open scope",
+      "description": "The RDS security group is attached to an instance marked publicly_accessible; no rule restricts access to specific application hosts, relying only on a VPC-wide CIDR ingress, which grants every host in the VPC database access.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving any process on the EC2 instance (which serves an internet-facing PHP app) full control over all S3 data, EC2 infrastructure and RDS databases in the account \u2014 a direct privilege-escalation and data-exfiltration path.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded secrets in user data",
+      "description": "The user_data script embeds the database username and plaintext password (var.password) into /var/www/inc/dbinfo.inc; EC2 user data is retrievable from the instance metadata service by any process or SSRF flaw on the host and is stored unencrypted.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not enforced",
+      "description": "No metadata_options block requiring http_tokens = \"required\" is set, so IMDSv1 remains enabled; an SSRF in the hosted PHP application could retrieve the instance profile credentials, which carry the wildcard s3/ec2/rds policy.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-441"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device/ebs encryption is configured, so the instance volume \u2014 which contains the plaintext database credential file \u2014 is stored unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext application transport",
+      "description": "The bootstrap script installs and starts httpd serving the form over plain HTTP with no TLS configuration, so form submissions and query results traverse the network unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 7312,
+  "output_tokens": 1648,
+  "latency_s": 20.003,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is set to false, so the RDS MySQL instance and its underlying EBS volumes/snapshots store data in cleartext. Any exposure of the underlying storage or snapshots leaks database contents.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true assigns the RDS instance a public endpoint reachable from the internet, dramatically expanding the attack surface of a database that also uses a well-known 'admin' username. The endpoint is also exposed via the db_endpoint output.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"credentials passed in configuration\", \"description\": \"The master password is supplied through var.password and the same variable is interpolated into EC2 user data, meaning the credential is stored in Terraform state and instance metadata in cleartext. The default username 'admin' is also predictable, aiding brute force.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing TLS enforcement in transit\", \"description\": \"No parameter/option enforcing SSL is configured (see also the parameter group), so the MySQL instance accepts unencrypted client connections; combined with public accessibility, credentials and query data can be intercepted.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_db_parameter_group.default\", \"issue_category\": \"TLS not required for connections\", \"description\": \"The MySQL parameter group does not set require_secure_transport = 1, so clients may connect to the database over cleartext channels.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted outbound access\", \"description\": \"Egress allows all protocols and ports to 0.0.0.0/0 from the database security group, permitting unrestricted outbound traffic that facilitates data exfiltration or C2 communication after compromise.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.default\", \"issue_category\": \"missing rule descriptions and open scope\", \"description\": \"The RDS security group is attached to an instance marked publicly_accessible; no rule restricts access to specific application hosts, relying only on a VPC-wide CIDR ingress, which grants every host in the VPC database access.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", giving any process on the EC2 instance (which serves an internet-facing PHP app) full control over all S3 data, EC2 infrastructure and RDS databases in the account \\u2014 a direct privilege-escalation and data-exfiltration path.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded secrets in user data\", \"description\": \"The user_data script embeds the database username and plaintext password (var.password) into /var/www/inc/dbinfo.inc; EC2 user data is retrievable from the instance metadata service by any process or SSRF flaw on the host and is stored unencrypted.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"IMDSv1 not enforced\", \"description\": \"No metadata_options block requiring http_tokens = \\\"required\\\" is set, so IMDSv1 remains enabled; an SSRF in the hosted PHP application could retrieve the instance profile credentials, which carry the wildcard s3/ec2/rds policy.\", \"seve",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7312,
+      "output_tokens": 1648,
+      "latency_s": 20.003,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.07776
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.07776
+}

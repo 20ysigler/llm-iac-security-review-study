@@ -1,0 +1,89 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:44:21Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded AWS access keys",
+      "description": "The user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with EC2 instance/user-data access and the credentials are exposed in the IaC source, enabling reuse by an attacker.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options configuration requires IMDSv2 tokens. The instance can therefore use the legacy unauthenticated metadata service, allowing an SSRF flaw on the web host to be leveraged to retrieve instance metadata and any attached role credentials.",
+      "severity": "medium",
+      "cwe": "CWE-346",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its contents may be stored unencrypted at rest unless an external account-level default happens to compensate, which this configuration does not enforce.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted EBS snapshot",
+      "description": "This snapshot is created from the unencrypted web_host_storage volume and has no encryption mechanism specified. It therefore preserves the volume data without encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is allowed from 0.0.0.0/0, exposing remote administration to the entire internet. This permits internet-wide password/key attacks and exploitation of any SSH service vulnerability.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "TCP port 80 is permitted from 0.0.0.0/0, making the instance's HTTP service publicly reachable. Because the configuration provides no compensating front-end or source restriction, any web-service vulnerability is exposed directly to internet attackers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The security group allows all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted egress for command-and-control or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing enforced bucket encryption",
+      "description": "The flow-log bucket has no server-side encryption configuration, so the Terraform configuration does not enforce encryption at rest for sensitive network logs written to it. This relies on external defaults rather than making encryption an invariant of the bucket.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4577,
+  "output_tokens": 889,
+  "latency_s": 9.269,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hardcoded AWS access keys\",\"description\":\"The user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with EC2 instance/user-data access and the credentials are exposed in the IaC source, enabling reuse by an attacker.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No metadata_options configuration requires IMDSv2 tokens. The instance can therefore use the legacy unauthenticated metadata service, allowing an SSRF flaw on the web host to be leveraged to retrieve instance metadata and any attached role credentials.\",\"severity\":\"medium\",\"cwe\":\"CWE-346\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its contents may be stored unencrypted at rest unless an external account-level default happens to compensate, which this configuration does not enforce.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted EBS snapshot\",\"description\":\"This snapshot is created from the unencrypted web_host_storage volume and has no encryption mechanism specified. It therefore preserves the volume data without encryption at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP port 22 is allowed from 0.0.0.0/0, exposing remote administration to the entire internet. This permits internet-wide password/key attacks and exploitation of any SSH service vulnerability.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted HTTP ingress\",\"description\":\"TCP port 80 is permitted from 0.0.0.0/0, making the instance's HTTP service publicly reachable. Because the configuration provides no compensating front-end or source restriction, any web-service vulnerability is exposed directly to internet attackers.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The security group allows all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted egress for command-and-control or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing enforced bucket encryption\",\"description\":\"The flow-log bucket has no server-side encryption configuration, so the Terraform configuration does not enforce encryption at rest for sensitive network logs written to it. This relies on external defaults rather than making encryption an invariant of the bucket.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.019822
+}

@@ -1,0 +1,144 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:58Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The instance user_data embeds the database password directly into a plaintext shell heredoc (define('DB_PASSWORD', '${var.password}')), which writes the credential to the EC2 user_data attribute readable via IMDS/API and to the on-disk /var/www/inc/dbinfo.inc file served by the web root. Secrets in user_data are also stored in Terraform state, so the plaintext DB password is exposed to anyone with state, API, or filesystem access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "web-exposed credential file",
+      "description": "The generated /var/www/inc/dbinfo.inc containing the database username and password is placed on the application server filesystem and the PHP page includes it via a path relative to the document root; a path resolution or misconfiguration error exposes the credentials as a downloadable static file to any HTTP client.",
+      "severity": "medium",
+      "cwe": "CWE-552",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, so the database receives a public IP and is reachable from outside the VPC. Combined with the open database inbound rule and the absence of encryption, this exposes the data store directly to untrusted networks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the MySQL database's underlying storage and snapshots are unencrypted, so anyone with access to the underlying volumes or snapshots can read the data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The master password is taken from var.password with a fixed administrative username of \"admin\" and is declared in Terraform state (and its lifecycle ignore_changes does not remove it from state), embedding a long-lived database credential in configuration and state rather than sourcing it from a secrets manager.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving the application role full administrative control over storage, compute and database services including the ability to modify or delete the catalog database and read any S3 bucket. This is a broad privilege escalation path if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols to 0.0.0.0/0, permitting the database security group to send traffic anywhere on any port; this facilitates data exfiltration and outbound command-and-control should the host be compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "missing default-deny on unmanaged ingress",
+      "description": "The security group is defined with no inline rules beyond the separately attached rules, and the database port 3306 is opened to the entire VPC CIDR, meaning every workload in the VPC (including the publicly reachable app server) can reach the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "data.aws_ami.base_image",
+      "issue_category": "missing AMI owner verification",
+      "description": "The AMI lookup filters on name pattern 'amzn2-ami-hvm-*-x86_64-portal-disk' with owners = [\"amazon\"], but the name pattern does not match any genuine Amazon Linux 2 AMI naming convention (the legitimate pattern is 'amzn2-ami-hvm-*-x86_64-gp2'). This pattern is designed to select an attacker-controlled AMI published under an unverified naming scheme, which would then be used to build the catalog application server.",
+      "severity": "high",
+      "cwe": "CWE-494",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7420,
+  "output_tokens": 1185,
+  "latency_s": 8.984,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"data.aws_ami.base_image\", \"issue_category\": \"missing AMI owner verification\", \"description\": \"The AMI lookup filters on name pattern 'amzn2-ami-hvm-*-x86_64-portal-disk' with owners = [\\\"amazon\\\"], but the name pattern does not match any genuine Amazon Linux 2 AMI naming convention (the legitimate pattern is 'amzn2-ami-hvm-*-x86_64-gp2'). This pattern is designed to select an attacker-controlled AMI published under an unverified naming scheme, which would then be used to build the catalog application server.\", \"severity\": \"high\", \"cwe\": \"CWE-494\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1674,
+      "output_tokens": 35,
+      "latency_s": 1.281,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000244
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2466,
+      "output_tokens": 300,
+      "latency_s": 2.429,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000429
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1896,
+      "output_tokens": 657,
+      "latency_s": 3.467,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000449
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1384,
+      "output_tokens": 193,
+      "latency_s": 1.807,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.000248
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.001371
+}

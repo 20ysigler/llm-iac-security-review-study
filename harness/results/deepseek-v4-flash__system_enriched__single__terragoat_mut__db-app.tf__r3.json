@@ -1,0 +1,141 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:08:59Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The DB master password is passed as var.password directly into the EC2 instance user_data script, which is stored in plaintext and readable via instance metadata (curl http://169.254.169.254/latest/user-data). The same password is written to /var/www/inc/dbinfo.inc on the web server document root-adjacent path, exposing the database credentials to anyone who can read the instance or its metadata, and any IMDS-reachable attacker.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns a public IP/DNS to the RDS instance, placing the MySQL database on the internet. Combined with the master username 'admin' and unencrypted storage, this materially expands the attack surface to brute-force and exploitation attempts from arbitrary internet sources.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS MySQL database, its backups, snapshots, and read replicas unencrypted at rest. Any access to the underlying storage, a snapshot, or a restored copy yields database contents in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak database credentials",
+      "description": "The master account username is the well-known default 'admin', and the password is supplied via var.password and baked into instance user_data (see above), rather than via Secrets Manager or a generated random credential. A predictable privileged username with a broadly distributed secret weakens authentication for a database that is also publicly accessible.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\" to the role assumed by the catalog EC2 instance. This is full administrative-equivalent access across three services with no resource or action scoping, so any compromise of the application server-which also has a public DNS name and unrestricted egress-immediately yields the ability to exfiltrate data, delete backups, and pivot across the account. It is a privilege-escalation path, since ec2:* permits creating instances with other roles or modifying instance profiles.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0). An RDS instance has no legitimate need to initiate arbitrary outbound connections, and unrestricted egress facilitates data exfiltration and command-and-control if the database host is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in user_data",
+      "description": "The user_data script embeds the database endpoint, username, and the plaintext value of var.password, then writes them to /var/www/inc/dbinfo.inc. user_data is persisted and retrievable from instance metadata without authentication by any process on the instance, so the database credentials are exposed to the web application and to anyone who can reach the metadata service.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "missing IMDSv2 enforcement",
+      "description": "The instance does not set metadata_options with http_tokens = \"required\", so the legacy IMDSv1 endpoint is available. Combined with user_data containing database credentials and a privilege-escalating instance profile, a request-forgery or SSRF flaw in the hosted PHP application can retrieve the credentials and role temporary credentials directly from 169.254.169.254.",
+      "severity": "high",
+      "cwe": "CWE-441",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "application code injection via user_data",
+      "description": "The embedded index.php renders attacker-supplied POST values into SQL without parameterized statements (relying on mysqli_real_escape_string with string interpolation) and reflects output without escaping, constituting SQL injection and cross-site scripting in the deployed application. Because the same instance holds a credential-bearing profile with s3:*/ec2:*/rds:* on \"*\", SQLi or RCE here converts to full AWS account compromise.",
+      "severity": "high",
+      "cwe": "CWE-89",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "insecure database defaults",
+      "description": "The custom parameter group defines only character set parameters and does not enforce TLS for client connections, so MySQL accepts unencrypted client traffic on port 3306-including over the internet-facing endpoint exposed by publicly_accessible = true. Database credentials and query data can be transmitted in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext transmission to database",
+      "description": "With publicly_accessible = true, no require_secure_transport style enforcement, and no certificate authority configuration, connections to the database may be established without TLS encryption, allowing credentials and data to be intercepted in transit on the public network.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "data loss via disabled backups",
+      "description": "backup_retention_period = 0 disables automated backups while skip_final_snapshot = true prevents any snapshot on deletion, so destructive actions or ransomware on the account leave no recoverable copy of the database. This is a security control gap rather than an availability concern because it removes the recovery capability needed to contain and recover from a compromise.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3574,
+  "output_tokens": 1492,
+  "latency_s": 7.987,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credentials in user_data\", \"description\": \"The DB master password is passed as var.password directly into the EC2 instance user_data script, which is stored in plaintext and readable via instance metadata (curl http://169.254.169.254/latest/user-data). The same password is written to /var/www/inc/dbinfo.inc on the web server document root-adjacent path, exposing the database credentials to anyone who can read the instance or its metadata, and any IMDS-reachable attacker.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true assigns a public IP/DNS to the RDS instance, placing the MySQL database on the internet. Combined with the master username 'admin' and unencrypted storage, this materially expands the attack surface to brute-force and exploitation attempts from arbitrary internet sources.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS MySQL database, its backups, snapshots, and read replicas unencrypted at rest. Any access to the underlying storage, a snapshot, or a restored copy yields database contents in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"weak database credentials\", \"description\": \"The master account username is the well-known default 'admin', and the password is supplied via var.password and baked into instance user_data (see above), rather than via Secrets Manager or a generated random credential. A predictable privileged username with a broadly distributed secret weakens authentication for a database that is also publicly accessible.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\" to the role assumed by the catalog EC2 instance. This is full administrative-equivalent access across three services with no resource or action scoping, so any compromise of the application server-which also has a public DNS name and unrestricted egress-immediately yields the ability to exfiltrate data, delete backups, and pivot across the account. It is a privilege-escalation path, since ec2:* permits creating instances with other roles or modifying instance profiles.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0). An RDS instance has no legitimate need to initiate arbitrary outbound connections, and unrestricted egress facilitates data exfiltration and command-and-control if the database host is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets in user_data\", \"description\": \"The user_data script embeds the database endpoint, username, and the plaintext value of var.password, then writes them to /var/www/inc/dbinfo.inc. user_data is persisted and retrievable from instance metadata without authentication by any process on the instance, so the database credentials are exposed to the web application and to anyone who can reach the metadata service.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"missing IMDSv2 enforcement\", \"description\": \"The instance does not set metadata_options with http_tokens = \\\"required\\\", so the legacy IMDSv1 endpoint is available. Comb",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3574,
+      "output_tokens": 1492,
+      "latency_s": 7.987,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.000918
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000918
+}

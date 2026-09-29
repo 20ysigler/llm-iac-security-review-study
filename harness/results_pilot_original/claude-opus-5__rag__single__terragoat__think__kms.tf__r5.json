@@ -1,0 +1,41 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__kms.tf__r5",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:05:15Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "missing customer key rotation",
+      "description": "The CMK is created without `enable_key_rotation = true` (the comment in the code explicitly acknowledges this), so the key material used to encrypt the logs bucket is never automatically rotated. Long-lived key material increases the blast radius and window of exposure if the key is ever compromised, and it fails CIS AWS Foundations guidance on rotating customer-managed keys.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "no explicit key policy",
+      "description": "No `policy` is attached, so the key falls back to the default KMS key policy which delegates full key access to the account root principal (effectively any IAM principal in the account with kms permissions). For a key protecting audit/log data, an explicit least-privilege key policy naming only the log-writing service and specific administrators should be defined so key usage can be controlled and audited.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 3247,
+  "output_tokens": 567,
+  "latency_s": 8.855,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"missing customer key rotation\", \"description\": \"The CMK is created without `enable_key_rotation = true` (the comment in the code explicitly acknowledges this), so the key material used to encrypt the logs bucket is never automatically rotated. Long-lived key material increases the blast radius and window of exposure if the key is ever compromised, and it fails CIS AWS Foundations guidance on rotating customer-managed keys.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"no explicit key policy\", \"description\": \"No `policy` is attached, so the key falls back to the default KMS key policy which delegates full key access to the account root principal (effectively any IAM principal in the account with kms permissions). For a key protecting audit/log data, an explicit least-privilege key policy naming only the log-writing service and specific administrators should be defined so key usage can be controlled and audited.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "cost_usd": 0.03041
+}

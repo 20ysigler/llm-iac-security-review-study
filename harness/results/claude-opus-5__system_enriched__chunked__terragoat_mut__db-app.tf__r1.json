@@ -1,0 +1,160 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat_mut__db-app.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:21:51Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "missing TLS enforcement for database",
+      "description": "The MySQL 8.0 parameter group sets only character set parameters and does not set require_secure_transport = 1, so the catalog database will accept unencrypted client connections, allowing credentials and data in transit to be intercepted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded database credentials in user data",
+      "description": "The instance user_data interpolates the RDS master username and the ${var.password} value directly into a PHP include file written to disk. EC2 user_data is retrievable in plaintext from the instance metadata service (http://169.254.169.254/latest/user-data) by any process or SSRF-capable application on the host, and is also visible in the EC2 API/console, leaking the database master password.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root volume",
+      "description": "No root_block_device/ebs_block_device encryption settings are specified, so the instance's EBS volume may be created unencrypted (absent account-level default encryption). The volume stores the database credentials file /var/www/inc/dbinfo.inc, so data at rest is unprotected.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "instance metadata service v1 enabled",
+      "description": "No metadata_options block is defined, so IMDSv1 remains enabled. Combined with an attached IAM instance profile and a PHP web application reachable from the network, an SSRF in the application can retrieve both the role's temporary credentials and the user_data containing the DB password.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext transmission of user data",
+      "description": "The provisioned web application serves an HTTP-only Apache/PHP site (only httpd is installed and started, with no TLS configuration), so employee name and address form submissions and query results traverse the network in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The PHP client connects with mysqli_connect() without any SSL/TLS options or CA certificate, so credentials and query data between the app server and the RDS instance are transmitted unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance sets storage_encrypted = false, so the catalog database's underlying storage and snapshots are stored unencrypted. Any compromise of the storage layer or snapshot sharing exposes cleartext data.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "publicly_accessible = true assigns the MySQL instance a public endpoint reachable from the internet, exposing it to internet-wide credential attacks; only the security group stands between the database and the public internet.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database credentials via variables",
+      "description": "The master password is supplied through var.password and the master username is hard-coded to the default 'admin'. Passing the credential through a Terraform variable stores it in cleartext in state (and typically in tfvars/CI configuration), and the predictable 'admin' username aids brute-force attacks against the publicly reachable endpoint.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline role policy grants s3:*, ec2:* and rds:* on Resource \"*\". This role is attached via aws_iam_instance_profile.catalog_app_profile to the internet-facing catalog app server, so compromise of that instance yields account-wide control of all S3 data, EC2 infrastructure and RDS databases (including snapshot creation/restore and DB credential modification) \u2014 a direct privilege escalation path.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress to internet",
+      "description": "The database security group allows all protocols and ports outbound to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel if the database host is compromised.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 12034,
+  "output_tokens": 1891,
+  "latency_s": 27.978,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2719,
+      "output_tokens": 186,
+      "latency_s": 3.768,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.018245
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4084,
+      "output_tokens": 831,
+      "latency_s": 10.22,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.041195
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3003,
+      "output_tokens": 840,
+      "latency_s": 10.741,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.036015
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2228,
+      "output_tokens": 34,
+      "latency_s": 3.249,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.01199
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.107445
+}

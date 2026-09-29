@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__iam.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:35:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full service-level wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \"*\", violating least privilege. This allows the deploy user to read or destroy any S3 object in the account, launch or terminate any EC2 instance, and create/modify Lambda functions \u2014 and because lambda:* and ec2:* permit passing/attaching existing roles to new compute, it provides a plausible privilege-escalation path to any role the account already has.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials in state",
+      "description": "A permanent IAM access key is created for a highly privileged user with no pgp_key set, so the plaintext secret access key is written to Terraform state. Anyone with read access to the state backend obtains standing credentials with the wildcard ec2/s3/lambda/cloudwatch permissions above; an IAM role with temporary credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential exposed via output",
+      "description": "The access key material is exported as a module/root output without sensitive = true, so it is printed to the console on apply and recorded unmasked in plan files, state, and any CI job logs. Because no pgp_key was supplied to the access key resource, encrypted_secret is not a protective wrapper for the secret at all.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "principal name disclosure",
+      "description": "The privileged IAM user name is emitted as a non-sensitive output, aiding an attacker in targeting credential-stuffing or key-compromise against a known highly privileged principal. Low impact on its own but compounds the credential exposure above.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-200"
+    }
+  ],
+  "input_tokens": 1934,
+  "output_tokens": 1260,
+  "latency_s": 16.997,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full service-level wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \\\"*\\\", violating least privilege. This allows the deploy user to read or destroy any S3 object in the account, launch or terminate any EC2 instance, and create/modify Lambda functions \\u2014 and because lambda:* and ec2:* permit passing/attaching existing roles to new compute, it provides a plausible privilege-escalation path to any role the account already has.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials in state\", \"description\": \"A permanent IAM access key is created for a highly privileged user with no pgp_key set, so the plaintext secret access key is written to Terraform state. Anyone with read access to the state backend obtains standing credentials with the wildcard ec2/s3/lambda/cloudwatch permissions above; an IAM role with temporary credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential exposed via output\", \"description\": \"The access key material is exported as a module/root output without sensitive = true, so it is printed to the console on apply and recorded unmasked in plan files, state, and any CI job logs. Because no pgp_key was supplied to the access key resource, encrypted_secret is not a protective wrapper for the secret at all.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"principal name disclosure\", \"description\": \"The privileged IAM user name is emitted as a non-sensitive output, aiding an attacker in targeting credential-stuffing or key-compromise against a known highly privileged principal. Low impact on its own but compounds the credential exposure above.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-200\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1934,
+      "output_tokens": 1260,
+      "latency_s": 16.997,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.04117
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.04117
+}

@@ -1,0 +1,47 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__iam.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:40:10Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "This inline policy grants unrestricted EC2, S3, Lambda, and CloudWatch permissions using both service-wide action wildcards and Resource \"*\". The associated IAM user can create, alter, or access resources across these services, including likely privilege-escalation paths and broad data access."
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived programmatic credentials",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "A long-lived IAM access key is provisioned for the user, whose attached inline policy is broadly privileged. Compromise of this credential would grant the full unrestricted EC2, S3, Lambda, and CloudWatch access defined by aws_iam_user_policy.userpolicy."
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential disclosure",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The IAM access-key secret is exposed through a Terraform output without sensitive = true. Although encrypted_secret is PGP-encrypted rather than plaintext, publishing it as a non-sensitive output can expose credential material through Terraform CLI output, state consumers, or automation logs."
+    }
+  ],
+  "input_tokens": 1091,
+  "output_tokens": 289,
+  "latency_s": 4.039,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"This inline policy grants unrestricted EC2, S3, Lambda, and CloudWatch permissions using both service-wide action wildcards and Resource \\\"*\\\". The associated IAM user can create, alter, or access resources across these services, including likely privilege-escalation paths and broad data access.\"},{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived programmatic credentials\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"A long-lived IAM access key is provisioned for the user, whose attached inline policy is broadly privileged. Compromise of this credential would grant the full unrestricted EC2, S3, Lambda, and CloudWatch access defined by aws_iam_user_policy.userpolicy.\"},{\"resource\":\"output.secret\",\"issue_category\":\"sensitive credential disclosure\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The IAM access-key secret is exposed through a Terraform output without sensitive = true. Although encrypted_secret is PGP-encrypted rather than plaintext, publishing it as a non-sensitive output can expose credential material through Terraform CLI output, state consumers, or automation logs.\"}]}",
+  "cost_usd": 0.00565
+}

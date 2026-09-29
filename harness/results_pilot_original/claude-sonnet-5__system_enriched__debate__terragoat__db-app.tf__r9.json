@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r9",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 9,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:44:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/weak credentials",
+      "description": "The database uses a hard-coded master username 'admin' (a well-known default administrative username) and a password sourced from a variable that is also embedded in plaintext into EC2 user data, increasing risk of credential exposure and enabling credential guessing against a publicly accessible instance.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the RDS username and plaintext password directly in a PHP file, exposing database credentials to anyone with access to instance metadata, console/user-data history, or Terraform state.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources ('Resource': '*') to the EC2 instance role, violating least privilege; combined with an internet-reachable EC2 instance, this creates a severe privilege escalation and lateral movement risk if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the RDS security group, removing network-level containment and facilitating data exfiltration if the database or an instance using this security group is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 24498,
+  "output_tokens": 3224,
+  "latency_s": 27.483,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/weak credentials\", \"description\": \"The database uses a hard-coded master username 'admin' (a well-known default administrative username) and a password sourced from a variable that is also embedded in plaintext into EC2 user data, increasing risk of credential exposure and enabling credential guessing against a publicly accessible instance.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the RDS username and plaintext password directly in a PHP file, exposing database credentials to anyone with access to instance metadata, console/user-data history, or Terraform state.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources ('Resource': '*') to the EC2 instance role, violating least privilege; combined with an internet-reachable EC2 instance, this creates a severe privilege escalation and lateral movement risk if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the RDS security group, removing network-level containment and facilitating data exfiltration if the database or an instance using this security group is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1099,
+      "latency_s": 9.883,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02575
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1132,
+      "latency_s": 10.186,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02608
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9738,
+      "output_tokens": 993,
+      "latency_s": 7.414,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.029406
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.081236
+}

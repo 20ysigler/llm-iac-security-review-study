@@ -1,0 +1,45 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__lambda.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:46:42Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "plaintext secrets in environment variables",
+      "description": "The Lambda function stores AWS access key and secret key in plaintext environment variables. This exposes long-lived static credentials to anyone with describe permissions on the resource and to anyone who can read the environment, violating the principle of never storing credentials in plain text. The access key and secret key are committed directly in the IaC source.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated runtime",
+      "description": "The Lambda function uses runtime nodejs12.x, which is deprecated/end-of-life and no longer receives security patches while continuing to execute. Running on a deprecated runtime exposes the workload to unpatched vulnerabilities.",
+      "severity": "high",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "encryption for environment variables not enforced",
+      "description": "The Lambda function environment variables are not explicitly configured with a KMS key (aws_kms_key_arn is not set), so they may be encrypted with the default AWS-managed key rather than a customer-managed key, reducing control over key policy, rotation, and revocation for the sensitivity of the credentials stored in them.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2414,
+  "output_tokens": 346,
+  "latency_s": 4.127,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"plaintext secrets in environment variables\", \"description\": \"The Lambda function stores AWS access key and secret key in plaintext environment variables. This exposes long-lived static credentials to anyone with describe permissions on the resource and to anyone who can read the environment, violating the principle of never storing credentials in plain text. The access key and secret key are committed directly in the IaC source.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated runtime\", \"description\": \"The Lambda function uses runtime nodejs12.x, which is deprecated/end-of-life and no longer receives security patches while continuing to execute. Running on a deprecated runtime exposes the workload to unpatched vulnerabilities.\", \"severity\": \"high\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"encryption for environment variables not enforced\", \"description\": \"The Lambda function environment variables are not explicitly configured with a KMS key (aws_kms_key_arn is not set), so they may be encrypted with the default AWS-managed key rather than a customer-managed key, reducing control over key policy, rotation, and revocation for the sensitivity of the credentials stored in them.\", \"severity\": \"medium\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000435
+}

@@ -1,0 +1,81 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__ec2.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:44:11Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded AWS credentials",
+      "description": "The instance user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with instance-describe access and the credentials are exposed in source control and deployment metadata, enabling unauthorized AWS API access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block requires IMDSv2, so the instance permits the legacy IMDSv1 credential retrieval path. A server-side request forgery flaw in the web service could be used to obtain instance metadata or any role credentials later attached to the instance.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "encryption at rest not enforced",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its protection therefore depends on an account-level default outside this configuration, and it may be created unencrypted, exposing data if storage media or snapshots are accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted EBS snapshot",
+      "description": "This snapshot is created from a volume for which encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this configuration can preserve the volume data in an unencrypted snapshot.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is allowed from 0.0.0.0/0, making remote administration reachable from every internet address once the host has public connectivity. This increases exposure to password/key attacks and exploitation of SSH service vulnerabilities.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The egress rule permits all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "encryption at rest not enforced",
+      "description": "The bucket receiving VPC flow logs has no server-side encryption configuration. Sensitive network telemetry written to the bucket is not guaranteed to be encrypted at rest by this Terraform configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4577,
+  "output_tokens": 1036,
+  "latency_s": 10.481,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded AWS credentials\",\"description\":\"The instance user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with instance-describe access and the credentials are exposed in source control and deployment metadata, enabling unauthorized AWS API access.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No metadata_options block requires IMDSv2, so the instance permits the legacy IMDSv1 credential retrieval path. A server-side request forgery flaw in the web service could be used to obtain instance metadata or any role credentials later attached to the instance.\",\"severity\":\"medium\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"encryption at rest not enforced\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its protection therefore depends on an account-level default outside this configuration, and it may be created unencrypted, exposing data if storage media or snapshots are accessed.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted EBS snapshot\",\"description\":\"This snapshot is created from a volume for which encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this configuration can preserve the volume data in an unencrypted snapshot.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP port 22 is allowed from 0.0.0.0/0, making remote administration reachable from every internet address once the host has public connectivity. This increases exposure to password/key attacks and exploitation of SSH service vulnerabilities.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The egress rule permits all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"encryption at rest not enforced\",\"description\":\"The bucket receiving VPC flow logs has no server-side encryption configuration. Sensitive network telemetry written to the bucket is not guaranteed to be encrypted at rest by this Terraform configuration.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.021586
+}

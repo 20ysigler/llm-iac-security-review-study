@@ -1,0 +1,149 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:16:14Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with SSE-S3 default or unencrypted rather than an explicitly enforced KMS key. Reports data at rest lacks the controlled key policy, rotation and revocation that audit_trail (which does configure aws:kms) has.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing versioning / no access logging",
+      "description": "reports_archive defines neither versioning nor logging, so overwritten or deleted report objects cannot be recovered and access to the bucket is unaudited, unlike model_artifacts which enables both. An attacker with write access can silently destroy or tamper with archived reports.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "ledger_exports exposes only an inline acl = \"private\" and no server_side_encryption_configuration, so financial ledger exports are stored without enforced encryption at rest (S3 default SSE-S3 only). Given the sensitivity of ledger data, a customer-managed KMS key should be applied.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "inline ACL usage",
+      "description": "The inline acl argument on aws_s3_bucket is deprecated and, combined with the absence of an aws_s3_bucket_acl/ownership_controls resource, leaves ACL state uncontrolled; if the bucket-level ACL is ever changed out of band nothing in the configuration enforces private access. Access should be governed by bucket policy and Block Public Access rather than inline ACLs.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts enables versioning and logging but defines no server_side_encryption_configuration, so model artefacts are stored without enforced encryption; model weights can embed sensitive training data and should be encrypted with a customer-managed key.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "log delivery target missing ACL",
+      "description": "model_artifacts writes access logs into aws_s3_bucket.audit_trail, but the audit_trail bucket grants log-delivery-write via a legacy canned ACL rather than an explicit bucket policy; the ACL grants the log delivery group broad write/read-ACP privileges on a bucket that also holds security audit logs, and this coupling means anything with write access to model_artifacts can inject or overwrite objects in the audit bucket prefix.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks has no server_side_encryption_configuration block, so operational runbooks are stored without enforced encryption at rest.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "weak default ACL on audit bucket",
+      "description": "The audit trail bucket is assigned the canned ACL log-delivery-write, which grants the S3 log delivery group WRITE and READ_ACP permissions on a bucket that stores security audit logs. Log delivery only needs write access to the target prefix; the grant of READ_ACP on audit records is excessive and the intended model should use a scoped bucket policy instead of a canned ACL.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "audit log bucket writable by others",
+      "description": "audit_trail is configured as the logging target for model_artifacts while itself accepting log-delivery writes; because the log bucket and the bucket being logged share an account and no separate, restricted logging bucket or object-lock/deny-policy exists, a compromise of any writer in the account can alter or delete the audit records that would be used to detect the compromise.",
+      "severity": "high",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block protects audit_trail (or any other bucket in this file). Without block_public_acls, block_public_policy, ignore_public_acls and restrict_public_buckets, a future or out-of-band ACL/policy change could expose the audit trail bucket publicly, and the canned log-delivery-write ACL sidesteps the account-level default restrictions.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force_destroy on audit bucket",
+      "description": "force_destroy = true on the audit trail bucket means a terraform destroy will delete security audit logs, including all versions, defeating audit retention. An operator error or compromised CI credential can irreversibly destroy the audit trail that the other findings rely on for detection.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy on data bucket",
+      "description": "force_destroy = true on reports_archive (and on ledger_exports, model_artifacts and ops_runbooks) allows Terraform to delete buckets that still contain objects or non-current versions in a single destroy, removing the safety net that protects archived data from accidental or malicious deletion.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "ledger_exports enables neither versioning nor logging, so deleted or overwritten ledger exports are unrecoverable and there is no record of who accessed them, undermining integrity and non-repudiation for financial records.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload / deprecated resource",
+      "description": "reports_seed_object uses the deprecated aws_s3_bucket_object resource with no server_side_encryption or kms_key_id set and no etag/source_hash, so the seed object is uploaded with only bucket-default encryption and is not protected against substitution of the source file between builds. The object is sourced from a local file, which may also carry sensitive vendor data committed outside review.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2353,
+  "output_tokens": 1612,
+  "latency_s": 7.888,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with SSE-S3 default or unencrypted rather than an explicitly enforced KMS key. Reports data at rest lacks the controlled key policy, rotation and revocation that audit_trail (which does configure aws:kms) has.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing versioning / no access logging\", \"description\": \"reports_archive defines neither versioning nor logging, so overwritten or deleted report objects cannot be recovered and access to the bucket is unaudited, unlike model_artifacts which enables both. An attacker with write access can silently destroy or tamper with archived reports.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ledger_exports exposes only an inline acl = \\\"private\\\" and no server_side_encryption_configuration, so financial ledger exports are stored without enforced encryption at rest (S3 default SSE-S3 only). Given the sensitivity of ledger data, a customer-managed KMS key should be applied.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"inline ACL usage\", \"description\": \"The inline acl argument on aws_s3_bucket is deprecated and, combined with the absence of an aws_s3_bucket_acl/ownership_controls resource, leaves ACL state uncontrolled; if the bucket-level ACL is ever changed out of band nothing in the configuration enforces private access. Access should be governed by bucket policy and Block Public Access rather than inline ACLs.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts enables versioning and logging but defines no server_side_encryption_configuration, so model artefacts are stored without enforced encryption; model weights can embed sensitive training data and should be encrypted with a customer-managed key.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"log delivery target missing ACL\", \"description\": \"model_artifacts writes access logs into aws_s3_bucket.audit_trail, but the audit_trail bucket grants log-delivery-write via a legacy canned ACL rather than an explicit bucket policy; the ACL grants the log delivery group broad write/read-ACP privileges on a bucket that also holds security audit logs, and this coupling means anything with write access to model_artifacts can inject or overwrite objects in the audit bucket prefix.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks has no server_side_encryption_configuration block, so operational runbooks are stored without enforced encryption at rest.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"weak default ACL on audit bucket\", \"description\": \"The audit trail bucket is assigned the canned ACL log-delivery-write, which grants the S3 log delivery group WRITE and READ_ACP permissions on a bucket that stores security audit logs. Log delivery only needs write access to the target prefix; the grant of READ_ACP on audit records is excessive and the intended model should use a scoped bucket policy instead of a canned ACL.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"audit log bucket writable by others\", \"description\": \"audit_trail is configured as the logging target for model_artifacts while its",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2353,
+      "output_tokens": 1612,
+      "latency_s": 7.888,
+      "n_findings": 14,
+      "error": "",
+      "cost_usd": 0.000781
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000781
+}

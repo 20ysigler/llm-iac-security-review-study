@@ -1,0 +1,85 @@
+{
+  "run_id": "gpt-5.6-terra__chain_of_thought__single__terragoat_mut__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credentials exposed in user data",
+      "description": "The database username and password are interpolated directly into EC2 user data. User data is retained by the instance control plane and is commonly readable by principals or processes with instance metadata/EC2 read access, exposing the database credential.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "`publicly_accessible = true` assigns the RDS instance public network reachability. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes the database to paths outside the private VPC boundary if security-group rules change or are combined with other access paths.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "`storage_encrypted = false` leaves the RDS database storage and its automated backups unencrypted at rest, increasing exposure if underlying storage or snapshots are accessed improperly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted database egress",
+      "description": "This rule permits all protocols and ports from the database security group to `0.0.0.0/0`. A compromised database host could use unrestricted outbound connectivity for command-and-control or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The EC2 application role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Compromise of the application instance or its role credentials would give an attacker broad control over these services and access to potentially unrelated data.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2960,
+  "output_tokens": 430,
+  "latency_s": 5.328,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"database credentials exposed in user data\",\"description\":\"The database username and password are interpolated directly into EC2 user data. User data is retained by the instance control plane and is commonly readable by principals or processes with instance metadata/EC2 read access, exposing the database credential.\",\"severity\":\"high\",\"cwe\":\"CWE-312\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"`publicly_accessible = true` assigns the RDS instance public network reachability. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes the database to paths outside the private VPC boundary if security-group rules change or are combined with other access paths.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"`storage_encrypted = false` leaves the RDS database storage and its automated backups unencrypted at rest, increasing exposure if underlying storage or snapshots are accessed improperly.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_outbound\",\"issue_category\":\"unrestricted database egress\",\"description\":\"This rule permits all protocols and ports from the database security group to `0.0.0.0/0`. A compromised database host could use unrestricted outbound connectivity for command-and-control or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The EC2 application role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Compromise of the application instance or its role credentials would give an attacker broad control over these services and access to potentially unrelated data.\",\"severity\":\"critical\",\"cwe\":\"CWE-269\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2960,
+      "output_tokens": 430,
+      "latency_s": 5.328,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.01108
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.01108
+}

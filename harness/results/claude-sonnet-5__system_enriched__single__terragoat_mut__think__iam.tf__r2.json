@@ -1,0 +1,76 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:32:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the svc_deploy user full administrative control over these services instead of the minimum permissions needed for its function. This violates least privilege and creates a large blast radius if the credentials are compromised.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-term IAM access key/secret pair is programmatically generated for the svc_deploy user with no PGP encryption key supplied, meaning the plaintext secret access key would be stored in Terraform state in cleartext. Combined with the highly permissive attached policy, compromise of this key/state file grants broad account access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "This output exposes access key secret material (encrypted_secret) without being marked as sensitive, causing it to be printed in plan/apply CLI output and persisted in the Terraform state file, risking leakage of credentials to logs, CI systems, or anyone with state/output access.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "information exposure",
+      "description": "Exposing the IAM user name tied to a highly privileged service account via an unmarked output increases reconnaissance value for an attacker targeting this account, though it is lower risk than the key material output.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 2002,
+  "output_tokens": 1897,
+  "latency_s": 18.683,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the svc_deploy user full administrative control over these services instead of the minimum permissions needed for its function. This violates least privilege and creates a large blast radius if the credentials are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-term IAM access key/secret pair is programmatically generated for the svc_deploy user with no PGP encryption key supplied, meaning the plaintext secret access key would be stored in Terraform state in cleartext. Combined with the highly permissive attached policy, compromise of this key/state file grants broad account access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"This output exposes access key secret material (encrypted_secret) without being marked as sensitive, causing it to be printed in plan/apply CLI output and persisted in the Terraform state file, risking leakage of credentials to logs, CI systems, or anyone with state/output access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"information exposure\", \"description\": \"Exposing the IAM user name tied to a highly privileged service account via an unmarked output increases reconnaissance value for an attacker targeting this account, though it is lower risk than the key material output.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2002,
+      "output_tokens": 1897,
+      "latency_s": 18.683,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.022974
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.022974
+}

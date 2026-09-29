@@ -1,0 +1,81 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:40:02Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "storage encryption disabled",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated backups, and snapshots unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "public database endpoint",
+      "description": "The RDS instance sets `publicly_accessible = true`, assigning it a publicly routable database endpoint rather than keeping it private to the VPC. Although the shown security-group ingress is VPC-scoped, this unnecessarily expands the service's network exposure and makes future security-group mistakes directly internet-exposing.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "TLS not enforced",
+      "description": "The MySQL parameter group does not set `require_secure_transport` to `ON`. Consequently, clients are not required by the database configuration to use TLS, allowing database credentials and data to be transmitted in cleartext when a client does not elect encryption.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL port 3306 is allowed from the entire VPC CIDR rather than from the specific application security group or required subnets. Any workload able to obtain an address in the VPC can attempt to connect to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0`. This removes egress network controls and permits unrestricted outbound connections if the database service or an allowed path is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. A compromise of the instance using this profile would provide broad control of EC2 and RDS resources and unrestricted access to S3 resources, far beyond the stated application need.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credentials in user data",
+      "description": "The instance user-data script renders the database username and password into `/var/www/inc/dbinfo.inc`. User data is retained by the EC2 control plane and the resulting credential is stored in plaintext on the instance filesystem, increasing the risk of credential disclosure.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4137,
+  "output_tokens": 1027,
+  "latency_s": 11.189,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"storage encryption disabled\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage, automated backups, and snapshots unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"public database endpoint\",\"description\":\"The RDS instance sets `publicly_accessible = true`, assigning it a publicly routable database endpoint rather than keeping it private to the VPC. Although the shown security-group ingress is VPC-scoped, this unnecessarily expands the service's network exposure and makes future security-group mistakes directly internet-exposing.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.default\",\"issue_category\":\"TLS not enforced\",\"description\":\"The MySQL parameter group does not set `require_secure_transport` to `ON`. Consequently, clients are not required by the database configuration to use TLS, allowing database credentials and data to be transmitted in cleartext when a client does not elect encryption.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.ingress\",\"issue_category\":\"overly broad database ingress\",\"description\":\"MySQL port 3306 is allowed from the entire VPC CIDR rather than from the specific application security group or required subnets. Any workload able to obtain an address in the VPC can attempt to connect to the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0`. This removes egress network controls and permits unrestricted outbound connections if the database service or an allowed path is compromised.\",\"severity\":\"low\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. A compromise of the instance using this profile would provide broad control of EC2 and RDS resources and unrestricted access to S3 resources, far beyond the stated application need.\",\"severity\":\"high\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credentials in user data\",\"description\":\"The instance user-data script renders the database username and password into `/var/www/inc/dbinfo.inc`. User data is retained by the EC2 control plane and the resulting credential is stored in plaintext on the instance filesystem, increasing the risk of credential disclosure.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.020598
+}

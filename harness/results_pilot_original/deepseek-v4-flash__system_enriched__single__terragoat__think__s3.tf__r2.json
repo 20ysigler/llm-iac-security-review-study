@@ -1,0 +1,65 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__s3.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:30:26Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket exposure",
+      "description": "The configuration explicitly marks this bucket as public ('bucket is public') with no access control restricting it, and it stores customer-master.xlsx (customer PII) via aws_s3_bucket_object.data_object. Any unauthenticated user can read the customer data stored in this bucket.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket is documented as not encrypted and has no server_side_encryption_configuration, so the customer master data (customer-master.xlsx) stored in it is written to S3 in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving financial data stored at rest in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving operations data stored at rest in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving data science data stored at rest in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2603,
+  "output_tokens": 2773,
+  "latency_s": 20.914,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"public bucket exposure\", \"description\": \"The configuration explicitly marks this bucket as public ('bucket is public') with no access control restricting it, and it stores customer-master.xlsx (customer PII) via aws_s3_bucket_object.data_object. Any unauthenticated user can read the customer data stored in this bucket.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket is documented as not encrypted and has no server_side_encryption_configuration, so the customer master data (customer-master.xlsx) stored in it is written to S3 in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving financial data stored at rest in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving operations data stored at rest in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket is documented as not encrypted and has no server_side_encryption_configuration, leaving data science data stored at rest in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001141
+}

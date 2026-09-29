@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__iam.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:45:09Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege. If this user's credentials are compromised, an attacker gains near-administrative control over EC2, S3, Lambda, and CloudWatch across the account.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Creating a standalone IAM user with an associated access key (rather than using roles or federated identities) introduces long-lived static credentials that can be leaked or misused, expanding the attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "static credential generation",
+      "description": "This resource generates a long-term access key/secret pair for the IAM user. Combined with the overly permissive attached policy, a leaked key would grant broad access to the account with no expiration or rotation enforced by this configuration.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The encrypted secret access key is exposed as a Terraform output, which is stored in state and can be displayed in plaintext (or trivially decrypted) during terraform apply/show, risking credential leakage to anyone with access to the state file or CI logs.",
+      "severity": "high",
+      "cwe": "CWE-522"
+    }
+  ],
+  "input_tokens": 2428,
+  "output_tokens": 657,
+  "latency_s": 6.701,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege. If this user's credentials are compromised, an attacker gains near-administrative control over EC2, S3, Lambda, and CloudWatch across the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Creating a standalone IAM user with an associated access key (rather than using roles or federated identities) introduces long-lived static credentials that can be leaked or misused, expanding the attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"static credential generation\", \"description\": \"This resource generates a long-term access key/secret pair for the IAM user. Combined with the overly permissive attached policy, a leaked key would grant broad access to the account with no expiration or rotation enforced by this configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The encrypted secret access key is exposed as a Terraform output, which is stored in state and can be displayed in plaintext (or trivially decrypted) during terraform apply/show, risking credential leakage to anyone with access to the state file or CI logs.\", \"severity\": \"high\", \"cwe\": \"CWE-522\"}]}",
+  "cost_usd": 0.011426
+}

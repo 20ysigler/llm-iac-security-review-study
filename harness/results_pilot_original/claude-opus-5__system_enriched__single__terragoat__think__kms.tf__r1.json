@@ -1,0 +1,41 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__kms.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:53:32Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "missing automatic key rotation",
+      "description": "The customer-managed KMS key omits enable_key_rotation, so it defaults to disabled and a single key version protects the logs bucket indefinitely. Without a bounded cryptoperiod, compromise or cryptanalysis of that key material exposes the entire accumulated history of log data, and the configuration fails common baselines (CIS AWS, PCI DSS 3.6.4) that mandate annual CMK rotation.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "minimal key deletion window",
+      "description": "deletion_window_in_days is set to the 7-day minimum, leaving only a short period to cancel an accidental or malicious ScheduleKeyDeletion call. Once the key is destroyed all log objects encrypted under it become permanently unreadable, so a single compromised or mistaken IAM action can cause irreversible destruction of audit evidence.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 1873,
+  "output_tokens": 1141,
+  "latency_s": 16.557,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"missing automatic key rotation\", \"description\": \"The customer-managed KMS key omits enable_key_rotation, so it defaults to disabled and a single key version protects the logs bucket indefinitely. Without a bounded cryptoperiod, compromise or cryptanalysis of that key material exposes the entire accumulated history of log data, and the configuration fails common baselines (CIS AWS, PCI DSS 3.6.4) that mandate annual CMK rotation.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"minimal key deletion window\", \"description\": \"deletion_window_in_days is set to the 7-day minimum, leaving only a short period to cancel an accidental or malicious ScheduleKeyDeletion call. Once the key is destroyed all log objects encrypted under it become permanently unreadable, so a single compromised or mistaken IAM action can cause irreversible destruction of audit evidence.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}]}",
+  "cost_usd": 0.03789
+}

@@ -1,0 +1,89 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__s3.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:57:42Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are not covered by an enforced SSE-KMS or SSE-S3 default. The bucket holds a customer master data file, so stored PII is written without any configured encryption guarantee.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket access control",
+      "description": "The resource is explicitly annotated '# bucket is public' and, unlike every other bucket here, specifies no acl and no accompanying aws_s3_bucket_public_access_block. With no block-public-access guard and no bucket-level policy, ACLs or policies can expose the customer master object to anonymous readers, and nothing in this configuration prevents it.",
+      "severity": "critical",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "cleartext transmission permitted",
+      "description": "No bucket policy denies requests where aws:SecureTransport is false, so this bucket accepts plain HTTP API calls. Credentials and the customer master data can therefore traverse the network unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "A customer master spreadsheet is uploaded with no kms_key_id and no server_side_encryption argument, into a bucket that itself defines no default encryption and is documented as public. Sensitive customer records are therefore stored unencrypted and potentially publicly reachable.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data committed to repository",
+      "description": "The object source points at resources/customer-master.xlsx, meaning the customer master data file is tracked in the Terraform repository alongside the code. Anyone with repository read access obtains the sensitive dataset without touching AWS.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-538"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is present, so financial records are stored without an enforced default encryption configuration, unlike the logs bucket which correctly uses a KMS CMK.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, leaving operational data stored without an enforced server-side encryption default.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket configures versioning and access logging but omits server_side_encryption_configuration entirely, so data science datasets are stored without enforced encryption at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 3676,
+  "output_tokens": 3010,
+  "latency_s": 37.129,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are not covered by an enforced SSE-KMS or SSE-S3 default. The bucket holds a customer master data file, so stored PII is written without any configured encryption guarantee.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"public bucket access control\", \"description\": \"The resource is explicitly annotated '# bucket is public' and, unlike every other bucket here, specifies no acl and no accompanying aws_s3_bucket_public_access_block. With no block-public-access guard and no bucket-level policy, ACLs or policies can expose the customer master object to anonymous readers, and nothing in this configuration prevents it.\", \"severity\": \"critical\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"cleartext transmission permitted\", \"description\": \"No bucket policy denies requests where aws:SecureTransport is false, so this bucket accepts plain HTTP API calls. Credentials and the customer master data can therefore traverse the network unencrypted.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"A customer master spreadsheet is uploaded with no kms_key_id and no server_side_encryption argument, into a bucket that itself defines no default encryption and is documented as public. Sensitive customer records are therefore stored unencrypted and potentially publicly reachable.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"sensitive data committed to repository\", \"description\": \"The object source points at resources/customer-master.xlsx, meaning the customer master data file is tracked in the Terraform repository alongside the code. Anyone with repository read access obtains the sensitive dataset without touching AWS.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-538\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is present, so financial records are stored without an enforced default encryption configuration, unlike the logs bucket which correctly uses a KMS CMK.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, leaving operational data stored without an enforced server-side encryption default.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket configures versioning and access logging but omits server_side_encryption_configuration entirely, so data science datasets are stored without enforced encryption at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}]}",
+  "cost_usd": 0.09363
+}

@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants the svc_deploy user full wildcard access (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (Resource: \"*\"), for example ec2:RunInstances and s3:DeleteBucket, effectively giving an unrestricted administrative identity.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for an identity entitled to wildcard access; if leaked, it grants standing, non-expiring full control of EC2, S3, Lambda and CloudWatch, and rotation and revocation depend on manual process.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "static long-lived identity",
+      "description": "The deployment identity is an IAM user with static credentials rather than a role assuming short-lived credentials, and force_destroy = true permits the user to be destroyed along with its keys without a retention safeguard.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1271,
+  "output_tokens": 346,
+  "latency_s": 2.328,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants the svc_deploy user full wildcard access (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (Resource: \\\"*\\\"), for example ec2:RunInstances and s3:DeleteBucket, effectively giving an unrestricted administrative identity.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for an identity entitled to wildcard access; if leaked, it grants standing, non-expiring full control of EC2, S3, Lambda and CloudWatch, and rotation and revocation depend on manual process.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"static long-lived identity\", \"description\": \"The deployment identity is an IAM user with static credentials rather than a role assuming short-lived credentials, and force_destroy = true permits the user to be destroyed along with its keys without a retention safeguard.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 346,
+      "latency_s": 2.328,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000275
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000275
+}

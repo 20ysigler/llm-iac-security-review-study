@@ -1,0 +1,116 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat_mut__ec2.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials",
+      "description": "The user_data script contains hardcoded AWS access key and secret access key in plaintext, which will be visible to anyone with access to the instance metadata or Terraform state, leading to credential leakage.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress SSH",
+      "description": "The security group allows SSH (port 22) access from 0.0.0.0/0, exposing the instance to brute-force and unauthorized access attempts from any IP address on the internet.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress HTTP",
+      "description": "The security group allows HTTP (port 80) access from 0.0.0.0/0. While this may be intentional for a public web server, combined with other issues it increases the attack surface, and there is no HTTPS restriction or WAF in front.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "unencrypted storage volume",
+      "description": "The EBS volume does not set encrypted = true, meaning data at rest on the volume is not encrypted, risking exposure of sensitive data if the underlying storage is compromised or snapshots are shared.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted snapshot",
+      "description": "Since the snapshot is taken from an unencrypted EBS volume, the resulting snapshot is also unencrypted, exposing data at rest and increasing risk if the snapshot is shared or made public.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption and public access controls",
+      "description": "The S3 bucket used for storing VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, potentially exposing sensitive network traffic logs to unauthorized access.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true allows the bucket and all its contents (network flow logs) to be destroyed without protection, which could be leveraged to destroy evidence or audit trails in an attack scenario.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IPs to instances launched in this subnet, increasing exposure of instances (including the EC2 web server) directly to the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IPs to any instances launched in this subnet, expanding the internet-facing attack surface even though no instance currently uses this subnet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3792,
+  "output_tokens": 1404,
+  "latency_s": 11.798,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials\", \"description\": \"The user_data script contains hardcoded AWS access key and secret access key in plaintext, which will be visible to anyone with access to the instance metadata or Terraform state, leading to credential leakage.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress SSH\", \"description\": \"The security group allows SSH (port 22) access from 0.0.0.0/0, exposing the instance to brute-force and unauthorized access attempts from any IP address on the internet.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress HTTP\", \"description\": \"The security group allows HTTP (port 80) access from 0.0.0.0/0. While this may be intentional for a public web server, combined with other issues it increases the attack surface, and there is no HTTPS restriction or WAF in front.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"unencrypted storage volume\", \"description\": \"The EBS volume does not set encrypted = true, meaning data at rest on the volume is not encrypted, risking exposure of sensitive data if the underlying storage is compromised or snapshots are shared.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"Since the snapshot is taken from an unencrypted EBS volume, the resulting snapshot is also unencrypted, exposing data at rest and increasing risk if the snapshot is shared or made public.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption and public access controls\", \"description\": \"The S3 bucket used for storing VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, potentially exposing sensitive network traffic logs to unauthorized access.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true allows the bucket and all its contents (network flow logs) to be destroyed without protection, which could be leveraged to destroy evidence or audit trails in an attack scenario.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IPs to instances launched in this subnet, increasing exposure of instances (including the EC2 web server) directly to the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IPs to any instances launched in this subnet, expanding the internet-facing attack surface even though no instance currently uses this subnet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3792,
+      "output_tokens": 1404,
+      "latency_s": 11.798,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.021624
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.021624
+}

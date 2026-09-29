@@ -1,0 +1,119 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__s3.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:19:32Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports bucket defines no server_side_encryption_configuration block, so objects written to it (including the vendor-roster.xlsx seed object) receive no explicitly configured at-rest encryption, unlike the audit bucket in the same configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger exports bucket, which holds financial export data, defines no server_side_encryption_configuration, leaving ledger data without an explicitly enforced at-rest encryption control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model artifacts bucket defines versioning and logging but no server_side_encryption_configuration, so stored model artifacts have no explicit at-rest encryption requirement.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The operational runbooks bucket has no server_side_encryption_configuration block, leaving its contents without explicitly configured at-rest encryption.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly permissive bucket ACL",
+      "description": "acl = \"log-delivery-write\" grants the S3 log delivery group write and ACL-read access to the audit bucket, a broader grant than a pure log sink requires and one that weakens the integrity of the destination that also receives model_artifacts logs.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "public access block not enforced",
+      "description": "No aws_s3_bucket_public_access_block is defined for the audit bucket (or any bucket here), and it carries a non-private, log-delivery-write ACL, so nothing prevents objects or ACLs from being made publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "object stored without encryption",
+      "description": "The vendor-roster.xlsx seed object is written into aws_s3_bucket.reports_archive, which has no server-side encryption configuration, so this third-party vendor data is persisted without explicitly enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 6792,
+  "output_tokens": 2635,
+  "latency_s": 11.708,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports bucket defines no server_side_encryption_configuration block, so objects written to it (including the vendor-roster.xlsx seed object) receive no explicitly configured at-rest encryption, unlike the audit bucket in the same configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger exports bucket, which holds financial export data, defines no server_side_encryption_configuration, leaving ledger data without an explicitly enforced at-rest encryption control.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model artifacts bucket defines versioning and logging but no server_side_encryption_configuration, so stored model artifacts have no explicit at-rest encryption requirement.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The operational runbooks bucket has no server_side_encryption_configuration block, leaving its contents without explicitly configured at-rest encryption.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly permissive bucket ACL\", \"description\": \"acl = \\\"log-delivery-write\\\" grants the S3 log delivery group write and ACL-read access to the audit bucket, a broader grant than a pure log sink requires and one that weakens the integrity of the destination that also receives model_artifacts logs.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"public access block not enforced\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the audit bucket (or any bucket here), and it carries a non-private, log-delivery-write ACL, so nothing prevents objects or ACLs from being made publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"object stored without encryption\", \"description\": \"The vendor-roster.xlsx seed object is written into aws_s3_bucket.reports_archive, which has no server-side encryption configuration, so this third-party vendor data is persisted without explicitly enforced encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1538,
+      "output_tokens": 830,
+      "latency_s": 3.793,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000448
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1538,
+      "output_tokens": 1112,
+      "latency_s": 4.908,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.000527
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3716,
+      "output_tokens": 693,
+      "latency_s": 3.007,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000714
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001689
+}

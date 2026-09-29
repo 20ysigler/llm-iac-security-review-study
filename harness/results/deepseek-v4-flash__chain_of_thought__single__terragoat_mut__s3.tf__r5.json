@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__s3.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket stores vendor data but defines no server_side_encryption_configuration, so objects are written without default SSE and are unencrypted at rest (or rely only on weak SSE-S3 defaults with no KMS key).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "unrestricted public access",
+      "description": "No aws_s3_bucket_public_access_block or restrictive bucket policy is attached, so the bucket can be made public and its contents (vendor roster and reports) exposed.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket contains financial ledger exports but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "Versioning is not enabled on the ledger bucket, so overwritten or deleted financial records cannot be recovered to detect or investigate tampering.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts has versioning and logging but no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket defines no server_side_encryption_configuration, leaving operational runbook content unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "log bucket ACL widens access",
+      "description": "audit_trail uses acl = \"log-delivery-write\", a canned ACL that grants the S3 log-delivery group write and read-ACP permissions to the audit bucket, broadening access beyond intended principals on a security-relevant log store.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "sensitive object uploaded without KMS encryption",
+      "description": "The reports_seed_object uploads vendor-roster.xlsx into reports_archive with no kms_key_id or server-side encryption arguments, so this vendor data object is stored unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 1393,
+  "output_tokens": 752,
+  "latency_s": 3.746,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket stores vendor data but defines no server_side_encryption_configuration, so objects are written without default SSE and are unencrypted at rest (or rely only on weak SSE-S3 defaults with no KMS key).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"unrestricted public access\", \"description\": \"No aws_s3_bucket_public_access_block or restrictive bucket policy is attached, so the bucket can be made public and its contents (vendor roster and reports) exposed.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket contains financial ledger exports but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing versioning\", \"description\": \"Versioning is not enabled on the ledger bucket, so overwritten or deleted financial records cannot be recovered to detect or investigate tampering.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-693\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts has versioning and logging but no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket defines no server_side_encryption_configuration, leaving operational runbook content unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"log bucket ACL widens access\", \"description\": \"audit_trail uses acl = \\\"log-delivery-write\\\", a canned ACL that grants the S3 log-delivery group write and read-ACP permissions to the audit bucket, broadening access beyond intended principals on a security-relevant log store.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"sensitive object uploaded without KMS encryption\", \"description\": \"The reports_seed_object uploads vendor-roster.xlsx into reports_archive with no kms_key_id or server-side encryption arguments, so this vendor data object is stored unencrypted at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1393,
+      "output_tokens": 752,
+      "latency_s": 3.746,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000406
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000406
+}

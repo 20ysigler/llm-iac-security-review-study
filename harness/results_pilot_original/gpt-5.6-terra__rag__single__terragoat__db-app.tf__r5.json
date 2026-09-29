@@ -1,0 +1,63 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__db-app.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:41:13Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "RDS storage encryption is explicitly disabled with `storage_encrypted = false`, leaving database files, snapshots, and backups unencrypted at rest."
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`publicly_accessible = true` assigns the RDS instance a public endpoint, unnecessarily exposing a database network interface beyond private VPC boundaries. The current security-group rule narrows access, but public addressing enlarges attack surface and makes future rule changes externally exploitable."
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound traffic",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-923",
+      "description": "This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. It allows unrestricted outbound connections, creating a data-exfiltration and command-and-control path if the database is compromised."
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-250",
+      "description": "The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached instance yields broad control over EC2 and RDS and unrestricted S3 access, far exceeding application requirements."
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext database credential",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The RDS password is interpolated into EC2 `user_data` and written to a local PHP configuration file. User data is retrievable through EC2 instance metadata and AWS describe interfaces for authorized principals, exposing the credential outside a secrets-management service."
+    }
+  ],
+  "input_tokens": 5023,
+  "output_tokens": 427,
+  "latency_s": 4.671,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unencrypted database storage\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"RDS storage encryption is explicitly disabled with `storage_encrypted = false`, leaving database files, snapshots, and backups unencrypted at rest.\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`publicly_accessible = true` assigns the RDS instance a public endpoint, unnecessarily exposing a database network interface beyond private VPC boundaries. The current security-group rule narrows access, but public addressing enlarges attack surface and makes future rule changes externally exploitable.\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound traffic\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-923\",\"description\":\"This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. It allows unrestricted outbound connections, creating a data-exfiltration and command-and-control path if the database is compromised.\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-250\",\"description\":\"The EC2 role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Any compromise of the attached instance yields broad control over EC2 and RDS and unrestricted S3 access, far exceeding application requirements.\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"plaintext database credential\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The RDS password is interpolated into EC2 `user_data` and written to a local PHP configuration file. User data is retrievable through EC2 instance metadata and AWS describe interfaces for authorized principals, exposing the credential outside a secrets-management service.\"}]}",
+  "cost_usd": 0.01517
+}

@@ -1,0 +1,78 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:08:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hard-coded credentials",
+      "description": "The user_data startup script embeds a literal AWS access key ID and secret access key (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) that are baked into instance metadata and baked into the AMI's cloud-init logs. Anyone able to read instance user-data (or the console/API) obtains these long-lived AWS credentials, which are not rotatable via the config and would allow persistent account access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted ingress",
+      "description": "The ingress rule opens TCP port 22 (SSH) to 0.0.0.0/0, exposing remote administrative access to the internet. Combined with the subnet's map_public_ip_on_launch = true and the default route to the internet gateway, the EC2 host is directly reachable for brute-force and exploitation attempts from any source.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS volume backing the portal server has no encrypted setting, so data written to the disk (including any OS, application, or credential material) is stored unencrypted. A snapshot or detached volume would then be readable by anyone with volume/snapshot access.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption at rest",
+      "description": "The bucket used as the VPC flow log destination has no server-side encryption configuration, so captured network metadata is stored unencrypted. Because flow logs contain source/destination IPs, ports, and traffic patterns, at-rest encryption is expected for this archive.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2539,
+  "output_tokens": 2987,
+  "latency_s": 13.864,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Hard-coded credentials\", \"description\": \"The user_data startup script embeds a literal AWS access key ID and secret access key (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) that are baked into instance metadata and baked into the AMI's cloud-init logs. Anyone able to read instance user-data (or the console/API) obtains these long-lived AWS credentials, which are not rotatable via the config and would allow persistent account access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted ingress\", \"description\": \"The ingress rule opens TCP port 22 (SSH) to 0.0.0.0/0, exposing remote administrative access to the internet. Combined with the subnet's map_public_ip_on_launch = true and the default route to the internet gateway, the EC2 host is directly reachable for brute-force and exploitation attempts from any source.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS volume backing the portal server has no encrypted setting, so data written to the disk (including any OS, application, or credential material) is stored unencrypted. A snapshot or detached volume would then be readable by anyone with volume/snapshot access.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The bucket used as the VPC flow log destination has no server-side encryption configuration, so captured network metadata is stored unencrypted. Because flow logs contain source/destination IPs, ports, and traffic patterns, at-rest encryption is expected for this archive.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2539,
+      "output_tokens": 2987,
+      "latency_s": 13.864,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.001192
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001192
+}

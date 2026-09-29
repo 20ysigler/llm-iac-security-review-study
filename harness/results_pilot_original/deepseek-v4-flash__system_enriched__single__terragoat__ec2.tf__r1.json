@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:13Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script contains plaintext AWS access key and secret key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY) exported as environment variables. The user_data is visible in the instance metadata and is not a secure mechanism for distributing credentials, exposing them to anyone with instance access or metadata read access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without the encrypted flag set to true, so the volume is stored unencrypted. Sensitive data on the attached instance's disk would be readable if the volume or its underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot",
+      "description": "The EBS snapshot is created without encryption enabled, meaning the copied volume data is stored unencrypted at rest. Any data written to the underlying volume is exposed in clear text within the snapshot.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound SSH (TCP/22) from 0.0.0.0/0, exposing the SSH port to the entire internet. This creates a large attack surface for brute-force and unauthorized access to the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "public IP on launch",
+      "description": "The subnet has map_public_ip_on_launch = true, which automatically assigns every instance a public IP address, exposing instances directly to the internet instead of keeping them within a segmented private network.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "public IP on launch",
+      "description": "The subnet has map_public_ip_on_launch = true, which automatically assigns every instance a public IP address, exposing instances directly to the internet instead of keeping them within a segmented private network.",
+      "severity": "medium",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4401,
+  "output_tokens": 620,
+  "latency_s": 5.995,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script contains plaintext AWS access key and secret key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY) exported as environment variables. The user_data is visible in the instance metadata and is not a secure mechanism for distributing credentials, exposing them to anyone with instance access or metadata read access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without the encrypted flag set to true, so the volume is stored unencrypted. Sensitive data on the attached instance's disk would be readable if the volume or its underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"The EBS snapshot is created without encryption enabled, meaning the copied volume data is stored unencrypted at rest. Any data written to the underlying volume is exposed in clear text within the snapshot.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound SSH (TCP/22) from 0.0.0.0/0, exposing the SSH port to the entire internet. This creates a large attack surface for brute-force and unauthorized access to the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"public IP on launch\", \"description\": \"The subnet has map_public_ip_on_launch = true, which automatically assigns every instance a public IP address, exposing instances directly to the internet instead of keeping them within a segmented private network.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"public IP on launch\", \"description\": \"The subnet has map_public_ip_on_launch = true, which automatically assigns every instance a public IP address, exposing instances directly to the internet instead of keeping them within a segmented private network.\", \"severity\": \"medium\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.00079
+}

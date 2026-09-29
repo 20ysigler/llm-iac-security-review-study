@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__iam.tf__r14",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 14,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:16:13Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually any action on these services, including data exfiltration and privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived credential creation",
+      "description": "A long-lived programmatic access key is created for an IAM user with excessive permissions, increasing the risk of credential leakage and providing durable, hard-to-rotate credentials that an attacker could use if exposed.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be printed in plan/apply logs, state files, or CI/CD pipeline output, risking credential disclosure.",
+      "severity": "high",
+      "cwe": "CWE-200"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Creating a standalone IAM user with directly attached permissions and access keys (rather than using roles or federated identities) increases the attack surface and risk of long-term credential compromise.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 1843,
+  "output_tokens": 606,
+  "latency_s": 5.993,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually any action on these services, including data exfiltration and privilege escalation.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived credential creation\", \"description\": \"A long-lived programmatic access key is created for an IAM user with excessive permissions, increasing the risk of credential leakage and providing durable, hard-to-rotate credentials that an attacker could use if exposed.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be printed in plan/apply logs, state files, or CI/CD pipeline output, risking credential disclosure.\", \"severity\": \"high\", \"cwe\": \"CWE-200\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Creating a standalone IAM user with directly attached permissions and access keys (rather than using roles or federated identities) increases the attack surface and risk of long-term credential compromise.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "cost_usd": 0.009746
+}

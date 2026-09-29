@@ -1,0 +1,119 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:31:37Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the RDS MySQL instance directly to the internet, significantly increasing the attack surface for a data store containing application data and credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database's underlying storage and any snapshots/backups are not encrypted at rest, violating encryption-at-rest best practice.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The master password is supplied via var.password directly into the resource and persisted in Terraform state in plaintext; lifecycle.ignore_changes on password further means out-of-band rotation is not reflected/enforced by Terraform, encouraging insecure handling of credentials instead of a secrets manager.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the database username and password (var.password) in plaintext, writing them to /var/www/inc/dbinfo.inc and persisting them in the EC2 instance user-data/metadata, which is readable by anyone with access to the instance metadata service, console, or API describing the instance.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource \"*\" to the role assumed by the EC2 instance, violating least privilege and giving a compromised, internet-facing instance near-administrative control over S3, EC2, and RDS in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive for a database tier and could facilitate data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext database transport",
+      "description": "No parameter group setting enforces SSL/TLS for MySQL connections (e.g., require_secure_transport), and the application connects via mysqli_connect without SSL options, allowing credentials and data to be transmitted in cleartext between the app server and the publicly accessible database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 20009,
+  "output_tokens": 3438,
+  "latency_s": 29.885,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the RDS MySQL instance directly to the internet, significantly increasing the attack surface for a data store containing application data and credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database's underlying storage and any snapshots/backups are not encrypted at rest, violating encryption-at-rest best practice.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The master password is supplied via var.password directly into the resource and persisted in Terraform state in plaintext; lifecycle.ignore_changes on password further means out-of-band rotation is not reflected/enforced by Terraform, encouraging insecure handling of credentials instead of a secrets manager.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script embeds the database username and password (var.password) in plaintext, writing them to /var/www/inc/dbinfo.inc and persisting them in the EC2 instance user-data/metadata, which is readable by anyone with access to the instance metadata service, console, or API describing the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\" to the role assumed by the EC2 instance, violating least privilege and giving a compromised, internet-facing instance near-administrative control over S3, EC2, and RDS in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive for a database tier and could facilitate data exfiltration if the instance is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext database transport\", \"description\": \"No parameter group setting enforces SSL/TLS for MySQL connections (e.g., require_secure_transport), and the application connects via mysqli_connect without SSL options, allowing credentials and data to be transmitted in cleartext between the app server and the publicly accessible database.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 5867,
+      "output_tokens": 1134,
+      "latency_s": 10.371,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.023074
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 5867,
+      "output_tokens": 1105,
+      "latency_s": 9.841,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.022784
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 8275,
+      "output_tokens": 1199,
+      "latency_s": 9.673,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02854
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.074398
+}

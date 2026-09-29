@@ -1,0 +1,133 @@
+{
+  "run_id": "claude-opus-5__few_shot__single__terragoat_mut__db-app.tf__r1",
+  "model": "claude-opus-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet rather than keeping it private to the VPC. Combined with a well-known 'admin' master user it greatly enlarges the attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database volume and its snapshots are stored unencrypted, so anyone obtaining the underlying storage or a snapshot can read all data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext database credential",
+      "description": "The master password is passed directly via var.password (and reused in the EC2 user_data), so it lands in Terraform state and instance metadata in plaintext instead of being sourced from Secrets Manager or manage_master_user_password.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "default administrative username",
+      "description": "The master username is the predictable default 'admin', which aids credential-guessing/brute-force attacks against the publicly reachable endpoint.",
+      "severity": "low",
+      "cwe": "CWE-1188",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets exposed in user_data",
+      "description": "The database username and password are interpolated into EC2 user_data, which is readable by any process or attacker that can reach the instance metadata service (http://169.254.169.254/latest/user-data) and is stored unencrypted in the instance configuration and Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 enabled / no metadata hardening",
+      "description": "No metadata_options block enforcing http_tokens = \"required\" is set, so IMDSv1 remains available; an SSRF in the PHP app could be used to steal the instance profile credentials that carry s3:*, ec2:* and rds:* permissions.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device with encrypted = true is specified, so the instance's root volume (which contains the plaintext dbinfo.inc credentials file) may be stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:* and rds:* on Resource \"*\", allowing a compromised web server to read or destroy any bucket, launch/terminate instances, and modify or snapshot any database in the account.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all protocols and ports outbound to 0.0.0.0/0, enabling unrestricted data exfiltration or command-and-control traffic from a compromised database host.",
+      "severity": "medium",
+      "cwe": "CWE-1327",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "missing TLS enforcement for DB",
+      "description": "The MySQL parameter group does not set require_secure_transport = 1, so clients may connect to the (publicly accessible) database over unencrypted connections, exposing credentials and data in transit.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "database exposed beyond VPC scope",
+      "description": "The DB security group permits port 3306 from the entire VPC CIDR rather than only the application security group; since the instance is also publicly_accessible, reachability is broader than necessary for least privilege.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5962,
+  "output_tokens": 1595,
+  "latency_s": 16.986,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet rather than keeping it private to the VPC. Combined with a well-known 'admin' master user it greatly enlarges the attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database volume and its snapshots are stored unencrypted, so anyone obtaining the underlying storage or a snapshot can read all data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext database credential\", \"description\": \"The master password is passed directly via var.password (and reused in the EC2 user_data), so it lands in Terraform state and instance metadata in plaintext instead of being sourced from Secrets Manager or manage_master_user_password.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"default administrative username\", \"description\": \"The master username is the predictable default 'admin', which aids credential-guessing/brute-force attacks against the publicly reachable endpoint.\", \"severity\": \"low\", \"cwe\": \"CWE-1188\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets exposed in user_data\", \"description\": \"The database username and password are interpolated into EC2 user_data, which is readable by any process or attacker that can reach the instance metadata service (http://169.254.169.254/latest/user-data) and is stored unencrypted in the instance configuration and Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 enabled / no metadata hardening\", \"description\": \"No metadata_options block enforcing http_tokens = \\\"required\\\" is set, so IMDSv1 remains available; an SSRF in the PHP app could be used to steal the instance profile credentials that carry s3:*, ec2:* and rds:* permissions.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device with encrypted = true is specified, so the instance's root volume (which contains the plaintext dbinfo.inc credentials file) may be stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", allowing a compromised web server to read or destroy any bucket, launch/terminate instances, and modify or snapshot any database in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all protocols and ports outbound to 0.0.0.0/0, enabling unrestricted data exfiltration or command-and-control traffic from a compromised database host.\", \"severity\": \"medium\", \"cwe\": \"CWE-1327\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_parameter_group.catalog_db_params\", \"issue_category\": \"missing TLS enforcement for DB\", \"description\": \"The MySQL parameter group does not set require_secure_transport = 1, so clients may connect to the (publicly accessible) database over unencrypted connections, exposing credentials and data in transit.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.catalog_db_sg\", \"issue_category\": \"database e",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5962,
+      "output_tokens": 1595,
+      "latency_s": 16.986,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.069685
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.069685
+}

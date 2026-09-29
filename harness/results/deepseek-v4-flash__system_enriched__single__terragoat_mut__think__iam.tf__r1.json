@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:10:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "This inline policy grants the svc_deploy user wildcard actions across four services (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", i.e. every resource in the account. This is effectively administrative control over compute, object storage, serverless code execution and logs, allowing full data exfiltration or destruction of S3 data, arbitrary Lambda code execution, and broad EC2 control, which far exceeds what a deployment identity requires and violates least privilege.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static programmatic access key is issued for the svc_deploy user, an identity carrying the wildcard ec2:*/s3:*/lambda:*/cloudwatch:* policy on Resource \"*\". The key has no expiry or rotation, is long-lived, and its secret is persisted in Terraform state, so compromise or leak of this single key yields account-wide control over data and code execution.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed in output",
+      "description": "The output publishes the IAM access key material (aws_iam_access_key.svc_deploy_key.encrypted_secret) from Terraform. Exposing key material as an output surfaces it to anyone able to read the state backend or run terraform output; the underlying access-key secret is also held in state in plaintext, so this widening of exposure of a highly privileged credential is unnecessary and risky.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 4467,
+  "latency_s": 21.031,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"This inline policy grants the svc_deploy user wildcard actions across four services (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", i.e. every resource in the account. This is effectively administrative control over compute, object storage, serverless code execution and logs, allowing full data exfiltration or destruction of S3 data, arbitrary Lambda code execution, and broad EC2 control, which far exceeds what a deployment identity requires and violates least privilege.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static programmatic access key is issued for the svc_deploy user, an identity carrying the wildcard ec2:*/s3:*/lambda:*/cloudwatch:* policy on Resource \\\"*\\\". The key has no expiry or rotation, is long-lived, and its secret is persisted in Terraform state, so compromise or leak of this single key yields account-wide control over data and code execution.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential material exposed in output\", \"description\": \"The output publishes the IAM access key material (aws_iam_access_key.svc_deploy_key.encrypted_secret) from Terraform. Exposing key material as an output surfaces it to anyone able to read the state backend or run terraform output; the underlying access-key secret is also held in state in plaintext, so this widening of exposure of a highly privileged credential is unnecessary and risky.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 4467,
+      "latency_s": 21.031,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.001432
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001432
+}

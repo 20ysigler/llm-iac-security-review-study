@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this deploy user full control over compute, storage, serverless, and monitoring account-wide. Compromise of this user yields broad read/write/delete capabilities across the account and supports persistence and detection evasion.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user. Long-lived keys cannot be rotated automatically, are routinely leaked through CI logs and repositories, and here pair with a wildcard policy to provide durable account-wide access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed in output",
+      "description": "The access key's secret material is emitted as a Terraform root output, so it is readable by anyone with access to the Terraform state or plan output and persists in state in plaintext. Secrets should not be exposed via outputs.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "missing MFA enforcement for privileged user",
+      "description": "The highly privileged svc_deploy user has no MFA device or MFA-restricted policy, and the policy grants access with a single static key alone. A leaked credential is therefore sufficient for full account access with no second factor.",
+      "severity": "medium",
+      "cwe": "CWE-308",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3149,
+  "output_tokens": 961,
+  "latency_s": 6.021,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this deploy user full control over compute, storage, serverless, and monitoring account-wide. Compromise of this user yields broad read/write/delete capabilities across the account and supports persistence and detection evasion.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user. Long-lived keys cannot be rotated automatically, are routinely leaked through CI logs and repositories, and here pair with a wildcard policy to provide durable account-wide access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed in output\", \"description\": \"The access key's secret material is emitted as a Terraform root output, so it is readable by anyone with access to the Terraform state or plan output and persists in state in plaintext. Secrets should not be exposed via outputs.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"missing MFA enforcement for privileged user\", \"description\": \"The highly privileged svc_deploy user has no MFA device or MFA-restricted policy, and the policy grants access with a single static key alone. A leaked credential is therefore sufficient for full account access with no second factor.\", \"severity\": \"medium\", \"cwe\": \"CWE-308\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 506,
+      "latency_s": 3.268,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.00032
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1878,
+      "output_tokens": 455,
+      "latency_s": 2.753,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.00039
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.00071
+}

@@ -1,0 +1,2 @@
+Mutation-control corpus derived from bridgecrewio/terragoat at commit 729f8da62c6a85ce4af5ad3d123de97776d954c4 (Apache-2.0; LICENSE retained).
+The six files under review (s3, ec2, db-app, iam, kms, lambda) are rewritten by harness/mutate_corpus.py; the other eight are unchanged. Rename map: data/rename_map.json. Semantic-preservation proof: data/mutation_checkov_diff.txt (harness/validate_mutation.py).

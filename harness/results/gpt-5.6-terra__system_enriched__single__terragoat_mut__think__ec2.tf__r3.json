@@ -1,0 +1,93 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__ec2.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:29:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User data is retrievable by principals with instance/launch-template access and is present on the instance, so these credentials can be extracted and reused outside the workload.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is permitted from 0.0.0.0/0. The attached instance is in a subnet that assigns public IPs and has a default route through an internet gateway, exposing SSH to arbitrary internet hosts.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unencrypted public web traffic",
+      "description": "TCP/80 is publicly reachable from 0.0.0.0/0, and the instance configuration installs and starts Apache without configuring TLS or an HTTPS listener. Requests and any data supplied to this web service can therefore traverse the internet in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound network access",
+      "description": "The security group permits all protocols and ports to 0.0.0.0/0. This removes outbound network segmentation for the internet-reachable instance and permits unrestricted command-and-control or data-exfiltration connections if it is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its data is therefore unencrypted unless an account-level setting outside this configuration happens to override the resource default.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted disk snapshot",
+      "description": "This snapshot is created from aws_ebs_volume.portal_server_disk, which is not configured for encryption. EBS snapshots inherit the source volume's encryption state, so this backup can store the disk contents without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2030,
+  "output_tokens": 1437,
+  "latency_s": 19.664,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 4,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key. User data is retrievable by principals with instance/launch-template access and is present on the instance, so these credentials can be extracted and reused outside the workload.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is permitted from 0.0.0.0/0. The attached instance is in a subnet that assigns public IPs and has a default route through an internet gateway, exposing SSH to arbitrary internet hosts.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unencrypted public web traffic\",\"description\":\"TCP/80 is publicly reachable from 0.0.0.0/0, and the instance configuration installs and starts Apache without configuring TLS or an HTTPS listener. Requests and any data supplied to this web service can therefore traverse the internet in cleartext.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted outbound network access\",\"description\":\"The security group permits all protocols and ports to 0.0.0.0/0. This removes outbound network segmentation for the internet-reachable instance and permits unrestricted command-and-control or data-exfiltration connections if it is compromised.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its data is therefore unencrypted unless an account-level setting outside this configuration happens to override the resource default.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"unencrypted disk snapshot\",\"description\":\"This snapshot is created from aws_ebs_volume.portal_server_disk, which is not configured for encryption. EBS snapshots inherit the source volume's encryption state, so this backup can store the disk contents without encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2030,
+      "output_tokens": 1437,
+      "latency_s": 19.664,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.021304
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.021304
+}

@@ -1,0 +1,80 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__think__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:32:13Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the MySQL database and its snapshots are stored unencrypted on disk. Any party with access to the underlying storage can read the data, violating the data-protection requirement that encryption be the default for stored data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, which assigns a public IP and places the RDS instance on the internet-facing endpoint. The database is also deployed into web/public subnets via the subnet group, exposing it outside the intended private network boundary.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "default administrative account name",
+      "description": "The database master username is hardcoded to the generic 'admin' value rather than a unique per-deployment account. Default administrative account names persist into production and simplify brute-force and targeted attacks.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 instance user_data script embeds the RDS password (var.password) plus the database username, hostname, and database name in plain text. Anyone with EC2 describe/GetUserData permissions can read these credentials, and they are also committed to the launch template state, so the DB password must be treated as compromised.",
+      "severity": "high",
+      "cwe": "CWE-256",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "legacy instance metadata service enabled",
+      "description": "The instance does not set metadata_options http_tokens = \"required\", leaving IMDSv1 active. An SSRF in the web application could then retrieve the instance's IAM credentials without a session token, turning a request forgery bug into credential theft.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The role attached to the EC2 instance grants wildcard actions across s3, ec2, and rds on Resource \"*\", far exceeding what the web application requires. This broad administrative access creates a large blast radius and a privilege escalation / data exfiltration path if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1) to 0.0.0.0/0. Unrestricted egress provides a data exfiltration channel and connectivity to command-and-control infrastructure if the database is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-923",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5652,
+  "output_tokens": 3374,
+  "latency_s": 26.628,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the MySQL database and its snapshots are stored unencrypted on disk. Any party with access to the underlying storage can read the data, violating the data-protection requirement that encryption be the default for stored data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, which assigns a public IP and places the RDS instance on the internet-facing endpoint. The database is also deployed into web/public subnets via the subnet group, exposing it outside the intended private network boundary.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"default administrative account name\", \"description\": \"The database master username is hardcoded to the generic 'admin' value rather than a unique per-deployment account. Default administrative account names persist into production and simplify brute-force and targeted attacks.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 instance user_data script embeds the RDS password (var.password) plus the database username, hostname, and database name in plain text. Anyone with EC2 describe/GetUserData permissions can read these credentials, and they are also committed to the launch template state, so the DB password must be treated as compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-256\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"legacy instance metadata service enabled\", \"description\": \"The instance does not set metadata_options http_tokens = \\\"required\\\", leaving IMDSv1 active. An SSRF in the web application could then retrieve the instance's IAM credentials without a session token, turning a request forgery bug into credential theft.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The role attached to the EC2 instance grants wildcard actions across s3, ec2, and rds on Resource \\\"*\\\", far exceeding what the web application requires. This broad administrative access creates a large blast radius and a privilege escalation / data exfiltration path if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1) to 0.0.0.0/0. Unrestricted egress provides a data exfiltration channel and connectivity to command-and-control infrastructure if the database is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-923\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.001736
+}

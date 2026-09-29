@@ -1,0 +1,39 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__kms.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:30:23Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "KMS key rotation disabled",
+      "description": "The KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Long-lived key material increases the window of exposure if the key is ever compromised and violates common cryptographic key management requirements.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "Missing key policy / access control",
+      "description": "No key policy is defined for this CMK, so AWS applies the default policy granting the entire account root full access to the key, meaning any IAM principal in the account with KMS permissions can decrypt data protected by it. For a key protecting log data this weakens least-privilege separation between log producers, readers and administrators.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 1999,
+  "output_tokens": 361,
+  "latency_s": 5.676,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"KMS key rotation disabled\", \"description\": \"The KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Long-lived key material increases the window of exposure if the key is ever compromised and violates common cryptographic key management requirements.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"Missing key policy / access control\", \"description\": \"No key policy is defined for this CMK, so AWS applies the default policy granting the entire account root full access to the key, meaning any IAM principal in the account with KMS permissions can decrypt data protected by it. For a key protecting log data this weakens least-privilege separation between log producers, readers and administrators.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "cost_usd": 0.01902
+}

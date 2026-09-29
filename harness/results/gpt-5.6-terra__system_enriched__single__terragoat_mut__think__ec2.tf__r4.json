@@ -1,0 +1,77 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__ec2.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:30:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User-data is stored in Terraform configuration/state and can be retrieved by principals with instance or EC2 user-data access, exposing reusable credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is open from 0.0.0.0/0. Because portal_server is launched in a subnet that assigns public IPs and has a default route through an Internet gateway, the instance can be probed and attacked over SSH from any Internet host.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound access",
+      "description": "The security group permits all protocols and ports to 0.0.0.0/0. This gives the Internet-reachable instance unrestricted external connectivity, including a path to exfiltrate data or use the embedded AWS credentials if it is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS data volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, can therefore be stored unencrypted unless an account-level default outside this configuration happens to enforce encryption.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2030,
+  "output_tokens": 872,
+  "latency_s": 12.228,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key. User-data is stored in Terraform configuration/state and can be retrieved by principals with instance or EC2 user-data access, exposing reusable credentials.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP port 22 is open from 0.0.0.0/0. Because portal_server is launched in a subnet that assigns public IPs and has a default route through an Internet gateway, the instance can be probed and attacked over SSH from any Internet host.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted outbound access\",\"description\":\"The security group permits all protocols and ports to 0.0.0.0/0. This gives the Internet-reachable instance unrestricted external connectivity, including a path to exfiltrate data or use the embedded AWS credentials if it is compromised.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS data volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, can therefore be stored unencrypted unless an account-level default outside this configuration happens to enforce encryption.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2030,
+      "output_tokens": 872,
+      "latency_s": 12.228,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.014524
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.014524
+}

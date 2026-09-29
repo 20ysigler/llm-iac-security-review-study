@@ -1,0 +1,80 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:02:02Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to the IAM user, violating least privilege and allowing this user to perform virtually any action across these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Using a standalone IAM user with long-lived credentials (as opposed to a role assumed via STS) increases the risk of credential leakage and misuse, especially combined with the overly broad attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "hard-coded/exposed credentials",
+      "description": "An access key is generated for the IAM user and its encrypted secret material is exposed via a Terraform output, which risks the credential being stored in state files, plan output, or CI/CD logs in a recoverable form, effectively leaking long-term AWS credentials tied to an overly privileged user.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential material without PGP encryption",
+      "description": "The access key resource does not specify a pgp_key, meaning the secret access key is stored in plaintext in the Terraform state rather than being encrypted before storage, increasing exposure risk if state is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "insecure resource destruction setting",
+      "description": "force_destroy = true on the IAM user allows deletion of the user along with all associated resources (including access keys) without additional safeguards, which can facilitate accidental or malicious removal of audit trails tied to this identity.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2128,
+  "output_tokens": 838,
+  "latency_s": 8.718,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to the IAM user, violating least privilege and allowing this user to perform virtually any action across these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Using a standalone IAM user with long-lived credentials (as opposed to a role assumed via STS) increases the risk of credential leakage and misuse, especially combined with the overly broad attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"hard-coded/exposed credentials\", \"description\": \"An access key is generated for the IAM user and its encrypted secret material is exposed via a Terraform output, which risks the credential being stored in state files, plan output, or CI/CD logs in a recoverable form, effectively leaking long-term AWS credentials tied to an overly privileged user.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential material without PGP encryption\", \"description\": \"The access key resource does not specify a pgp_key, meaning the secret access key is stored in plaintext in the Terraform state rather than being encrypted before storage, increasing exposure risk if state is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"insecure resource destruction setting\", \"description\": \"force_destroy = true on the IAM user allows deletion of the user along with all associated resources (including access keys) without additional safeguards, which can facilitate accidental or malicious removal of audit trails tied to this identity.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2128,
+      "output_tokens": 838,
+      "latency_s": 8.718,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.012636
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.012636
+}

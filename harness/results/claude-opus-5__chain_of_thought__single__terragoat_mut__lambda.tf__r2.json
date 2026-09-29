@@ -1,0 +1,92 @@
+{
+  "run_id": "claude-opus-5__chain_of_thought__single__terragoat_mut__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:26:44Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded cloud credentials in source",
+      "description": "Static AWS access key ID and secret access key are hardcoded as plaintext Lambda environment variables in the Terraform configuration. Anyone with read access to the repo, the Terraform state, or lambda:GetFunctionConfiguration can retrieve and reuse these long-lived credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "The function's environment variables (which contain secrets) are not encrypted with a customer-managed CMK because kms_key_arn is not set; they are stored using the default AWS-managed key and are visible in plaintext to any principal that can describe the function.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing X-Ray tracing configuration",
+      "description": "No tracing_config block is defined, so there is no active tracing for the function, reducing the ability to detect and investigate anomalous or malicious invocations of a function that handles credentials.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security group or NACL controls, enabling data exfiltration paths if the code is compromised.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unsupported end-of-life runtime",
+      "description": "The function uses nodejs12.x, a deprecated runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing confused-deputy protection",
+      "description": "The assume role policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the trust is not scoped to a specific function or account, widening the cross-service confused-deputy attack surface.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 1833,
+  "output_tokens": 908,
+  "latency_s": 11.247,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded cloud credentials in source\", \"description\": \"Static AWS access key ID and secret access key are hardcoded as plaintext Lambda environment variables in the Terraform configuration. Anyone with read access to the repo, the Terraform state, or lambda:GetFunctionConfiguration can retrieve and reuse these long-lived credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"The function's environment variables (which contain secrets) are not encrypted with a customer-managed CMK because kms_key_arn is not set; they are stored using the default AWS-managed key and are visible in plaintext to any principal that can describe the function.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing X-Ray tracing configuration\", \"description\": \"No tracing_config block is defined, so there is no active tracing for the function, reducing the ability to detect and investigate anomalous or malicious invocations of a function that handles credentials.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security group or NACL controls, enabling data exfiltration paths if the code is compromised.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unsupported end-of-life runtime\", \"description\": \"The function uses nodejs12.x, a deprecated runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing confused-deputy protection\", \"description\": \"The assume role policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the trust is not scoped to a specific function or account, widening the cross-service confused-deputy attack surface.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1833,
+      "output_tokens": 908,
+      "latency_s": 11.247,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.031865
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.031865
+}

@@ -1,0 +1,73 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__iam.tf__r5",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:04:13Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full service-level wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against \"Resource\": \"*\", effectively administrative control over compute, storage, and serverless resources in the account. This violates least privilege and gives any compromise of the user's key total control over data and infrastructure, including privilege escalation via iam:PassRole-adjacent ec2/lambda actions.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a human-style IAM user instead of using federation or an assumable role with temporary credentials. The key never expires or rotates automatically, and combined with the wildcard policy it is a high-value, persistent credential.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "plaintext secret in Terraform state",
+      "description": "No pgp_key is supplied, so Terraform stores the raw secret_access_key (and ses_smtp_password) in plaintext in the state file; the encrypted_secret attribute referenced by the output is only populated when a PGP key is provided. Anyone with read access to the state backend obtains working credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposed via output",
+      "description": "The root-module output \"secret\" publishes the access key's secret material, which is written to state and printed/consumable by any process or CI job that reads module outputs, widening the audience for the credential far beyond those who need it.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "missing permissions boundary",
+      "description": "The IAM user is created with no permissions_boundary, so nothing caps the effective privileges granted by its attached policies. With a wildcard inline policy this removes the guardrail that would otherwise prevent privilege escalation through self-granted permissions.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "policy attached directly to user",
+      "description": "Permissions are attached inline to an individual IAM user rather than through a group or role, which bypasses centralized review and makes privilege sprawl hard to audit or revoke consistently (CIS AWS Foundations guidance on IAM policy attachment).",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-266"
+    }
+  ],
+  "input_tokens": 3445,
+  "output_tokens": 1336,
+  "latency_s": 17.205,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full service-level wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against \\\"Resource\\\": \\\"*\\\", effectively administrative control over compute, storage, and serverless resources in the account. This violates least privilege and gives any compromise of the user's key total control over data and infrastructure, including privilege escalation via iam:PassRole-adjacent ec2/lambda actions.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a human-style IAM user instead of using federation or an assumable role with temporary credentials. The key never expires or rotates automatically, and combined with the wildcard policy it is a high-value, persistent credential.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"plaintext secret in Terraform state\", \"description\": \"No pgp_key is supplied, so Terraform stores the raw secret_access_key (and ses_smtp_password) in plaintext in the state file; the encrypted_secret attribute referenced by the output is only populated when a PGP key is provided. Anyone with read access to the state backend obtains working credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposed via output\", \"description\": \"The root-module output \\\"secret\\\" publishes the access key's secret material, which is written to state and printed/consumable by any process or CI job that reads module outputs, widening the audience for the credential far beyond those who need it.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-522\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The IAM user is created with no permissions_boundary, so nothing caps the effective privileges granted by its attached policies. With a wildcard inline policy this removes the guardrail that would otherwise prevent privilege escalation through self-granted permissions.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"policy attached directly to user\", \"description\": \"Permissions are attached inline to an individual IAM user rather than through a group or role, which bypasses centralized review and makes privilege sprawl hard to audit or revoke consistently (CIS AWS Foundations guidance on IAM policy attachment).\", \"severity\": \"low\", \"confidence\": \"high\", \"cwe\": \"CWE-266\"}]}",
+  "cost_usd": 0.050625
+}

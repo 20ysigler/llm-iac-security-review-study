@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": 0.0,
+  "timestamp": "2026-08-16T21:13:14Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS database storage is not encrypted at rest, exposing data to risk if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for the database.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via var.password and embedded in plaintext into EC2 user data, and the master username is the default 'admin', increasing risk of credential exposure and brute forcing.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 instance user_data script embeds the database password and connection details in plaintext, which is visible via the EC2 metadata service and instance console output, exposing credentials to anyone with access to describe the instance or metadata.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which can facilitate data exfiltration if the instance or database is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled deletion protection/final snapshot",
+      "description": "skip_final_snapshot is set to true, causing data loss risk on deletion, and combined with lack of encryption and public accessibility, increases risk of irreversible data exposure or loss without recovery options.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 6958,
+  "output_tokens": 1044,
+  "latency_s": 9.529,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS database storage is not encrypted at rest, exposing data to risk if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for the database.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via var.password and embedded in plaintext into EC2 user data, and the master username is the default 'admin', increasing risk of credential exposure and brute forcing.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 instance user_data script embeds the database password and connection details in plaintext, which is visible via the EC2 metadata service and instance console output, exposing credentials to anyone with access to describe the instance or metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which can facilitate data exfiltration if the instance or database is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled deletion protection/final snapshot\", \"description\": \"skip_final_snapshot is set to true, causing data loss risk on deletion, and combined with lack of encryption and public accessibility, increases risk of irreversible data exposure or loss without recovery options.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.024356
+}

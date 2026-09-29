@@ -1,0 +1,117 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__ec2.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:21Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hardcoded credentials in user data",
+      "description": "The EC2 user_data script embeds a literal AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). These are stored in Terraform state and readable from instance metadata by anyone who can reach the instance, giving direct API access to the account.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted SSH ingress",
+      "description": "The ingress rule opens TCP port 22 to 0.0.0.0/0, exposing SSH to the entire internet and permitting brute-force or credential-stuffing attacks against the portal server.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "Automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true on subnet portal_subnet_a, so every instance launched there (including aws_instance.portal_server) receives a routable public IP and is directly reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "Automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true on subnet portal_subnet_b, forcing public IP addresses on all instances launched in that subnet and increasing internet-exposed attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption at rest",
+      "description": "The VPC flow log archive bucket has no server-side encryption configuration, so captured flow log data is stored unencrypted in S3.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Public access not blocked",
+      "description": "No aws_s3_bucket_public_access_block or bucket ACL is defined for the flow log bucket, so account-level or ACL-based public exposure of the archive is not prevented.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS data volume for the portal server is created without encrypted = true, so the disk contents are stored unencrypted and are readable if the volume or a snapshot is exfiltrated.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "Unencrypted snapshot",
+      "description": "The snapshot is taken from an unencrypted EBS volume and no encryption is specified, so the backup copies of the disk data are also stored in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted egress",
+      "description": "The egress rule allows all protocols and all ports to 0.0.0.0/0, which permits a compromised instance to reach any external host for data exfiltration or command-and-control.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2646,
+  "output_tokens": 887,
+  "latency_s": 4.152,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Hardcoded credentials in user data\", \"description\": \"The EC2 user_data script embeds a literal AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). These are stored in Terraform state and readable from instance metadata by anyone who can reach the instance, giving direct API access to the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted SSH ingress\", \"description\": \"The ingress rule opens TCP port 22 to 0.0.0.0/0, exposing SSH to the entire internet and permitting brute-force or credential-stuffing attacks against the portal server.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"Automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true on subnet portal_subnet_a, so every instance launched there (including aws_instance.portal_server) receives a routable public IP and is directly reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"Automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true on subnet portal_subnet_b, forcing public IP addresses on all instances launched in that subnet and increasing internet-exposed attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The VPC flow log archive bucket has no server-side encryption configuration, so captured flow log data is stored unencrypted in S3.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Public access not blocked\", \"description\": \"No aws_s3_bucket_public_access_block or bucket ACL is defined for the flow log bucket, so account-level or ACL-based public exposure of the archive is not prevented.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS data volume for the portal server is created without encrypted = true, so the disk contents are stored unencrypted and are readable if the volume or a snapshot is exfiltrated.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"Unencrypted snapshot\", \"description\": \"The snapshot is taken from an unencrypted EBS volume and no encryption is specified, so the backup copies of the disk data are also stored in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted egress\", \"description\": \"The egress rule allows all protocols and all ports to 0.0.0.0/0, which permits a compromised instance to reach any external host for data exfiltration or command-and-control.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2646,
+      "output_tokens": 887,
+      "latency_s": 4.152,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000619
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000619
+}

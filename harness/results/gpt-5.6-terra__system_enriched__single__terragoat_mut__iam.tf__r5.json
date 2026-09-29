@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__iam.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:01:10Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly broad IAM permissions",
+      "description": "The policy grants the deployment user unrestricted ec2, s3, lambda, and cloudwatch actions against every resource. Compromise of this access key would permit broad control of compute, functions, storage, and monitoring resources, including likely privilege-escalation and data-access paths.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived IAM access key",
+      "description": "A programmatic access key is provisioned for a user with unrestricted permissions across EC2, S3, Lambda, and CloudWatch. If the credential is exposed or stolen, it enables direct broad account-level access without the stronger controls commonly available through short-lived role credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "sensitive credential output exposure",
+      "description": "The encrypted secret material for the IAM access key is exported as a Terraform output without a sensitive marking. Terraform outputs may be displayed in CLI output and exposed to systems or users with access to Terraform state/output artifacts, increasing credential disclosure risk.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 984,
+  "output_tokens": 292,
+  "latency_s": 4.606,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly broad IAM permissions\",\"description\":\"The policy grants the deployment user unrestricted ec2, s3, lambda, and cloudwatch actions against every resource. Compromise of this access key would permit broad control of compute, functions, storage, and monitoring resources, including likely privilege-escalation and data-access paths.\",\"severity\":\"critical\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"long-lived IAM access key\",\"description\":\"A programmatic access key is provisioned for a user with unrestricted permissions across EC2, S3, Lambda, and CloudWatch. If the credential is exposed or stolen, it enables direct broad account-level access without the stronger controls commonly available through short-lived role credentials.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"sensitive credential output exposure\",\"description\":\"The encrypted secret material for the IAM access key is exported as a Terraform output without a sensitive marking. Terraform outputs may be displayed in CLI output and exposed to systems or users with access to Terraform state/output artifacts, increasing credential disclosure risk.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 984,
+      "output_tokens": 292,
+      "latency_s": 4.606,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.005472
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.005472
+}

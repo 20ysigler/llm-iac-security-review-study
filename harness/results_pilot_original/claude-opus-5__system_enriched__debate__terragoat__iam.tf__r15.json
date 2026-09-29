@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__iam.tf__r15",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 15,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:19:32Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege. Compromise of this user's static access key would allow full control of compute, storage and serverless resources, including privilege escalation via ec2:RunInstances with an instance profile or lambda:CreateFunction with a passed role.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is provisioned for the user instead of temporary credentials obtained through role assumption, and no rotation mechanism exists. Combined with the wildcard inline policy on the same user, a leaked key grants durable broad account access.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret material stored in state",
+      "description": "No pgp_key is supplied, so the access key's secret is written to the Terraform state file in cleartext (the `secret` and `ses_smtp_password_v4` attributes). Anyone with read access to the state backend obtains working credentials for this highly privileged user.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The `secret` output surfaces access key material and is not marked `sensitive`. Because no pgp_key is set, encrypted_secret is empty and the value is still persisted in state; outputs are commonly rendered in CI/CD logs, risking credential disclosure.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "policy attached directly to user",
+      "description": "Administrative-scope permissions are attached inline to an IAM user rather than through a group or an assumable role, with no permission boundary or MFA condition to limit blast radius. This bypasses centralised permission management and provides no compensating control against credential theft.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8313,
+  "output_tokens": 2284,
+  "latency_s": 31.899,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege. Compromise of this user's static access key would allow full control of compute, storage and serverless resources, including privilege escalation via ec2:RunInstances with an instance profile or lambda:CreateFunction with a passed role.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is provisioned for the user instead of temporary credentials obtained through role assumption, and no rotation mechanism exists. Combined with the wildcard inline policy on the same user, a leaked key grants durable broad account access.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret material stored in state\", \"description\": \"No pgp_key is supplied, so the access key's secret is written to the Terraform state file in cleartext (the `secret` and `ses_smtp_password_v4` attributes). Anyone with read access to the state backend obtains working credentials for this highly privileged user.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The `secret` output surfaces access key material and is not marked `sensitive`. Because no pgp_key is set, encrypted_secret is empty and the value is still persisted in state; outputs are commonly rendered in CI/CD logs, risking credential disclosure.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"policy attached directly to user\", \"description\": \"Administrative-scope permissions are attached inline to an IAM user rather than through a group or an assumable role, with no permission boundary or MFA condition to limit blast radius. This bypasses centralised permission management and provides no compensating control against credential theft.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2197,
+      "output_tokens": 806,
+      "latency_s": 12.061,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031135
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2197,
+      "output_tokens": 664,
+      "latency_s": 10.412,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027585
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3919,
+      "output_tokens": 814,
+      "latency_s": 9.426,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.039945
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.098665
+}

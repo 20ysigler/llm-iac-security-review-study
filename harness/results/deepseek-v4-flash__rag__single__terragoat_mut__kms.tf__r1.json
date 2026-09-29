@@ -1,0 +1,68 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__kms.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:37Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "KMS key policy grants wildcard principals",
+      "description": "The key has no `policy` argument, so it falls back to the default key policy, which grants `kms:*` on `Resource: \"*\"` to the entire account (via the account principal), and this is a KMS key that receives CloudTrail/audit data. Any principal in the account that is granted kms permissions by an IAM policy can use it, and if account-level access was ever broadened (or if this key protects a log bucket), a single over-permissive IAM policy yields decrypt of the audit trail. An explicit least-privilege key policy should name only the specific roles/services (e.g. CloudTrail, the log-archive role) that need Encrypt/Decrypt/DescribeKey.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "key rotation not enabled",
+      "description": "`enable_key_rotation` is not set, so automatic annual rotation is disabled for the key. Failure to enable rotation means a compromised or leaked key material remains valid far longer than necessary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "no key usage/deletion protection",
+      "description": "The key is defined without `is_enabled`/`multi_region`/`deletion_window_in_days` being strengthened beyond the 7-day minimum; the 7-day window is the shortest permitted value, which gives a very short recovery period for an audit-log key if it is destroyed by mistake or by a hostile change. Consider the maximum 30-day window for keys protecting audit data.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1915,
+  "output_tokens": 464,
+  "latency_s": 3.19,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"KMS key policy grants wildcard principals\", \"description\": \"The key has no `policy` argument, so it falls back to the default key policy, which grants `kms:*` on `Resource: \\\"*\\\"` to the entire account (via the account principal), and this is a KMS key that receives CloudTrail/audit data. Any principal in the account that is granted kms permissions by an IAM policy can use it, and if account-level access was ever broadened (or if this key protects a log bucket), a single over-permissive IAM policy yields decrypt of the audit trail. An explicit least-privilege key policy should name only the specific roles/services (e.g. CloudTrail, the log-archive role) that need Encrypt/Decrypt/DescribeKey.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"key rotation not enabled\", \"description\": \"`enable_key_rotation` is not set, so automatic annual rotation is disabled for the key. Failure to enable rotation means a compromised or leaked key material remains valid far longer than necessary.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"no key usage/deletion protection\", \"description\": \"The key is defined without `is_enabled`/`multi_region`/`deletion_window_in_days` being strengthened beyond the 7-day minimum; the 7-day window is the shortest permitted value, which gives a very short recovery period for an audit-log key if it is destroyed by mistake or by a hostile change. Consider the maximum 30-day window for keys protecting audit data.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1915,
+      "output_tokens": 464,
+      "latency_s": 3.19,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000398
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000398
+}

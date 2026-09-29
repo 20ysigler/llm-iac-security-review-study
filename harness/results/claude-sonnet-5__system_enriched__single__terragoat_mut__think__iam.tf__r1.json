@@ -1,0 +1,69 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__iam.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:31:58Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"*\"), violating least privilege and allowing the svc_deploy user to perform virtually any operation against these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret pair is created for a highly privileged user instead of using short-lived, role-based credentials, increasing the risk and blast radius if the key is leaked or committed to source control.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "The access key's secret material is exposed through a Terraform output (svc_deploy_key_material), which is not marked sensitive and no pgp_key is configured for the access key, meaning the credential value can end up unencrypted in the Terraform state file and CLI output, exposing it to anyone with state or console access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2002,
+  "output_tokens": 1364,
+  "latency_s": 13.029,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"*\\\"), violating least privilege and allowing the svc_deploy user to perform virtually any operation against these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret pair is created for a highly privileged user instead of using short-lived, role-based credentials, increasing the risk and blast radius if the key is leaked or committed to source control.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"The access key's secret material is exposed through a Terraform output (svc_deploy_key_material), which is not marked sensitive and no pgp_key is configured for the access key, meaning the credential value can end up unencrypted in the Terraform state file and CLI output, exposing it to anyone with state or console access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2002,
+      "output_tokens": 1364,
+      "latency_s": 13.029,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.017644
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.017644
+}

@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the MySQL instance to the internet, and the security group ingress on port 3306 allows the entire VPC CIDR, so the database can be reached from any host in the VPC or from outside if routing permits.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the database storage and all snapshots unencrypted, so anyone with access to the underlying volumes can read the data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The DB password (var.password) and DB username are interpolated directly into EC2 user_data, which is stored in plaintext and readable from instance metadata by anyone with access to the instance, and is also visible in Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving the EC2 instance full control over data, compute, and databases, including deleting or exfiltrating any bucket or modifying any DB \u2014 far more than the app needs.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "unrestricted database ingress",
+      "description": "MySQL port 3306 is open to the entire VPC CIDR rather than a narrow application security group, so any compromised host in the VPC (including the app server) can connect to the database.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to 0.0.0.0/0 with protocol -1, which facilitates data exfiltration and outbound C2 if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "skip final snapshot / retention disabled",
+      "description": "skip_final_snapshot = true and backup_retention_period = 0 combine with no deletion protection, so the database can be irreversibly destroyed (including by the over-privileged app role) with no recovery path.",
+      "severity": "low",
+      "cwe": "CWE-404",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "IAM/SQL injection in user_data",
+      "description": "The app's PHP uses mysqli_real_escape_string with manually built queries and no prepared statements, and the SSH-free web form exposes SQL operations; the generated code is vulnerable to SQL injection through the NAME/ADDRESS inputs.",
+      "severity": "medium",
+      "cwe": "CWE-89",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3313,
+  "output_tokens": 813,
+  "latency_s": 4.288,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the MySQL instance to the internet, and the security group ingress on port 3306 allows the entire VPC CIDR, so the database can be reached from any host in the VPC or from outside if routing permits.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the database storage and all snapshots unencrypted, so anyone with access to the underlying volumes can read the data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The DB password (var.password) and DB username are interpolated directly into EC2 user_data, which is stored in plaintext and readable from instance metadata by anyone with access to the instance, and is also visible in Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", giving the EC2 instance full control over data, compute, and databases, including deleting or exfiltrating any bucket or modifying any DB \u2014 far more than the app needs.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"unrestricted database ingress\", \"description\": \"MySQL port 3306 is open to the entire VPC CIDR rather than a narrow application security group, so any compromised host in the VPC (including the app server) can connect to the database.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to 0.0.0.0/0 with protocol -1, which facilitates data exfiltration and outbound C2 if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"skip final snapshot / retention disabled\", \"description\": \"skip_final_snapshot = true and backup_retention_period = 0 combine with no deletion protection, so the database can be irreversibly destroyed (including by the over-privileged app role) with no recovery path.\", \"severity\": \"low\", \"cwe\": \"CWE-404\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"IAM/SQL injection in user_data\", \"description\": \"The app's PHP uses mysqli_real_escape_string with manually built queries and no prepared statements, and the SSH-free web form exposes SQL operations; the generated code is vulnerable to SQL injection through the NAME/ADDRESS inputs.\", \"severity\": \"medium\", \"cwe\": \"CWE-89\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3313,
+      "output_tokens": 813,
+      "latency_s": 4.288,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000691
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000691
+}

@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:44:10Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the svc_deploy user to perform virtually any operation across these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Using an IAM user with long-lived programmatic access keys instead of a role with temporary credentials increases the risk of credential leakage and misuse, especially combined with the overly broad attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "sensitive value exposed in output",
+      "description": "The output block exposes the access key's encrypted_secret attribute. Although this attribute is actually PGP/KMS-encrypted ciphertext (not the plaintext secret) and thus not directly usable credential material by itself, deliberately outputting key material is poor practice and increases the chance of it propagating into state, logs, or downstream systems where it could later be decrypted and misused.",
+      "severity": "medium",
+      "cwe": "CWE-312"
+    }
+  ],
+  "input_tokens": 5040,
+  "output_tokens": 1175,
+  "latency_s": 11.13,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[3] resource 'svc_deploy_key_material' is not type.name",
+    "critique: finding[2] resource 'svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the svc_deploy user to perform virtually any operation across these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Using an IAM user with long-lived programmatic access keys instead of a role with temporary credentials increases the risk of credential leakage and misuse, especially combined with the overly broad attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"sensitive value exposed in output\", \"description\": \"The output block exposes the access key's encrypted_secret attribute. Although this attribute is actually PGP/KMS-encrypted ciphertext (not the plaintext secret) and thus not directly usable credential material by itself, deliberately outputting key material is poor practice and increases the chance of it propagating into state, logs, or downstream systems where it could later be decrypted and misused.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2128,
+      "output_tokens": 632,
+      "latency_s": 6.226,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010576
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2912,
+      "output_tokens": 543,
+      "latency_s": 4.904,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011254
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.02183
+}

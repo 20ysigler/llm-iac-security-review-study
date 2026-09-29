@@ -1,0 +1,152 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat_mut__db-app.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:23:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "missing TLS enforcement for database",
+      "description": "The MySQL 8.0 parameter group sets only character set parameters and does not set require_secure_transport = 1, so the catalog database will accept unencrypted client connections. Data in transit between the application server and the database can therefore be sent in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Database credentials embedded in user_data",
+      "description": "The RDS master username and the password variable are interpolated directly into the EC2 user_data script, which is stored unencrypted in instance metadata and readable by anyone who can reach the metadata service (including via SSRF from the hosted PHP app) or who has ec2:DescribeInstanceAttribute permission. It is also written in cleartext to /var/www/inc/dbinfo.inc on disk.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Instance metadata service v1 enabled",
+      "description": "No metadata_options block is specified, so IMDSv1 remains enabled. Combined with an attached IAM instance profile (catalog_app_profile) and a public-facing PHP application, a server-side request forgery in the web app could retrieve the role's temporary credentials and the plaintext DB password from user_data.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Missing EBS root volume encryption",
+      "description": "No root_block_device or ebs_block_device block sets encrypted = true, so the instance's volumes may be unencrypted at rest, exposing the cached database credential file (/var/www/inc/dbinfo.inc) and application data stored on disk.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Cleartext HTTP application transmission",
+      "description": "The user_data provisions only httpd on port 80 with no TLS configuration, and the page accepts user-submitted NAME/ADDRESS data over plain HTTP, transmitting personal data and session traffic in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the RDS MySQL volume and its snapshots store catalog data in cleartext, offering no protection if the underlying storage or a snapshot is exposed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "publicly_accessible = true assigns the database a public endpoint reachable from the internet, dramatically increasing attack surface for the MySQL service; combined with an internet-exposed output of endpoint details this invites credential-stuffing and exploitation attempts.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database credentials via variables",
+      "description": "The master username is hard-coded to the privileged 'admin' account and the password is supplied from a plain Terraform variable (var.password), which is stored unencrypted in state and easily committed to source control instead of being sourced from Secrets Manager / manage_master_user_password.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\", so the EC2 instance profile attached to the publicly reachable catalog_app_server can read or delete any bucket, manipulate any instance, and modify or snapshot any RDS database in the account - a direct privilege escalation and data exfiltration path.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all protocols and ports outbound to 0.0.0.0/0, which permits data exfiltration or command-and-control traffic from a compromised database host rather than restricting egress to required destinations.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 12034,
+  "output_tokens": 1757,
+  "latency_s": 25.526,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2719,
+      "output_tokens": 193,
+      "latency_s": 3.613,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.01842
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4084,
+      "output_tokens": 720,
+      "latency_s": 9.226,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03842
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3003,
+      "output_tokens": 810,
+      "latency_s": 10.454,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.035265
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2228,
+      "output_tokens": 34,
+      "latency_s": 2.233,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.01199
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.104095
+}

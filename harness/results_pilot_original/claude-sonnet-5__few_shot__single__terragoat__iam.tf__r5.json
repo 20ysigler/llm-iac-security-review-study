@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:45:35Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*') to an IAM user, violating least privilege and allowing the user's credentials, if compromised, to fully control these services account-wide.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key/secret for a user increases the risk of credential leakage and provides a persistent attack surface; combined with the overly broad attached policy, a leaked key grants extensive access.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "excessive user permissions and destroy protection disabled",
+      "description": "force_destroy = true allows the user (and any owned resources, e.g., access keys) to be deleted without safeguards, and pairing a standalone IAM user with programmatic access keys instead of role-based/temporary credentials increases the risk of long-term credential exposure.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be inadvertently displayed in logs, state files, or CI/CD output, leaking sensitive credential material.",
+      "severity": "high",
+      "cwe": "CWE-522"
+    }
+  ],
+  "input_tokens": 2428,
+  "output_tokens": 613,
+  "latency_s": 6.553,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*') to an IAM user, violating least privilege and allowing the user's credentials, if compromised, to fully control these services account-wide.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key/secret for a user increases the risk of credential leakage and provides a persistent attack surface; combined with the overly broad attached policy, a leaked key grants extensive access.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"excessive user permissions and destroy protection disabled\", \"description\": \"force_destroy = true allows the user (and any owned resources, e.g., access keys) to be deleted without safeguards, and pairing a standalone IAM user with programmatic access keys instead of role-based/temporary credentials increases the risk of long-term credential exposure.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The encrypted_secret of the IAM access key is exposed as a Terraform output, which can be inadvertently displayed in logs, state files, or CI/CD output, leaking sensitive credential material.\", \"severity\": \"high\", \"cwe\": \"CWE-522\"}]}",
+  "cost_usd": 0.010986
+}

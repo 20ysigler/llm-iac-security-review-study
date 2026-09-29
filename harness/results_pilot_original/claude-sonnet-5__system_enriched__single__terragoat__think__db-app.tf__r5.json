@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:10:18Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS MySQL database's underlying storage is not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet. Even though the associated security group restricts ingress to the VPC CIDR, enabling public accessibility on a database instance significantly increases attack surface and is a poor secure-default practice for a data store holding credentials and application data.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password (var.password) and username in plaintext within a PHP config file created via a shell heredoc. EC2 instance user-data is retrievable by anyone with access to the instance metadata service or console/API describe-instance-attribute permissions, exposing the database credentials in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on Resource \"*\" to the role assumed by the EC2 instance. Combined with the instance running in a subnet and holding database credentials, this violates least privilege and would allow full account-wide control over S3, EC2, and RDS resources if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 7254,
+  "output_tokens": 1529,
+  "latency_s": 15.258,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS MySQL database's underlying storage is not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet. Even though the associated security group restricts ingress to the VPC CIDR, enabling public accessibility on a database instance significantly increases attack surface and is a poor secure-default practice for a data store holding credentials and application data.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password (var.password) and username in plaintext within a PHP config file created via a shell heredoc. EC2 instance user-data is retrievable by anyone with access to the instance metadata service or console/API describe-instance-attribute permissions, exposing the database credentials in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on Resource \\\"*\\\" to the role assumed by the EC2 instance. Combined with the instance running in a subnet and holding database credentials, this violates least privilege and would allow full account-wide control over S3, EC2, and RDS resources if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.029798
+}

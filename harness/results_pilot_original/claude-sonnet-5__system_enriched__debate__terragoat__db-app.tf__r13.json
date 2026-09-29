@@ -1,0 +1,119 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r13",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 13,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:46:13Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance (and any snapshots) is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network, dramatically increasing attack surface for a data store holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded database credentials",
+      "description": "The database uses a hard-coded default master username ('admin') and a password sourced from var.password with no indication of secrets-manager integration; this same password value is later interpolated in plaintext into EC2 user data, increasing the exposure surface of the credential across state files and instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and password (var.password) in cleartext when writing /var/www/inc/dbinfo.inc. user_data is stored in the instance metadata service and in Terraform state, making it readable by anyone with API/console access to the instance or state, or with access to the metadata service.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege. Because this role is attached to an EC2 instance that is likely reachable from the public internet (via a security group not shown to restrict ingress) and embeds DB credentials, a compromise of the instance would grant near-total control over S3, EC2, and RDS resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and all ports to 0.0.0.0/0 for the RDS-associated security group, removing any network egress restriction and increasing risk of data exfiltration if the database is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded default admin username",
+      "description": "The database uses the well-known default master username 'admin', which combined with public accessibility increases the risk of successful credential-guessing or brute-force attacks.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 24626,
+  "output_tokens": 3515,
+  "latency_s": 30.97,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance (and any snapshots) is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network, dramatically increasing attack surface for a data store holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded database credentials\", \"description\": \"The database uses a hard-coded default master username ('admin') and a password sourced from var.password with no indication of secrets-manager integration; this same password value is later interpolated in plaintext into EC2 user data, increasing the exposure surface of the credential across state files and instance metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and password (var.password) in cleartext when writing /var/www/inc/dbinfo.inc. user_data is stored in the instance metadata service and in Terraform state, making it readable by anyone with API/console access to the instance or state, or with access to the metadata service.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 instance role, violating least privilege. Because this role is attached to an EC2 instance that is likely reachable from the public internet (via a security group not shown to restrict ingress) and embeds DB credentials, a compromise of the instance would grant near-total control over S3, EC2, and RDS resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and all ports to 0.0.0.0/0 for the RDS-associated security group, removing any network egress restriction and increasing risk of data exfiltration if the database is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded default admin username\", \"description\": \"The database uses the well-known default master username 'admin', which combined with public accessibility increases the risk of successful credential-guessing or brute-force attacks.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 990,
+      "latency_s": 9.065,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02466
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1327,
+      "latency_s": 12.067,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02803
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9866,
+      "output_tokens": 1198,
+      "latency_s": 9.838,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.031712
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.084402
+}

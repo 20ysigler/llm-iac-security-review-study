@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r15",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 15,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:20:40Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance to the internet and significantly increasing the attack surface for a data-tier resource that should only be reachable from application servers.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext database credentials",
+      "description": "The database password is passed via the var.password variable and also embedded in plaintext in the EC2 user_data script, risking credential leakage through instance metadata, console logs, or state files.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext secrets in user data",
+      "description": "The EC2 user_data script embeds the database username and password in plaintext (DB_PASSWORD, DB_USERNAME) which is stored in the instance metadata service and can be retrieved by anyone with access to describe the instance or its metadata endpoint.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on all resources (\"Resource\": \"*\") to the EC2 instance role, violating least privilege and allowing the instance to perform virtually any action against S3, EC2, and RDS if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and ports to 0.0.0.0/0, providing no network egress restriction and facilitating data exfiltration if the RDS instance or attached resources are compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "insufficient backup/no final snapshot",
+      "description": "skip_final_snapshot is true and backup_retention_period is 0, meaning no backups or final snapshot are retained; while primarily an availability concern, this also means no recovery point exists if data is maliciously altered or deleted, weakening resilience against ransomware-style attacks.",
+      "severity": "low",
+      "cwe": "CWE-1188",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1131,
+  "latency_s": 10.546,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance to the internet and significantly increasing the attack surface for a data-tier resource that should only be reachable from application servers.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext database credentials\", \"description\": \"The database password is passed via the var.password variable and also embedded in plaintext in the EC2 user_data script, risking credential leakage through instance metadata, console logs, or state files.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext secrets in user data\", \"description\": \"The EC2 user_data script embeds the database username and password in plaintext (DB_PASSWORD, DB_USERNAME) which is stored in the instance metadata service and can be retrieved by anyone with access to describe the instance or its metadata endpoint.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on all resources (\\\"Resource\\\": \\\"*\\\") to the EC2 instance role, violating least privilege and allowing the instance to perform virtually any action against S3, EC2, and RDS if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and ports to 0.0.0.0/0, providing no network egress restriction and facilitating data exfiltration if the RDS instance or attached resources are compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"insufficient backup/no final snapshot\", \"description\": \"skip_final_snapshot is true and backup_retention_period is 0, meaning no backups or final snapshot are retained; while primarily an availability concern, this also means no recovery point exists if data is maliciously altered or deleted, weakening resilience against ransomware-style attacks.\", \"severity\": \"low\", \"cwe\": \"CWE-1188\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.02607
+}

@@ -1,0 +1,93 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__s3.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:09:13Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with S3 default encryption settings rather than an explicitly enforced KMS-managed key, leaving report data unprotected by customer-controlled encryption.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket has no server_side_encryption_configuration block, leaving exported financial ledger objects without explicitly configured encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket has no server_side_encryption_configuration block, so stored model artifacts are not explicitly encrypted with a managed key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket has no server_side_encryption_configuration block, leaving operational runbook content unencrypted by explicit policy.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "permissive ACL grants log delivery write",
+      "description": "The audit bucket is configured with acl = \"log-delivery-write\", a canned legacy ACL that grants write access to the S3 log delivery group; this broadens access to a bucket holding security audit logs.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "log destination recursion / unencrypted target",
+      "description": "The model_artifacts logging block sends access logs to the audit_trail bucket with no target encryption of its own; this is acceptable, but the configuration commits log data to a bucket whose access controls are widened by a log-delivery-write ACL.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1538,
+  "output_tokens": 586,
+  "latency_s": 3.181,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with S3 default encryption settings rather than an explicitly enforced KMS-managed key, leaving report data unprotected by customer-controlled encryption.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket has no server_side_encryption_configuration block, leaving exported financial ledger objects without explicitly configured encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket has no server_side_encryption_configuration block, so stored model artifacts are not explicitly encrypted with a managed key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket has no server_side_encryption_configuration block, leaving operational runbook content unencrypted by explicit policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"permissive ACL grants log delivery write\", \"description\": \"The audit bucket is configured with acl = \\\"log-delivery-write\\\", a canned legacy ACL that grants write access to the S3 log delivery group; this broadens access to a bucket holding security audit logs.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"log destination recursion / unencrypted target\", \"description\": \"The model_artifacts logging block sends access logs to the audit_trail bucket with no target encryption of its own; this is acceptable, but the configuration commits log data to a bucket whose access controls are widened by a log-delivery-write ACL.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1538,
+      "output_tokens": 586,
+      "latency_s": 3.181,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000379
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000379
+}

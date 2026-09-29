@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__kms.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "KMS key without key rotation",
+      "description": "The KMS key protecting audit bucket data has no `enable_key_rotation = true` and no explicit `is_enabled` setting, so automatic annual rotation of the backing key material is not configured. Without rotation, a compromised or leaked data key remains valid indefinitely, and the encryption key protecting audit logs is not periodically refreshed.",
+      "severity": "medium",
+      "cwe": "CWE-320",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "no key policy defined",
+      "description": "The KMS key declares no `policy` attribute, so it relies on the account's default key policy. Because the default policy grants the account root principal full administrative access (including the ability to change the key policy and delete the key), any principal in the account with an overly broad IAM policy could take control of the key that protects audit data. An explicit least-privilege key policy is expected for audit logging keys.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1100,
+  "output_tokens": 295,
+  "latency_s": 2.406,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"KMS key without key rotation\", \"description\": \"The KMS key protecting audit bucket data has no `enable_key_rotation = true` and no explicit `is_enabled` setting, so automatic annual rotation of the backing key material is not configured. Without rotation, a compromised or leaked data key remains valid indefinitely, and the encryption key protecting audit logs is not periodically refreshed.\", \"severity\": \"medium\", \"cwe\": \"CWE-320\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"no key policy defined\", \"description\": \"The KMS key declares no `policy` attribute, so it relies on the account's default key policy. Because the default policy grants the account root principal full administrative access (including the ability to change the key policy and delete the key), any principal in the account with an overly broad IAM policy could take control of the key that protects audit data. An explicit least-privilege key policy is expected for audit logging keys.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1100,
+      "output_tokens": 295,
+      "latency_s": 2.406,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000237
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000237
+}

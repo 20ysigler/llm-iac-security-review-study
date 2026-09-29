@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:08:01Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in user_data",
+      "description": "The startup script interpolates the RDS master password (var.password) directly into /var/www/inc/dbinfo.inc as a PHP constant. This places the production database credential in EC2 user_data, which is readable via the instance metadata service and the AWS console, and the file is left as a root-owned world-readable include served by Apache. Anyone able to reach the metadata endpoint or read the web root obtains the database password.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "public database exposure",
+      "description": "publicly_accessible = true assigns the MySQL instance a public IP and DNS name reachable from the internet (the endpoint and public DNS are also exported as outputs). Internet-facing database endpoints dramatically expand the attack surface and expose the listener to credential stuffing and MySQL attack traffic.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS instance, its automated backups, and snapshots unencrypted at rest. The database stores the application's EMPLOYEES data and any future sensitive records in cleartext on the underlying storage, so anyone with access to snapshots or the storage layer can read it without a key.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the EC2 instance full control over essentially all S3 data, EC2 resources, and RDS databases in the account. Because this role is attached to the web server instance (which is internet-facing, as signalled by the exported public DNS output), a compromise of the application yields full administrative control of the account's storage, compute, and database resources.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR rather than to the specific application security group, so any host that lands in the VPC \u2014 including a compromised or attacker-deployed instance \u2014 can reach the database directly and attempt to authenticate.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 5015,
+  "latency_s": 23.013,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in user_data\", \"description\": \"The startup script interpolates the RDS master password (var.password) directly into /var/www/inc/dbinfo.inc as a PHP constant. This places the production database credential in EC2 user_data, which is readable via the instance metadata service and the AWS console, and the file is left as a root-owned world-readable include served by Apache. Anyone able to reach the metadata endpoint or read the web root obtains the database password.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"public database exposure\", \"description\": \"publicly_accessible = true assigns the MySQL instance a public IP and DNS name reachable from the internet (the endpoint and public DNS are also exported as outputs). Internet-facing database endpoints dramatically expand the attack surface and expose the listener to credential stuffing and MySQL attack traffic.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS instance, its automated backups, and snapshots unencrypted at rest. The database stores the application's EMPLOYEES data and any future sensitive records in cleartext on the underlying storage, so anyone with access to snapshots or the storage layer can read it without a key.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the EC2 instance full control over essentially all S3 data, EC2 resources, and RDS databases in the account. Because this role is attached to the web server instance (which is internet-facing, as signalled by the exported public DNS output), a compromise of the application yields full administrative control of the account's storage, compute, and database resources.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR rather than to the specific application security group, so any host that lands in the VPC \u2014 including a compromised or attacker-deployed instance \u2014 can reach the database directly and attempt to authenticate.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 5015,
+      "latency_s": 23.013,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.001907
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001907
+}

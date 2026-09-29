@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat__lambda.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:36:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, committed to source control. Anyone with lambda:GetFunctionConfiguration or repository access can retrieve these long-lived credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is specified, so the environment variables (which contain secrets) are encrypted only with the default AWS-managed key and are exposed in cleartext to anyone able to read the function configuration; no client-side/CMK encryption is applied.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security-group or network-boundary controls, easing data exfiltration if the function is compromised.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 2624,
+  "output_tokens": 624,
+  "latency_s": 8.54,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, committed to source control. Anyone with lambda:GetFunctionConfiguration or repository access can retrieve these long-lived credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is specified, so the environment variables (which contain secrets) are encrypted only with the default AWS-managed key and are exposed in cleartext to anyone able to read the function configuration; no client-side/CMK encryption is applied.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security-group or network-boundary controls, easing data exfiltration if the function is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2624,
+      "output_tokens": 624,
+      "latency_s": 8.54,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02872
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.02872
+}

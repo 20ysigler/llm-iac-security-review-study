@@ -1,0 +1,144 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:30:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the database password (var.password) and username in plaintext, which is stored in the EC2 instance metadata (readable via IMDS or console) and in Terraform state, exposing database credentials to anyone with access to instance metadata or the instance description.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted credential file on disk",
+      "description": "The script writes DB_PASSWORD and DB_USERNAME in cleartext to /var/www/inc/dbinfo.inc on the instance filesystem, leaving long-lived plaintext secrets accessible to any local process or user with read access to that path, and potentially exposed via misconfigured web server document root traversal.",
+      "severity": "medium",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "reference to undefined public network resources",
+      "description": "The instance attaches aws_security_group.portal_sg and aws_subnet.portal_subnet_a, which are not part of the declared resource list for this configuration, suggesting the instance may be placed in a different (possibly public) network context than the intended catalog_db_sg/private subnet, increasing risk of unintended public exposure of the app server.",
+      "severity": "medium",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted at rest, exposing sensitive catalog data to disclosure if storage or backups are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance to the public internet and significantly increasing the attack surface for a data store that should only be reachable from within the VPC.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The database password is supplied via var.password with no indication of use of a secrets manager, and combined with lifecycle ignore_changes on password, any hard-coded or plaintext-sourced credential value in tfvars/state will persist and not be rotated through Terraform.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, violating network segmentation and defence-in-depth principles for a database tier that should have tightly scoped egress.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\") to the role assumed by the application server, violating least privilege and enabling broad lateral movement or privilege escalation if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "Inbound MySQL access on port 3306 is allowed from the entire VPC CIDR block rather than being scoped to only the specific application security group/instances that require database access, increasing lateral movement risk within the network.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "combined public exposure and unencrypted credentials",
+      "description": "Because the database is both publicly_accessible and reachable via the inbound rule, and storage_encrypted is false, an attacker gaining network access could directly target the database using the admin username and password with no encryption protecting data at rest, compounding the risk from the individual misconfigurations.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 12306,
+  "output_tokens": 1767,
+  "latency_s": 18.624,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2787,
+      "output_tokens": 34,
+      "latency_s": 1.174,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.005914
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4152,
+      "output_tokens": 578,
+      "latency_s": 6.062,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.014084
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3071,
+      "output_tokens": 1121,
+      "latency_s": 10.247,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.017352
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2296,
+      "output_tokens": 34,
+      "latency_s": 1.141,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004932
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.042282
+}

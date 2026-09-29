@@ -1,0 +1,79 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__debate__terragoat_mut__iam.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:40Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions against all resources. This violates least privilege and permits broad access to data and infrastructure, including service-mediated privilege escalation opportunities where those actions support them.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed in output",
+      "description": "The access-key secret material is exported through a Terraform output without `sensitive = true`, so it can be displayed in Terraform CLI output and automation logs. Although the value is named `encrypted_secret`, no PGP key is configured on the access key, so it is not substantiated as encrypted secret material in this configuration.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3771,
+  "output_tokens": 827,
+  "latency_s": 11.053,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The inline policy grants unrestricted EC2, S3, Lambda, and CloudWatch actions against all resources. This violates least privilege and permits broad access to data and infrastructure, including service-mediated privilege escalation opportunities where those actions support them.\",\"severity\":\"high\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"credential material exposed in output\",\"description\":\"The access-key secret material is exported through a Terraform output without `sensitive = true`, so it can be displayed in Terraform CLI output and automation logs. Although the value is named `encrypted_secret`, no PGP key is configured on the access key, so it is not substantiated as encrypted secret material in this configuration.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 984,
+      "output_tokens": 302,
+      "latency_s": 3.979,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.005592
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 984,
+      "output_tokens": 317,
+      "latency_s": 4.551,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.005772
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 1803,
+      "output_tokens": 208,
+      "latency_s": 2.523,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.006102
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.017466
+}

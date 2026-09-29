@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:24:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing bucket encryption and ACL",
+      "description": "This bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest by default, and no ACL is set (defaults to private, but combined with no public access block enforcement this is risky). Sensitive report data could be exposed without encryption at rest.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block / bucket policy restriction",
+      "description": "There is no aws_s3_bucket_public_access_block resource associated with this bucket, leaving it potentially exposed to misconfiguration-driven public access since no explicit guardrails are enforced.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket storing ledger/financial export data does not configure server_side_encryption_configuration, meaning sensitive financial data is stored unencrypted at rest, increasing risk if underlying storage is compromised.",
+      "severity": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for this sensitive ledger data bucket, leaving it without an explicit safeguard against accidental public exposure.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket lacks a server_side_encryption_configuration block, so machine learning model artifacts are stored without encryption at rest, risking data exposure if storage or backups are compromised.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block resource is applied to this bucket, leaving no explicit protection against public exposure of model artifacts.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket has no server_side_encryption_configuration, so operational runbooks (which may contain sensitive infrastructure details or credentials) are stored unencrypted at rest.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is configured, leaving the bucket without explicit protection against accidental public exposure.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "Although this bucket uses KMS encryption, it lacks an aws_s3_bucket_public_access_block resource to explicitly prevent public access, and it uses the log-delivery-write ACL which grants write/read permissions to the S3 log delivery group broadly.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled on sensitive bucket",
+      "description": "force_destroy = true allows the bucket and all its contents to be destroyed without a recoverability check, which combined with lack of versioning could allow irrecoverable data loss of report archives, potentially masking data tampering or deletion attacks.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "The ledger exports bucket does not enable versioning, meaning objects can be overwritten or deleted without the ability to recover prior versions, which is a risk for financial audit data integrity.",
+      "severity": "medium"
+    }
+  ],
+  "input_tokens": 2723,
+  "output_tokens": 1444,
+  "latency_s": 12.436,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing bucket encryption and ACL\", \"description\": \"This bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest by default, and no ACL is set (defaults to private, but combined with no public access block enforcement this is risky). Sensitive report data could be exposed without encryption at rest.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block / bucket policy restriction\", \"description\": \"There is no aws_s3_bucket_public_access_block resource associated with this bucket, leaving it potentially exposed to misconfiguration-driven public access since no explicit guardrails are enforced.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket storing ledger/financial export data does not configure server_side_encryption_configuration, meaning sensitive financial data is stored unencrypted at rest, increasing risk if underlying storage is compromised.\", \"severity\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for this sensitive ledger data bucket, leaving it without an explicit safeguard against accidental public exposure.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket lacks a server_side_encryption_configuration block, so machine learning model artifacts are stored without encryption at rest, risking data exposure if storage or backups are compromised.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block resource is applied to this bucket, leaving no explicit protection against public exposure of model artifacts.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket has no server_side_encryption_configuration, so operational runbooks (which may contain sensitive infrastructure details or credentials) are stored unencrypted at rest.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is configured, leaving the bucket without explicit protection against accidental public exposure.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"no public access block\", \"description\": \"Although this bucket uses KMS encryption, it lacks an aws_s3_bucket_public_access_block resource to explicitly prevent public access, and it uses the log-delivery-write ACL which grants write/read permissions to the S3 log delivery group broadly.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled on sensitive bucket\", \"description\": \"force_destroy = true allows the bucket and all its contents to be destroyed without a recoverability check, which combined with lack of versioning could allow irrecoverable data loss of report archives, potentially masking data tampering or deletion attacks.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing versioning\", \"description\": \"The ledger exports bucket does not enable versioning, meaning objects can be overwritten or deleted without the ability to recover prior versions, which is a risk for financial audit data integrity.\", \"severity\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2723,
+      "output_tokens": 1444,
+      "latency_s": 12.436,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.019886
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.019886
+}

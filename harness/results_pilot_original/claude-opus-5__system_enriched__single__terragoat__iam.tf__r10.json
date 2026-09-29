@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__iam.tf__r10",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 10,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:49:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against Resource \"*\", violating least privilege. Any compromise of this user's credentials yields near-total control of compute and storage, including data exfiltration from every S3 bucket and privilege escalation via lambda function creation/modification.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key/secret pair is generated for a human-style IAM user rather than using short-lived role credentials. No PGP key is supplied, so the secret is stored in plaintext in Terraform state, exposing the credential to anyone with state file access.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The access key secret is exported as a root module output (\"secret\"). Because no pgp_key was configured, encrypted_secret is unset/plaintext-derived and the secret material is persisted in Terraform state and surfaced in CLI/CI logs.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user instead of role",
+      "description": "A standalone IAM user with an attached highly-privileged inline policy is created without MFA enforcement or permissions boundary, providing a long-lived, unconstrained identity that is a prime target for credential theft.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2197,
+  "output_tokens": 649,
+  "latency_s": 9.647,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against Resource \\\"*\\\", violating least privilege. Any compromise of this user's credentials yields near-total control of compute and storage, including data exfiltration from every S3 bucket and privilege escalation via lambda function creation/modification.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key/secret pair is generated for a human-style IAM user rather than using short-lived role credentials. No PGP key is supplied, so the secret is stored in plaintext in Terraform state, exposing the credential to anyone with state file access.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key secret is exported as a root module output (\\\"secret\\\"). Because no pgp_key was configured, encrypted_secret is unset/plaintext-derived and the secret material is persisted in Terraform state and surfaced in CLI/CI logs.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user instead of role\", \"description\": \"A standalone IAM user with an attached highly-privileged inline policy is created without MFA enforcement or permissions boundary, providing a long-lived, unconstrained identity that is a prime target for credential theft.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2197,
+      "output_tokens": 649,
+      "latency_s": 9.647,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02721
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02721
+}

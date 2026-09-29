@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:47:50Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the service user near-administrative control over compute, storage and serverless resources across the account. This violates least privilege and creates privilege-escalation and mass data-exfiltration/destruction paths (e.g. lambda:CreateFunction or ec2:RunInstances with an existing instance profile, reading or deleting every S3 bucket).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials in state",
+      "description": "A long-lived IAM access key is provisioned by Terraform for a highly privileged user with no pgp_key set, so the secret access key and ses_smtp_password are written in cleartext to Terraform state. Anyone with read access to the state file obtains near-administrative credentials, and the key has no rotation mechanism.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The svc_deploy_key_material output exports key material from the access key resource. Since no pgp_key was supplied, encrypted_secret is unset and the pattern indicates intent to surface credentials; outputs are readable by anyone with access to state or a terraform_remote_state data source, widening exposure of a privileged credential. The output is also not marked sensitive.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-200"
+    }
+  ],
+  "input_tokens": 5119,
+  "output_tokens": 1452,
+  "latency_s": 19.48,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the service user near-administrative control over compute, storage and serverless resources across the account. This violates least privilege and creates privilege-escalation and mass data-exfiltration/destruction paths (e.g. lambda:CreateFunction or ec2:RunInstances with an existing instance profile, reading or deleting every S3 bucket).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials in state\", \"description\": \"A long-lived IAM access key is provisioned by Terraform for a highly privileged user with no pgp_key set, so the secret access key and ses_smtp_password are written in cleartext to Terraform state. Anyone with read access to the state file obtains near-administrative credentials, and the key has no rotation mechanism.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The svc_deploy_key_material output exports key material from the access key resource. Since no pgp_key was supplied, encrypted_secret is unset and the pattern indicates intent to surface credentials; outputs are readable by anyone with access to state or a terraform_remote_state data source, widening exposure of a privileged credential. The output is also not marked sensitive.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-200\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2060,
+      "output_tokens": 812,
+      "latency_s": 10.547,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.0306
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3059,
+      "output_tokens": 640,
+      "latency_s": 8.933,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.031295
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.061895
+}

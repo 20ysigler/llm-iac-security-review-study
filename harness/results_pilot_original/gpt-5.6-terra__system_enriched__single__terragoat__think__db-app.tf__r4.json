@@ -1,0 +1,73 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__db-app.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:40:32Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "storage encryption disabled",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage and automated storage artifacts unencrypted at rest. Compromise of underlying storage or snapshots can expose database contents.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "TLS not enforced",
+      "description": "The MySQL parameter group does not set `require_secure_transport = ON`. The application user data also connects with `mysqli_connect` without TLS options, so database credentials and application data may traverse the network in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. A compromised database or an abused database-side capability could initiate unrestricted external connections, defeating network egress segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The EC2 role grants every S3, EC2, and RDS action against every resource. Any compromise of an instance using this profile yields broad cloud control and data-access capabilities far beyond those required for a database web application.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credential in user data",
+      "description": "User data embeds the database password in a generated PHP configuration file. EC2 user data is available through the instance metadata service to processes with instance access and is retained in Terraform state/launch configuration, unnecessarily broadening exposure of the database credential.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No `metadata_options` block requires IMDSv2, so the EC2 default permits IMDSv1. A server-side request forgery or local process compromise could retrieve the instance-profile credentials without IMDSv2's session-token protection.",
+      "severity": "medium",
+      "cwe": "CWE-441",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4137,
+  "output_tokens": 879,
+  "latency_s": 10.264,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"storage encryption disabled\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage and automated storage artifacts unencrypted at rest. Compromise of underlying storage or snapshots can expose database contents.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.default\",\"issue_category\":\"TLS not enforced\",\"description\":\"The MySQL parameter group does not set `require_secure_transport = ON`. The application user data also connects with `mysqli_connect` without TLS options, so database credentials and application data may traverse the network in cleartext.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. A compromised database or an abused database-side capability could initiate unrestricted external connections, defeating network egress segmentation.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The EC2 role grants every S3, EC2, and RDS action against every resource. Any compromise of an instance using this profile yields broad cloud control and data-access capabilities far beyond those required for a database web application.\",\"severity\":\"critical\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credential in user data\",\"description\":\"User data embeds the database password in a generated PHP configuration file. EC2 user data is available through the instance metadata service to processes with instance access and is retained in Terraform state/launch configuration, unnecessarily broadening exposure of the database credential.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No `metadata_options` block requires IMDSv2, so the EC2 default permits IMDSv1. A server-side request forgery or local process compromise could retrieve the instance-profile credentials without IMDSv2's session-token protection.\",\"severity\":\"medium\",\"cwe\":\"CWE-441\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.018822
+}

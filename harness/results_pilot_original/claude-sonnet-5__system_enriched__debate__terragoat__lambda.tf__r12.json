@@ -1,0 +1,87 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__lambda.tf__r12",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 12,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:58:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "AWS access key and secret key are stored in plaintext within the Lambda function's environment variables and committed directly in source code, exposing long-lived credentials to anyone with read access to the Terraform state, console, or repository.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption for environment variables",
+      "description": "The Lambda function does not configure a KMS key (kms_key_arn) for encrypting environment variables at rest, so sensitive values such as the embedded access/secret keys are protected only by the default AWS-managed key rather than a customer-managed key with stricter access control, weakening encryption-at-rest guarantees for secrets.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "outdated runtime version",
+      "description": "The function uses the nodejs12.x runtime, which has reached end-of-life and no longer receives security patches, increasing exposure to unpatched vulnerabilities in the execution environment.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 8943,
+  "output_tokens": 1651,
+  "latency_s": 14.928,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"AWS access key and secret key are stored in plaintext within the Lambda function's environment variables and committed directly in source code, exposing long-lived credentials to anyone with read access to the Terraform state, console, or repository.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption for environment variables\", \"description\": \"The Lambda function does not configure a KMS key (kms_key_arn) for encrypting environment variables at rest, so sensitive values such as the embedded access/secret keys are protected only by the default AWS-managed key rather than a customer-managed key with stricter access control, weakening encryption-at-rest guarantees for secrets.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"outdated runtime version\", \"description\": \"The function uses the nodejs12.x runtime, which has reached end-of-life and no longer receives security patches, increasing exposure to unpatched vulnerabilities in the execution environment.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2575,
+      "output_tokens": 559,
+      "latency_s": 5.593,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.01074
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2575,
+      "output_tokens": 546,
+      "latency_s": 5.298,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.01061
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3793,
+      "output_tokens": 546,
+      "latency_s": 4.037,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.013046
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.034396
+}

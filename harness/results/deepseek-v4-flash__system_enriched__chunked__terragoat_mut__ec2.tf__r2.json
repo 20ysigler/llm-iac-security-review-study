@@ -1,0 +1,135 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__ec2.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:13Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true and is associated with a route table that has a 0.0.0.0/0 route to an internet gateway, so any instance launched here receives a public IP and is directly reachable from the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true and is associated with a route table that has a 0.0.0.0/0 route to an internet gateway, so any instance launched here receives a public IP and is directly reachable from the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data embeds a live-looking AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY) directly in the instance bootstrap script. User data is retrievable via the instance metadata service by any process or SSRF on the host, is stored in Terraform state and plan files, and appears in launch configuration history, so these credentials are effectively disclosed to anyone with instance access or state access. If these keys map to a real IAM principal, the attacker gains whatever permissions that principal holds.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress (SSH from anywhere)",
+      "description": "The security group allows inbound TCP/22 from 0.0.0.0/0, exposing SSH administration of the portal_server instance to the entire internet. This permits password brute-forcing and exploitation of any SSH authentication or daemon weakness directly from untrusted networks, without any source restriction or bastion layer.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress (HTTP from anywhere)",
+      "description": "The security group allows inbound TCP/80 from 0.0.0.0/0, publishing the instance's Apache service to the whole internet. Combined with the internet gateway and the instance's public subnet, this creates an externally reachable attack surface for the web server regardless of whether public exposure is intended.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule permits all protocols to 0.0.0.0/0, giving the instance unrestricted outbound connectivity. This removes any containment boundary, allowing a compromised instance to reach arbitrary internet hosts, exfiltrate data (including the credentials embedded in user_data), and reach internal AWS endpoints, and it defeats downstream egress filtering and flow-log-based detection.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The netflow_archive bucket that receives VPC flow logs defines no server_side_encryption_configuration and no default SSE-KMS/SSE-S3, so flow log objects are stored unencrypted at rest. Flow logs record network metadata such as instance IPs and connection patterns, which is sensitive topology data, and without bucket keys or encryption any storage-layer exposure reveals it in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "insecure default configuration",
+      "description": "The instance defines no metadata_options block, so the instance metadata service retains its default behaviour (IMDSv1 permitted and no hop limit restriction). IMDSv1 can be queried with a simple unauthenticated GET and is trivially exploitable via SSRF, which is particularly severe here because user_data contains AWS credentials retrievable through the metadata path.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_flow_log.portal_vpc_flowlog",
+      "issue_category": "wildcard log destination resource policy",
+      "description": "The flow log is delivered to aws_s3_bucket.netflow_archive, but no aws_s3_bucket_policy is declared in this configuration to restrict the log-delivery path. Without an explicit policy granting only the flow-logs delivery service principal and denying other writers, the archive bucket's access control depends entirely on defaults, and flow log integrity (a detection control) is not guaranteed against tampering or deletion.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5379,
+  "output_tokens": 1269,
+  "latency_s": 7.649,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1878,
+      "output_tokens": 252,
+      "latency_s": 1.724,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000333
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2075,
+      "output_tokens": 982,
+      "latency_s": 4.972,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000565
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1426,
+      "output_tokens": 35,
+      "latency_s": 0.953,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000209
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.001108
+}

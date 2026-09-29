@@ -1,0 +1,97 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__s3.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:46:10Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing default encryption",
+      "description": "The bucket has no server-side encryption configuration, so Terraform does not enforce encryption at rest for objects uploaded to it. This bucket stores a customer-master spreadsheet, increasing the confidentiality risk if storage encryption defaults are changed or not relied upon.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing default encryption",
+      "description": "The financials bucket has no server-side encryption configuration. Objects stored in this sensitive bucket are therefore not protected by an encryption-at-rest requirement defined in this infrastructure configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing default encryption",
+      "description": "The operations bucket lacks a server-side encryption configuration, so encryption at rest is not explicitly enforced for uploaded objects.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing default encryption",
+      "description": "The data-science bucket has no server-side encryption configuration. Its logged and versioned objects still lack an infrastructure-defined encryption-at-rest control.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "unenforced transport encryption",
+      "description": "No bucket policy requires aws:SecureTransport, so S3 requests to this bucket are not explicitly denied when made over unencrypted HTTP. This can expose object contents or credentials to interception on an insecure network path.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "unenforced transport encryption",
+      "description": "No bucket policy denies non-TLS requests to the financials bucket. Access is therefore not explicitly constrained to encrypted transport for sensitive financial objects.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "unenforced transport encryption",
+      "description": "The configuration contains no bucket policy that rejects requests where aws:SecureTransport is false. Consequently, encrypted transit is not enforced for this bucket.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "unenforced transport encryption",
+      "description": "The configuration does not define a bucket policy denying non-TLS access, leaving transport encryption unenforced for data-science objects.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.logs",
+      "issue_category": "unenforced transport encryption",
+      "description": "Although this bucket enforces KMS encryption at rest, it has no bucket policy requiring TLS for access. Log contents could be requested over unencrypted HTTP if an otherwise authorized principal uses it.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2857,
+  "output_tokens": 1002,
+  "latency_s": 10.499,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_s3_bucket.data\",\"issue_category\":\"missing default encryption\",\"description\":\"The bucket has no server-side encryption configuration, so Terraform does not enforce encryption at rest for objects uploaded to it. This bucket stores a customer-master spreadsheet, increasing the confidentiality risk if storage encryption defaults are changed or not relied upon.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.financials\",\"issue_category\":\"missing default encryption\",\"description\":\"The financials bucket has no server-side encryption configuration. Objects stored in this sensitive bucket are therefore not protected by an encryption-at-rest requirement defined in this infrastructure configuration.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.operations\",\"issue_category\":\"missing default encryption\",\"description\":\"The operations bucket lacks a server-side encryption configuration, so encryption at rest is not explicitly enforced for uploaded objects.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.data_science\",\"issue_category\":\"missing default encryption\",\"description\":\"The data-science bucket has no server-side encryption configuration. Its logged and versioned objects still lack an infrastructure-defined encryption-at-rest control.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.data\",\"issue_category\":\"unenforced transport encryption\",\"description\":\"No bucket policy requires aws:SecureTransport, so S3 requests to this bucket are not explicitly denied when made over unencrypted HTTP. This can expose object contents or credentials to interception on an insecure network path.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"medium\"},{\"resource\":\"aws_s3_bucket.financials\",\"issue_category\":\"unenforced transport encryption\",\"description\":\"No bucket policy denies non-TLS requests to the financials bucket. Access is therefore not explicitly constrained to encrypted transport for sensitive financial objects.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"medium\"},{\"resource\":\"aws_s3_bucket.operations\",\"issue_category\":\"unenforced transport encryption\",\"description\":\"The configuration contains no bucket policy that rejects requests where aws:SecureTransport is false. Consequently, encrypted transit is not enforced for this bucket.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"medium\"},{\"resource\":\"aws_s3_bucket.data_science\",\"issue_category\":\"unenforced transport encryption\",\"description\":\"The configuration does not define a bucket policy denying non-TLS access, leaving transport encryption unenforced for data-science objects.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"medium\"},{\"resource\":\"aws_s3_bucket.logs\",\"issue_category\":\"unenforced transport encryption\",\"description\":\"Although this bucket enforces KMS encryption at rest, it has no bucket policy requiring TLS for access. Log contents could be requested over unencrypted HTTP if an otherwise authorized principal uses it.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"medium\"}]}",
+  "cost_usd": 0.017738
+}

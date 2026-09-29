@@ -1,0 +1,47 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:46:06Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "static access key without rotation",
+      "description": "Creates a long-lived static AWS access key that persists until manually rotated, a recurring source of credential compromise. Identity federation and temporary credentials should be preferred.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "excessive wildcard permissions",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on wildcard resources (*), effectively granting administrative-level access across multiple services, violating least privilege.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "plaintext credentials in output",
+      "description": "The aws_iam_access_key 'secret' output exposes the access key value via the encrypted_secret attribute to anyone with access to Terraform state or outputs, leaking credentials beyond intended parties.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2206,
+  "output_tokens": 299,
+  "latency_s": 3.975,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"static access key without rotation\", \"description\": \"Creates a long-lived static AWS access key that persists until manually rotated, a recurring source of credential compromise. Identity federation and temporary credentials should be preferred.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"excessive wildcard permissions\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on wildcard resources (*), effectively granting administrative-level access across multiple services, violating least privilege.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"plaintext credentials in output\", \"description\": \"The aws_iam_access_key 'secret' output exposes the access key value via the encrypted_secret attribute to anyone with access to Terraform state or outputs, leaking credentials beyond intended parties.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000393
+}

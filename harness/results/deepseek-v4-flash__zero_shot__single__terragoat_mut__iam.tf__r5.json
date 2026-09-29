@@ -1,0 +1,84 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full administrative control over compute, storage, and serverless services across the entire account. A compromise of these long-lived credentials would allow an attacker to exfiltrate data, escalate privileges, and disable logging.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static access key",
+      "description": "A static IAM access key is created for the svc_deploy user. Long-lived access keys are non-rotating and easily leaked through code, CI logs, or developer machines; credentials should instead be issued through short-lived roles or OIDC federation.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed in Terraform output",
+      "description": "The secret access key material is emitted as a Terraform output with no sensitive = true marker, so it is stored in plaintext in the state file and printed in CLI output and CI logs, exposing usable credentials to anyone with state or log access.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "IAM identity disclosure",
+      "description": "The IAM user name is exported as a Terraform output without sensitive marking, disclosing the identity/reconnaissance detail to anyone with access to plan output; low impact on its own but it aids targeted attacks.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force_destroy on IAM user",
+      "description": "force_destroy = true causes the IAM user to be deleted along with all attached policies and access keys on destroy without guardrails, removing accountability and enabling an operator or compromised pipeline to silently delete the identity and its audit trail.",
+      "severity": "low",
+      "cwe": "CWE-693",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1010,
+  "output_tokens": 553,
+  "latency_s": 2.943,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full administrative control over compute, storage, and serverless services across the entire account. A compromise of these long-lived credentials would allow an attacker to exfiltrate data, escalate privileges, and disable logging.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static access key\", \"description\": \"A static IAM access key is created for the svc_deploy user. Long-lived access keys are non-rotating and easily leaked through code, CI logs, or developer machines; credentials should instead be issued through short-lived roles or OIDC federation.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed in Terraform output\", \"description\": \"The secret access key material is emitted as a Terraform output with no sensitive = true marker, so it is stored in plaintext in the state file and printed in CLI output and CI logs, exposing usable credentials to anyone with state or log access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"IAM identity disclosure\", \"description\": \"The IAM user name is exported as a Terraform output without sensitive marking, disclosing the identity/reconnaissance detail to anyone with access to plan output; low impact on its own but it aids targeted attacks.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force_destroy on IAM user\", \"description\": \"force_destroy = true causes the IAM user to be deleted along with all attached policies and access keys on destroy without guardrails, removing accountability and enabling an operator or compromised pipeline to silently delete the identity and its audit trail.\", \"severity\": \"low\", \"cwe\": \"CWE-693\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1010,
+      "output_tokens": 553,
+      "latency_s": 2.943,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000296
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000296
+}

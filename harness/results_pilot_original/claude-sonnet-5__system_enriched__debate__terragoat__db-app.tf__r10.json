@@ -1,0 +1,112 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r10",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 10,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:44:47Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to compromise if the underlying storage or a snapshot is accessed.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet instead of restricting it to the private VPC network, significantly increasing the attack surface for a data store holding sensitive information.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The database uses a fixed 'admin' username and a password sourced from a variable with no secrets-manager integration; this password is later interpolated in plaintext into EC2 user data, and combined with public accessibility this greatly increases the risk of credential compromise.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and plaintext password into /var/www/inc/dbinfo.inc, which is stored in the instance's user data/metadata and readable by anyone with access to describe the instance or query the instance metadata service.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege. This is especially severe because the role is attached to an EC2 instance that also holds plaintext DB credentials and outputs a public DNS name, making it a high-value target for privilege escalation if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "public network exposure of compute instance",
+      "description": "The instance produces a public DNS output (db_app_public_dns) indicating it is internet-facing; combined with an overly permissive attached IAM role and embedded database credentials in user data, this creates a high-value pivot point into the VPC and database if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, undermining network segmentation and increasing the risk of data exfiltration if the instance or database is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 24543,
+  "output_tokens": 3400,
+  "latency_s": 29.831,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and automated backups are not encrypted, exposing data at rest to compromise if the underlying storage or a snapshot is accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet instead of restricting it to the private VPC network, significantly increasing the attack surface for a data store holding sensitive information.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The database uses a fixed 'admin' username and a password sourced from a variable with no secrets-manager integration; this password is later interpolated in plaintext into EC2 user data, and combined with public accessibility this greatly increases the risk of credential compromise.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and plaintext password into /var/www/inc/dbinfo.inc, which is stored in the instance's user data/metadata and readable by anyone with access to describe the instance or query the instance metadata service.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege. This is especially severe because the role is attached to an EC2 instance that also holds plaintext DB credentials and outputs a public DNS name, making it a high-value target for privilege escalation if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"public network exposure of compute instance\", \"description\": \"The instance produces a public DNS output (db_app_public_dns) indicating it is internet-facing; combined with an overly permissive attached IAM role and embedded database credentials in user data, this creates a high-value pivot point into the VPC and database if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, undermining network segmentation and increasing the risk of data exfiltration if the instance or database is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1090,
+      "latency_s": 10.12,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02566
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1186,
+      "latency_s": 10.726,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02662
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9783,
+      "output_tokens": 1124,
+      "latency_s": 8.985,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.030806
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.083086
+}

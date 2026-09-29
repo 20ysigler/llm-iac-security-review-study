@@ -1,0 +1,111 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__s3.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:38Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket defines no server_side_encryption_configuration block (and no separate encryption resource), so stored report objects are not encrypted with the customer-managed KMS key used by the audit bucket; encryption depends entirely on account defaults rather than bucket configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket, which holds financial ledger exports, defines no server_side_encryption_configuration block, so there is no enforced encryption of stored data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket has no server_side_encryption_configuration block, so model artifacts are not encrypted with a customer-managed KMS key despite versioning and logging being enabled.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket defines no server_side_encryption_configuration block, so operational runbook content is stored without enforced encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption of uploaded object",
+      "description": "The seed object uploaded into reports_archive specifies no kms_key_id and no server_side_encryption, and because the target bucket also has no default encryption configuration, the vendor roster object is written without enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly permissive log delivery ACL",
+      "description": "The audit trail bucket uses acl = 'log-delivery-write', granting the S3 log delivery group WRITE and READ_ACP on the bucket that holds tamper-evident audit logs, and no bucket policy further scopes that access.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6873,
+  "output_tokens": 2642,
+  "latency_s": 12.82,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket defines no server_side_encryption_configuration block (and no separate encryption resource), so stored report objects are not encrypted with the customer-managed KMS key used by the audit bucket; encryption depends entirely on account defaults rather than bucket configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket, which holds financial ledger exports, defines no server_side_encryption_configuration block, so there is no enforced encryption of stored data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket has no server_side_encryption_configuration block, so model artifacts are not encrypted with a customer-managed KMS key despite versioning and logging being enabled.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket defines no server_side_encryption_configuration block, so operational runbook content is stored without enforced encryption at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"missing encryption of uploaded object\", \"description\": \"The seed object uploaded into reports_archive specifies no kms_key_id and no server_side_encryption, and because the target bucket also has no default encryption configuration, the vendor roster object is written without enforced encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly permissive log delivery ACL\", \"description\": \"The audit trail bucket uses acl = 'log-delivery-write', granting the S3 log delivery group WRITE and READ_ACP on the bucket that holds tamper-evident audit logs, and no bucket policy further scopes that access.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1538,
+      "output_tokens": 1025,
+      "latency_s": 5.143,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000502
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1538,
+      "output_tokens": 1009,
+      "latency_s": 4.787,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000498
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3797,
+      "output_tokens": 608,
+      "latency_s": 2.89,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000702
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001702
+}

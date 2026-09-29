@@ -1,0 +1,168 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__db-app.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The instance's user_data embeds the database password directly: define('DB_PASSWORD', '${var.password}') is interpolated into /var/www/inc/dbinfo.inc at boot. Because user_data is stored in the instance metadata service and readable by any process (and via IMDS if not restricted), and because the DB credentials are also written into a world-readable web document root path, the database password is exposed to anyone with instance access or metadata access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext database credentials in transit",
+      "description": "The application config connects to the RDS endpoint with mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD) and no TLS enforcement, so the database password and all query data travel in cleartext. The instance also does not set any TLS requirement, so a network attacker on the path can recover credentials.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets written to web-accessible file",
+      "description": "The generated /var/www/inc/dbinfo.inc contains the DB username and password and is placed under the Apache document root tree (/var/www/inc), adjacent to the served /var/www/html content. Misconfiguration of the server or path traversal can cause this PHP file to be served or its contents disclosed; secrets should not reside under the document root.",
+      "severity": "medium",
+      "cwe": "CWE-538",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unvalidated third-party AMI",
+      "description": "The server uses data.aws_ami.base_image without any visible restriction on owner or a pinned AMI ID, and then executes the user_data boot script with root privileges on it. If that data source resolves an image from an untrusted owner, the instance is compromised at first boot.",
+      "severity": "medium",
+      "cwe": "CWE-494",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the catalog database's underlying storage and any snapshots are left unencrypted, exposing sensitive data to anyone with access to the storage layer or backups.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the RDS instance a public IP and resolves to an internet-routable endpoint (also exported via output.catalog_db_endpoint), removing the network boundary that would otherwise confine the database to the VPC.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The master password is supplied through var.password and the username is the fixed literal \"admin\"; the password is then frozen with ignore_changes, so a static, likely shared or default-style credential cannot be rotated by Terraform. Additionally, no credential is managed via Secrets Manager.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving the attached role full administrative control of every S3 bucket, EC2 resource and RDS instance in the account, including the ability to read data or delete backups. This is privilege far beyond what a catalog application requires.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The paired outbound rule allows all protocols and all ports to 0.0.0.0/0, so any compromised workload in this security group can reach arbitrary internet hosts, supporting data exfiltration and command-and-control.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule with protocol \"-1\" permits every outbound connection from 0 to 65535 to 0.0.0.0/0; should be restricted to required destinations and ports.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "The ingress rule opens MySQL 3306 to the entire VPC CIDR rather than to the specific application security group. Combined with publicly_accessible = true on the database, any host (including compromised or attacker-placed instances) in the VPC can reach the database port.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "deprecated insecure defaults",
+      "description": "The instance is created with skip_final_snapshot = true and backup_retention_period = 0, so a deletion or destructive action leaves no recoverable copy of the data \u2014 an availability concern that materially amplifies the impact of the unencrypted, publicly reachable database.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7420,
+  "output_tokens": 1460,
+  "latency_s": 10.189,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1674,
+      "output_tokens": 35,
+      "latency_s": 1.02,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000244
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2466,
+      "output_tokens": 534,
+      "latency_s": 3.674,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000495
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1896,
+      "output_tokens": 856,
+      "latency_s": 4.539,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000505
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1384,
+      "output_tokens": 35,
+      "latency_s": 0.956,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000204
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.001448
+}

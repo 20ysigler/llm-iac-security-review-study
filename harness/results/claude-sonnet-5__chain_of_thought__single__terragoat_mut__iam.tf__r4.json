@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat_mut__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:50:16Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege. If the associated access key is compromised, an attacker gains near-full control over EC2, S3, Lambda, and CloudWatch in the account.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating an IAM access key for a service user produces long-lived static credentials attached to an overly permissive user, increasing the risk of credential leakage and misuse; static keys should be avoided in favor of roles or short-lived credentials.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "no encryption key specified for secret",
+      "description": "The access key resource does not specify a pgp_key, meaning the secret access key is stored in Terraform state and provider output in plaintext rather than being encrypted before leaving AWS, increasing exposure risk if state is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via Terraform state",
+      "description": "The IAM user's access key secret material is stored in the Terraform state file, which if not properly secured/encrypted, exposes the live AWS credential to anyone with state file access.",
+      "severity": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "credential leakage via output",
+      "description": "The output block exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which without a pgp_key configured on the resource actually returns the plaintext secret access key, leaking sensitive credentials into Terraform output, logs, and CI/CD pipelines. The output is also not marked sensitive.",
+      "severity": "critical",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "svc_deploy_username",
+      "issue_category": "unmarked sensitive output",
+      "description": "The username output itself is low risk, but combined with the exposed key material output, it aids in identifying and using the leaked service account credentials; outputs referencing credential-related resources should be marked sensitive.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "destructive operation permission",
+      "description": "force_destroy = true allows the user (and any attached resources) to be destroyed without additional safeguards, which combined with the broad permissions increases risk of unauthorized or accidental destructive actions.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 1882,
+  "output_tokens": 1088,
+  "latency_s": 10.152,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[4] resource 'svc_deploy_key_material' is not type.name",
+    "review: finding[5] resource 'svc_deploy_username' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege. If the associated access key is compromised, an attacker gains near-full control over EC2, S3, Lambda, and CloudWatch in the account.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating an IAM access key for a service user produces long-lived static credentials attached to an overly permissive user, increasing the risk of credential leakage and misuse; static keys should be avoided in favor of roles or short-lived credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"no encryption key specified for secret\", \"description\": \"The access key resource does not specify a pgp_key, meaning the secret access key is stored in Terraform state and provider output in plaintext rather than being encrypted before leaving AWS, increasing exposure risk if state is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via Terraform state\", \"description\": \"The IAM user's access key secret material is stored in the Terraform state file, which if not properly secured/encrypted, exposes the live AWS credential to anyone with state file access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"credential leakage via output\", \"description\": \"The output block exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which without a pgp_key configured on the resource actually returns the plaintext secret access key, leaking sensitive credentials into Terraform output, logs, and CI/CD pipelines. The output is also not marked sensitive.\", \"severity\": \"critical\", \"cwe\": \"CWE-532\"}, {\"resource\": \"svc_deploy_username\", \"issue_category\": \"unmarked sensitive output\", \"description\": \"The username output itself is low risk, but combined with the exposed key material output, it aids in identifying and using the leaked service account credentials; outputs referencing credential-related resources should be marked sensitive.\", \"severity\": \"low\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"destructive operation permission\", \"description\": \"force_destroy = true allows the user (and any attached resources) to be destroyed without additional safeguards, which combined with the broad permissions increases risk of unauthorized or accidental destructive actions.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1882,
+      "output_tokens": 1088,
+      "latency_s": 10.152,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.014644
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.014644
+}

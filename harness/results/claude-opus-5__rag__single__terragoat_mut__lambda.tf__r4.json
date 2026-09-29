@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat_mut__lambda.tf__r4",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:33:50Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "Static AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, making them readable by anyone with lambda:GetFunctionConfiguration permission and committing them to version control.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of env variables",
+      "description": "The function's environment variables are not encrypted with a customer-managed KMS key (no kms_key_arn set), so the sensitive values fall back to the default service key with no explicit key policy, rotation, or audit control.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses nodejs12.x, a deprecated Lambda runtime that no longer receives security patches while continuing to execute code.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group or subnet controls on egress, providing a data exfiltration path.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code signing validation",
+      "description": "No code_signing_config_arn is attached, so the deployment package signature is never validated and tampering between build and deployment would go undetected.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing permissions boundary",
+      "description": "The Lambda execution role is created without a permissions_boundary, so there is no guardrail limiting the maximum permissions that can later be attached to this role.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-266"
+    }
+  ],
+  "input_tokens": 3453,
+  "output_tokens": 811,
+  "latency_s": 8.785,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"Static AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, making them readable by anyone with lambda:GetFunctionConfiguration permission and committing them to version control.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of env variables\", \"description\": \"The function's environment variables are not encrypted with a customer-managed KMS key (no kms_key_arn set), so the sensitive values fall back to the default service key with no explicit key policy, rotation, or audit control.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses nodejs12.x, a deprecated Lambda runtime that no longer receives security patches while continuing to execute code.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group or subnet controls on egress, providing a data exfiltration path.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code signing validation\", \"description\": \"No code_signing_config_arn is attached, so the deployment package signature is never validated and tampering between build and deployment would go undetected.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The Lambda execution role is created without a permissions_boundary, so there is no guardrail limiting the maximum permissions that can later be attached to this role.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-266\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3453,
+      "output_tokens": 811,
+      "latency_s": 8.785,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.03754
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.03754
+}

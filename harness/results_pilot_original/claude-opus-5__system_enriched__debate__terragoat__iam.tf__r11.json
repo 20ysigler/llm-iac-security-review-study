@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__iam.tf__r11",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 11,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T21:17:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions on ec2, s3, lambda, and cloudwatch against Resource \"*\", violating least privilege. Compromise of this user's static credentials would permit exfiltration or destruction of all S3 data, arbitrary EC2 control, and privilege escalation via lambda:CreateFunction/UpdateFunctionCode with attached execution roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key/secret pair is provisioned for an IAM user rather than using an IAM role with temporary STS credentials. The key has no rotation mechanism and, combined with the attached wildcard policy, grants durable broad account access if leaked.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret material stored in state",
+      "description": "No pgp_key is supplied, so encrypted_secret is never populated and the access key secret (and ses_smtp_password) are written in cleartext to the Terraform state file, exposing usable credentials to anyone with read access to the state backend.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The 'secret' output exports the access key's encrypted_secret attribute without marking it sensitive; because no pgp_key was provided this attribute is empty while the underlying plaintext secret still lands in state, and the unmarked output pattern surfaces credential material in CLI and CI/CD logs.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user without MFA or boundary",
+      "description": "The IAM user is created for programmatic access with a broad inline policy but no MFA condition and no permissions boundary anywhere in the configuration, so there is no second factor or blast-radius limit on this standing credential.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    }
+  ],
+  "input_tokens": 8462,
+  "output_tokens": 2439,
+  "latency_s": 34.174,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions on ec2, s3, lambda, and cloudwatch against Resource \\\"*\\\", violating least privilege. Compromise of this user's static credentials would permit exfiltration or destruction of all S3 data, arbitrary EC2 control, and privilege escalation via lambda:CreateFunction/UpdateFunctionCode with attached execution roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key/secret pair is provisioned for an IAM user rather than using an IAM role with temporary STS credentials. The key has no rotation mechanism and, combined with the attached wildcard policy, grants durable broad account access if leaked.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret material stored in state\", \"description\": \"No pgp_key is supplied, so encrypted_secret is never populated and the access key secret (and ses_smtp_password) are written in cleartext to the Terraform state file, exposing usable credentials to anyone with read access to the state backend.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The 'secret' output exports the access key's encrypted_secret attribute without marking it sensitive; because no pgp_key was provided this attribute is empty while the underlying plaintext secret still lands in state, and the unmarked output pattern surfaces credential material in CLI and CI/CD logs.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user without MFA or boundary\", \"description\": \"The IAM user is created for programmatic access with a broad inline policy but no MFA condition and no permissions boundary anywhere in the configuration, so there is no second factor or blast-radius limit on this standing credential.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2197,
+      "output_tokens": 772,
+      "latency_s": 13.564,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.030285
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2197,
+      "output_tokens": 832,
+      "latency_s": 11.32,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031785
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4068,
+      "output_tokens": 835,
+      "latency_s": 9.29,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.041215
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.103285
+}

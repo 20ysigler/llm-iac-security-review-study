@@ -1,0 +1,85 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__s3.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "reports_archive has no server_side_encryption_configuration block, so objects (including the vendor-roster.xlsx seed object it stores) are written without default encryption and rely on unenforced S3 defaults. Sensitive reports data is not encrypted at rest by configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "ledger_exports contains no server_side_encryption_configuration block, so financial ledger exports are stored unencrypted at rest rather than under a KMS or AES256 default.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts defines versioning and logging but no server_side_encryption_configuration, so model artifacts are stored without configured encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks has no server_side_encryption_configuration block, so operational runbooks are stored without encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "log bucket policy weakening / missing access logging",
+      "description": "audit_trail uses the log-delivery-write canned ACL, which grants the S3 log delivery group write access to the bucket. Because this bucket is the logging target for model_artifacts, objects receiving logs from another account's delivery group are writable by that group; combined with the absence of a bucket policy restricting the principal, it weakens the integrity of the audit trail. This is the classic log-bucket target confusion where the target bucket is granted write to the delivery group.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1670,
+  "output_tokens": 553,
+  "latency_s": 3.034,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"reports_archive has no server_side_encryption_configuration block, so objects (including the vendor-roster.xlsx seed object it stores) are written without default encryption and rely on unenforced S3 defaults. Sensitive reports data is not encrypted at rest by configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ledger_exports contains no server_side_encryption_configuration block, so financial ledger exports are stored unencrypted at rest rather than under a KMS or AES256 default.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts defines versioning and logging but no server_side_encryption_configuration, so model artifacts are stored without configured encryption at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks has no server_side_encryption_configuration block, so operational runbooks are stored without encryption at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"log bucket policy weakening / missing access logging\", \"description\": \"audit_trail uses the log-delivery-write canned ACL, which grants the S3 log delivery group write access to the bucket. Because this bucket is the logging target for model_artifacts, objects receiving logs from another account's delivery group are writable by that group; combined with the absence of a bucket policy restricting the principal, it weakens the integrity of the audit trail. This is the classic log-bucket target confusion where the target bucket is granted write to the delivery group.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1670,
+      "output_tokens": 553,
+      "latency_s": 3.034,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000389
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.000389
+}

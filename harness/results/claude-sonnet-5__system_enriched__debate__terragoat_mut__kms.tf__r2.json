@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__kms.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:59:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The KMS key does not set 'enable_key_rotation = true', so automatic annual key rotation is disabled, weakening cryptographic hygiene for a key protecting sensitive audit trail data over time.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "overly permissive default key policy",
+      "description": "No 'policy' attribute is defined for the key, so AWS applies the default key policy granting 'kms:*' to the entire AWS account (any IAM principal with sufficient IAM permissions). For a key protecting audit-log data, this is overly broad and violates least privilege, as it does not restrict usage to intended audit trail producers/consumers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6263,
+  "output_tokens": 913,
+  "latency_s": 10.37,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The KMS key does not set 'enable_key_rotation = true', so automatic annual key rotation is disabled, weakening cryptographic hygiene for a key protecting sensitive audit trail data over time.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"overly permissive default key policy\", \"description\": \"No 'policy' attribute is defined for the key, so AWS applies the default key policy granting 'kms:*' to the entire AWS account (any IAM principal with sufficient IAM permissions). For a key protecting audit-log data, this is overly broad and violates least privilege, as it does not restrict usage to intended audit trail producers/consumers.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1864,
+      "output_tokens": 273,
+      "latency_s": 3.392,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.006458
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1864,
+      "output_tokens": 251,
+      "latency_s": 3.209,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.006238
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2535,
+      "output_tokens": 389,
+      "latency_s": 3.769,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00896
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.021656
+}

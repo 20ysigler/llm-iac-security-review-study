@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__iam.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:53:15Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Compromise of this user's credentials would allow full control of compute, all bucket data, arbitrary Lambda code execution (a privilege-escalation path via lambda:CreateFunction with an existing execution role), and deletion of CloudWatch logs to destroy audit evidence.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived credentials in state",
+      "description": "A static IAM access key is created with no pgp_key argument, so the plaintext secret access key is stored unencrypted in the Terraform state file and is retrievable by anyone with state access. These non-rotating long-term credentials are attached to the highly privileged excess_policy, so leakage of state is equivalent to full account compromise; IAM roles with temporary credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The configuration declares output \"secret\" exposing the access key secret material (and output \"username\"). Root-module outputs are persisted in state and printed to the console/CI logs, propagating the credential to build logs and any consumer of the module.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "missing permissions boundary",
+      "description": "The IAM user is created without a permissions_boundary and with no MFA or password policy constraint, so nothing caps the effective privileges granted by the attached wildcard policy. In a regulated environment an IAM role assumed by a workload should be used rather than a standing user with static keys.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2071,
+  "output_tokens": 1144,
+  "latency_s": 16.05,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Compromise of this user's credentials would allow full control of compute, all bucket data, arbitrary Lambda code execution (a privilege-escalation path via lambda:CreateFunction with an existing execution role), and deletion of CloudWatch logs to destroy audit evidence.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived credentials in state\", \"description\": \"A static IAM access key is created with no pgp_key argument, so the plaintext secret access key is stored unencrypted in the Terraform state file and is retrievable by anyone with state access. These non-rotating long-term credentials are attached to the highly privileged excess_policy, so leakage of state is equivalent to full account compromise; IAM roles with temporary credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The configuration declares output \\\"secret\\\" exposing the access key secret material (and output \\\"username\\\"). Root-module outputs are persisted in state and printed to the console/CI logs, propagating the credential to build logs and any consumer of the module.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The IAM user is created without a permissions_boundary and with no MFA or password policy constraint, so nothing caps the effective privileges granted by the attached wildcard policy. In a regulated environment an IAM role assumed by a workload should be used rather than a standing user with static keys.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "cost_usd": 0.038955
+}

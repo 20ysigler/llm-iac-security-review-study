@@ -1,0 +1,110 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__ec2.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:42:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "AWS access key and secret access key are hard-coded in plaintext in the EC2 user_data script, exposing long-lived credentials to anyone with access to the instance metadata, console, or Terraform state.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The security group allows inbound TCP port 80 from 0.0.0.0/0. Since this is intended as a public web server, this is expected exposure rather than a distinct misconfiguration, but is noted for completeness given it is combined with other issues.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true, meaning data at rest on this volume (attached to the portal server) is stored unencrypted, violating encryption-at-rest best practices.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration, leaving potentially sensitive network traffic metadata stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "publicly reachable instance with sensitive credentials",
+      "description": "The instance resides in a public subnet with a public IP, has SSH and HTTP open to the world, and embeds AWS credentials in user_data, combining these factors creates a direct path for an external attacker to compromise the instance and pivot using the leaked AWS credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest / unencrypted snapshot",
+      "description": "The EBS snapshot is created from an unencrypted volume (portal_server_disk lacks encrypted = true), so the resulting snapshot is also unencrypted, propagating the exposure of data at rest to backup storage which could be shared or copied insecurely.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 9655,
+  "output_tokens": 2611,
+  "latency_s": 22.14,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"AWS access key and secret access key are hard-coded in plaintext in the EC2 user_data script, exposing long-lived credentials to anyone with access to the instance metadata, console, or Terraform state.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The security group allows inbound TCP port 80 from 0.0.0.0/0. Since this is intended as a public web server, this is expected exposure rather than a distinct misconfiguration, but is noted for completeness given it is combined with other issues.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true, meaning data at rest on this volume (attached to the portal server) is stored unencrypted, violating encryption-at-rest best practices.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration, leaving potentially sensitive network traffic metadata stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"publicly reachable instance with sensitive credentials\", \"description\": \"The instance resides in a public subnet with a public IP, has SSH and HTTP open to the world, and embeds AWS credentials in user_data, combining these factors creates a direct path for an external attacker to compromise the instance and pivot using the leaked AWS credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest / unencrypted snapshot\", \"description\": \"The EBS snapshot is created from an unencrypted volume (portal_server_disk lacks encrypted = true), so the resulting snapshot is also unencrypted, propagating the exposure of data at rest to backup storage which could be shared or copied insecurely.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 4038,
+      "output_tokens": 1450,
+      "latency_s": 12.595,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.022576
+    },
+    {
+      "step": "critique",
+      "input_tokens": 5617,
+      "output_tokens": 1161,
+      "latency_s": 9.545,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.022844
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.04542
+}

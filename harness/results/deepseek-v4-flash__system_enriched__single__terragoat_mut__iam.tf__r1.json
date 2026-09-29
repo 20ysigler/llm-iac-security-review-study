@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:12Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this user full administrative control over compute, storage, and serverless services across the entire account. This far exceeds the least-privilege requirement for a deploy user and exposes all account data if the user's credentials are leaked.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key pair is created for the user, producing permanent AWS credentials that never expire and are not rotated. Combined with the wildcard policy above, compromise of this key yields full account-wide access with no expiration.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposure via Terraform output",
+      "description": "The access key's encrypted_secret is written to a Terraform output, which is persisted in state and may be surfaced in plan/apply logs or CI output, exposing credential material beyond the intended consumers.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1271,
+  "output_tokens": 354,
+  "latency_s": 2.404,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this user full administrative control over compute, storage, and serverless services across the entire account. This far exceeds the least-privilege requirement for a deploy user and exposes all account data if the user's credentials are leaked.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key pair is created for the user, producing permanent AWS credentials that never expire and are not rotated. Combined with the wildcard policy above, compromise of this key yields full account-wide access with no expiration.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposure via Terraform output\", \"description\": \"The access key's encrypted_secret is written to a Terraform output, which is persisted in state and may be surfaced in plan/apply logs or CI output, exposing credential material beyond the intended consumers.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 354,
+      "latency_s": 2.404,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000277
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000277
+}

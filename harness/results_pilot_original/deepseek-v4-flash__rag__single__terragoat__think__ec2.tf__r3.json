@@ -1,0 +1,81 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__think__ec2.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:35:49Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The user_data startup script embeds a plaintext AWS access key ID and secret access key, committing long-lived static credentials to source control and making them readable to anyone with describe access to the instance. These credentials must be treated as compromised and removed, and should be supplied via a secret store or instance role instead.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without enabling encryption (the commented-out 'encrypted = false' confirms the intent to leave it unencrypted), leaving all data stored on the volume readable if the underlying storage is accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is taken from the unencrypted volume, so the snapshot and any data copied from it are stored unencrypted, exposing data at rest in S3.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "An ingress rule opens TCP port 22 (SSH) to 0.0.0.0/0, granting the entire internet the ability to attempt administrative access to the instance, which is a primary target for brute-force and credential-stuffing attacks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all traffic to 0.0.0.0/0 on all protocols, providing an unrestricted data exfiltration path and a channel to command-and-control infrastructure should the instance be compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "legacy IMDSv1 enabled",
+      "description": "The instance does not enforce IMDSv2 (no metadata_options with http_tokens = 'required'), leaving the legacy instance metadata service enabled; a server-side request forgery in the web application can then retrieve credentials or sensitive metadata unauthenticated.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configured, so flow log data is written to S3 in plaintext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5288,
+  "output_tokens": 3061,
+  "latency_s": 23.517,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The user_data startup script embeds a plaintext AWS access key ID and secret access key, committing long-lived static credentials to source control and making them readable to anyone with describe access to the instance. These credentials must be treated as compromised and removed, and should be supplied via a secret store or instance role instead.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without enabling encryption (the commented-out 'encrypted = false' confirms the intent to leave it unencrypted), leaving all data stored on the volume readable if the underlying storage is accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is taken from the unencrypted volume, so the snapshot and any data copied from it are stored unencrypted, exposing data at rest in S3.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"An ingress rule opens TCP port 22 (SSH) to 0.0.0.0/0, granting the entire internet the ability to attempt administrative access to the instance, which is a primary target for brute-force and credential-stuffing attacks.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all traffic to 0.0.0.0/0 on all protocols, providing an unrestricted data exfiltration path and a channel to command-and-control infrastructure should the instance be compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"legacy IMDSv1 enabled\", \"description\": \"The instance does not enforce IMDSv2 (no metadata_options with http_tokens = 'required'), leaving the legacy instance metadata service enabled; a server-side request forgery in the web application can then retrieve credentials or sensitive metadata unauthenticated.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configured, so flow log data is written to S3 in plaintext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001597
+}

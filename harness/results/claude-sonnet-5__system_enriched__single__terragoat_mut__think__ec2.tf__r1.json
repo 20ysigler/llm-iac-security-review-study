@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__ec2.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:30:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "AWS access key and secret key are embedded in plaintext in the instance's user_data script, which is stored in the EC2 metadata service and Terraform state, exposing long-lived credentials to anyone with instance metadata access or state file access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set the 'encrypted' attribute (and no KMS key is specified), so it defaults to unencrypted storage, risking exposure of data at rest if the underlying media or a snapshot is accessed improperly.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot is created from an unencrypted volume and does not specify encryption, so the resulting snapshot inherits the unencrypted state, leaving backed-up data unprotected at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) or public access block, leaving potentially sensitive network traffic metadata unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unnecessary public IP exposure",
+      "description": "The subnet auto-assigns public IP addresses to all launched instances, and combined with the internet gateway route and the permissive security group, this places the web server directly on the public internet with SSH and HTTP reachable from anywhere.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3912,
+  "output_tokens": 1757,
+  "latency_s": 16.567,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"AWS access key and secret key are embedded in plaintext in the instance's user_data script, which is stored in the EC2 metadata service and Terraform state, exposing long-lived credentials to anyone with instance metadata access or state file access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set the 'encrypted' attribute (and no KMS key is specified), so it defaults to unencrypted storage, risking exposure of data at rest if the underlying media or a snapshot is accessed improperly.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot is created from an unencrypted volume and does not specify encryption, so the resulting snapshot inherits the unencrypted state, leaving backed-up data unprotected at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) or public access block, leaving potentially sensitive network traffic metadata unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"unnecessary public IP exposure\", \"description\": \"The subnet auto-assigns public IP addresses to all launched instances, and combined with the internet gateway route and the permissive security group, this places the web server directly on the public internet with SSH and HTTP reachable from anywhere.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3912,
+      "output_tokens": 1757,
+      "latency_s": 16.567,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.025394
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.025394
+}

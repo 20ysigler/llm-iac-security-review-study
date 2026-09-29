@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:45:37Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "database credentials in plain text",
+      "description": "The user_data script contains hardcoded AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key (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) in plain text. These credentials are readable by anyone with describe permissions on the instance and are committed to source control, which must be treated as compromised.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "missing encryption at rest",
+      "description": "The EC2 instance's root volume is not configured with encryption enabled, leaving the underlying block storage unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "exposed to internet",
+      "description": "The instance is launched in a public subnet with map_public_ip_on_launch enabled, exposing it directly to the internet.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without the encrypted attribute set to true (commented out in the configuration), leaving stored data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created without encryption, so the snapshot data is stored unencrypted at rest, which also exposes it during copy or restore operations.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group admits SSH traffic (port 22) from 0.0.0.0/0, granting the entire internet access to the management interface, enabling brute-force and unauthorized access to the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The security group allows all outbound traffic (from_port 0, to_port 0, protocol -1) to 0.0.0.0/0, providing an unrestricted data exfiltration path and a channel to command-and-control infrastructure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs is created without default encryption (SSE-S3 or SSE-KMS) enabled, leaving log data stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5216,
+  "output_tokens": 750,
+  "latency_s": 7.146,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"database credentials in plain text\", \"description\": \"The user_data script contains hardcoded AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key (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) in plain text. These credentials are readable by anyone with describe permissions on the instance and are committed to source control, which must be treated as compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EC2 instance's root volume is not configured with encryption enabled, leaving the underlying block storage unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"exposed to internet\", \"description\": \"The instance is launched in a public subnet with map_public_ip_on_launch enabled, exposing it directly to the internet.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without the encrypted attribute set to true (commented out in the configuration), leaving stored data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is created without encryption, so the snapshot data is stored unencrypted at rest, which also exposes it during copy or restore operations.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group admits SSH traffic (port 22) from 0.0.0.0/0, granting the entire internet access to the management interface, enabling brute-force and unauthorized access to the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group allows all outbound traffic (from_port 0, to_port 0, protocol -1) to 0.0.0.0/0, providing an unrestricted data exfiltration path and a channel to command-and-control infrastructure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs is created without default encryption (SSE-S3 or SSE-KMS) enabled, leaving log data stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.00094
+}

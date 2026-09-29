@@ -1,0 +1,125 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__ec2.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data embeds a static AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key in cleartext. This data is exposed to anyone who can read instance metadata or the launch template, enabling credential theft and unauthorized API access.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows SSH (port 22) from 0.0.0.0/0, exposing the instance's admin access to the entire internet. Combined with password/credential exposure, this permits brute-force or credential-based compromise.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "Inbound HTTP (port 80) is open to 0.0.0.0/0, exposing the web service to untrusted networks without any restriction or load balancer fronting.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "Egress is permitted to 0.0.0.0/0 on all ports and protocols, allowing the instance to exfiltrate data or communicate with arbitrary external hosts without restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume has no encryption enabled, so data written to this disk is stored unencrypted and is readable if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot of the unencrypted disk contains cleartext data at rest, perpetuating the encryption gap in backup copies.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket storing VPC flow logs has no server-side encryption configuration, leaving flow log data unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "force destroy enabled",
+      "description": "force_destroy = true allows the bucket and all archived flow logs to be deleted non-empty, destroying audit/forensic evidence and weakening incident response.",
+      "severity": "low",
+      "cwe": "CWE-693",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2519,
+  "output_tokens": 910,
+  "latency_s": 4.195,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data embeds a static AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key in cleartext. This data is exposed to anyone who can read instance metadata or the launch template, enabling credential theft and unauthorized API access.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows SSH (port 22) from 0.0.0.0/0, exposing the instance's admin access to the entire internet. Combined with password/credential exposure, this permits brute-force or credential-based compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"Inbound HTTP (port 80) is open to 0.0.0.0/0, exposing the web service to untrusted networks without any restriction or load balancer fronting.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress is permitted to 0.0.0.0/0 on all ports and protocols, allowing the instance to exfiltrate data or communicate with arbitrary external hosts without restriction.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume has no encryption enabled, so data written to this disk is stored unencrypted and is readable if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot of the unencrypted disk contains cleartext data at rest, perpetuating the encryption gap in backup copies.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket storing VPC flow logs has no server-side encryption configuration, leaving flow log data unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"force destroy enabled\", \"description\": \"force_destroy = true allows the bucket and all archived flow logs to be deleted non-empty, destroying audit/forensic evidence and weakening incident response.\", \"severity\": \"low\", \"cwe\": \"CWE-693\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2519,
+      "output_tokens": 910,
+      "latency_s": 4.195,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000607
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000607
+}

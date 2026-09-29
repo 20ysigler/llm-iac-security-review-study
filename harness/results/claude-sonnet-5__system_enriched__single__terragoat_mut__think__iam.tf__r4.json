@@ -1,0 +1,71 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__iam.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:32:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*'), violating least privilege and allowing this user to perform virtually any action against EC2, S3, Lambda, and CloudWatch, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret is generated for an over-privileged user rather than using short-lived, role-based credentials, increasing the risk of credential leakage and misuse if exposed (e.g., in state files or outputs).",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "secret exposure via output",
+      "description": "The output block exposes the IAM access key's secret material (encrypted_secret), which combined with the plaintext state file storage of access keys risks leaking credentials to anyone with access to Terraform outputs or state.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2002,
+  "output_tokens": 1168,
+  "latency_s": 11.791,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[2] resource 'svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('Resource': '*'), violating least privilege and allowing this user to perform virtually any action against EC2, S3, Lambda, and CloudWatch, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret is generated for an over-privileged user rather than using short-lived, role-based credentials, increasing the risk of credential leakage and misuse if exposed (e.g., in state files or outputs).\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"secret exposure via output\", \"description\": \"The output block exposes the IAM access key's secret material (encrypted_secret), which combined with the plaintext state file storage of access keys risks leaking credentials to anyone with access to Terraform outputs or state.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2002,
+      "output_tokens": 1168,
+      "latency_s": 11.791,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.015684
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.015684
+}

@@ -1,0 +1,62 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__kms.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:11:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The KMS key omits `enable_key_rotation`, so automatic annual key rotation is disabled. For an audit-bucket encryption key this means the same cryptographic material is used indefinitely, widening the window in which a compromised or leaked key material remains usable and preventing routine re-keying of protected audit data.",
+      "severity": "medium",
+      "cwe": "CWE-320",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "minimum key deletion window",
+      "description": "`deletion_window_in_days = 7` sets the shortest window AWS permits (the AWS/Terraform default is 30 days). This shortens the recovery period after a key deletion is scheduled, reducing the ability to detect and reverse a malicious or accidental deletion of the key that protects audit data.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1120,
+  "output_tokens": 1261,
+  "latency_s": 7.126,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The KMS key omits `enable_key_rotation`, so automatic annual key rotation is disabled. For an audit-bucket encryption key this means the same cryptographic material is used indefinitely, widening the window in which a compromised or leaked key material remains usable and preventing routine re-keying of protected audit data.\", \"severity\": \"medium\", \"cwe\": \"CWE-320\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"minimum key deletion window\", \"description\": \"`deletion_window_in_days = 7` sets the shortest window AWS permits (the AWS/Terraform default is 30 days). This shortens the recovery period after a key deletion is scheduled, reducing the ability to detect and reverse a malicious or accidental deletion of the key that protects audit data.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1120,
+      "output_tokens": 1261,
+      "latency_s": 7.126,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00051
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00051
+}

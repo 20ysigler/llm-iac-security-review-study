@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\" to the svc_deploy user, giving broad administrative control over four services with no scoping to specific resources, actions, or conditions. This is a substantial privilege-escalation, data-exfiltration, and resource-destruction surface.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed in Terraform output",
+      "description": "The output exports aws_iam_access_key.svc_deploy_key.encrypted_secret, writing the credential into Terraform state and any plan output or downstream consumer of the output, rather than keeping it in a secrets manager.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3012,
+  "output_tokens": 643,
+  "latency_s": 4.33,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\" to the svc_deploy user, giving broad administrative control over four services with no scoping to specific resources, actions, or conditions. This is a substantial privilege-escalation, data-exfiltration, and resource-destruction surface.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed in Terraform output\", \"description\": \"The output exports aws_iam_access_key.svc_deploy_key.encrypted_secret, writing the credential into Terraform state and any plan output or downstream consumer of the output, rather than keeping it in a secrets manager.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 379,
+      "latency_s": 2.658,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000284
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1741,
+      "output_tokens": 264,
+      "latency_s": 1.672,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000318
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.000602
+}

@@ -1,0 +1,94 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "Overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full administrative control over compute, storage, serverless, and monitoring across the entire account. This permits IAM privilege escalation (creating roles, modifying resource policies), mass S3 data exfiltration, and destruction of workloads, and is far broader than the deployment role the resource name implies.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "Long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user, and combined with the wildcard policy it grants standing account-wide administrative access. Static keys do not rotate automatically and, if leaked, provide persistent access until manually revoked.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "Sensitive output exposure",
+      "description": "This output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret and is not marked sensitive, so secret material is written to Terraform state and printed in plan/apply output, logs, and CI consoles. Note the attribute is the PGP-encrypted variant, so the plaintext secret itself is not directly revealed, but the output still propagates key material into state and non-sensitive output.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "Sensitive output exposure",
+      "description": "The output exposes the svc_deploy IAM user name, aiding reconnaissance of a privileged identity, but a user name is not secret material and on its own is not a meaningful attack surface.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 4656,
+  "output_tokens": 1244,
+  "latency_s": 6.962,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"Overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full administrative control over compute, storage, serverless, and monitoring across the entire account. This permits IAM privilege escalation (creating roles, modifying resource policies), mass S3 data exfiltration, and destruction of workloads, and is far broader than the deployment role the resource name implies.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"Long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user, and combined with the wildcard policy it grants standing account-wide administrative access. Static keys do not rotate automatically and, if leaked, provide persistent access until manually revoked.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"Sensitive output exposure\", \"description\": \"This output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret and is not marked sensitive, so secret material is written to Terraform state and printed in plan/apply output, logs, and CI consoles. Note the attribute is the PGP-encrypted variant, so the plaintext secret itself is not directly revealed, but the output still propagates key material into state and non-sensitive output.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"Sensitive output exposure\", \"description\": \"The output exposes the svc_deploy IAM user name, aiding reconnaissance of a privileged identity, but a user name is not secret material and on its own is not a meaningful attack surface.\", \"severity\": \"informational\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1271,
+      "output_tokens": 501,
+      "latency_s": 2.91,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000318
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1271,
+      "output_tokens": 246,
+      "latency_s": 1.555,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000247
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2114,
+      "output_tokens": 497,
+      "latency_s": 2.497,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000435
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001
+}

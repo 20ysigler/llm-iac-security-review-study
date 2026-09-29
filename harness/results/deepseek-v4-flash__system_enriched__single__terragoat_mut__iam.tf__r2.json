@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full administrative control over those services across the entire account, including data exfiltration via s3:GetObject and privilege escalation via lambda:CreateFunction with a role attachment.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user with full EC2/S3/Lambda/CloudWatch permissions. Long-lived programmatic credentials that never rotate are a standing compromise risk if leaked, especially combined with the wildcard policy attached to this user.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "secret exposure in Terraform output",
+      "description": "The output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which persists the access key's secret material in Terraform state and displays it in plan/apply output to anyone with access to the workspace or state backend.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user with static credentials",
+      "description": "The svc_deploy user is a long-lived IAM user rather than a federated/assumed role, and force_destroy is set to true so the user and its attached access key can be deleted without cleanup \u2014 an identity that exists solely for static programmatic credentials.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1271,
+  "output_tokens": 478,
+  "latency_s": 2.947,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[2] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full administrative control over those services across the entire account, including data exfiltration via s3:GetObject and privilege escalation via lambda:CreateFunction with a role attachment.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user with full EC2/S3/Lambda/CloudWatch permissions. Long-lived programmatic credentials that never rotate are a standing compromise risk if leaked, especially combined with the wildcard policy attached to this user.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"secret exposure in Terraform output\", \"description\": \"The output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which persists the access key's secret material in Terraform state and displays it in plan/apply output to anyone with access to the workspace or state backend.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user with static credentials\", \"description\": \"The svc_deploy user is a long-lived IAM user rather than a federated/assumed role, and force_destroy is set to true so the user and its attached access key can be deleted without cleanup \u2014 an identity that exists solely for static programmatic credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1271,
+      "output_tokens": 478,
+      "latency_s": 2.947,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000312
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000312
+}

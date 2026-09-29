@@ -1,0 +1,134 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__chunked__terragoat_mut__ec2.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:02Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set `encrypted = true` or a KMS key. Unless account-level EBS encryption by default is enforced outside this configuration, data written to this separately attached portal disk will be stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet receive public IPv4 addresses automatically. This subnet is associated with a route table that has a 0.0.0.0/0 route through an Internet Gateway, increasing the risk that workloads are directly reachable from untrusted networks if security-group rules permit it.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "Instances launched in this subnet receive public IPv4 addresses automatically. This subnet is associated with a route table that has a 0.0.0.0/0 route through an Internet Gateway, increasing the risk that workloads are directly reachable from untrusted networks if security-group rules permit it.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded AWS credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User-data can be retrieved by processes on the instance and may be exposed through Terraform state, source control, logs, or instance metadata, enabling unauthorized AWS API access if the key is active.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP port 22 is open to 0.0.0.0/0. This permits SSH connection attempts from any Internet host to the attached instance, materially expanding remote administrative attack surface.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "TCP port 80 is open to 0.0.0.0/0. Because this security group is attached to portal_server and the configuration provisions Apache, the web service is reachable from any source when the subnet has Internet routing.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The security group permits all protocols and ports to every IPv4 destination. This removes egress network controls for the instance and enables unrestricted outbound communications if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket used as the destination for VPC flow logs has no configured server-side encryption. Flow-log data stored in this bucket is therefore not explicitly protected with a customer- or AWS-managed encryption configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing snapshot encryption",
+      "description": "The snapshot does not declare encryption. Its encryption state will depend on the source EBS volume and account defaults, neither of which are visible in this excerpt; therefore missing encryption cannot be substantiated from this resource alone.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 4244,
+  "output_tokens": 788,
+  "latency_s": 10.395,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"missing snapshot encryption\",\"description\":\"The snapshot does not declare encryption. Its encryption state will depend on the source EBS volume and account defaults, neither of which are visible in this excerpt; therefore missing encryption cannot be substantiated from this resource alone.\",\"severity\":\"informational\",\"confidence\":\"low\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1479,
+      "output_tokens": 290,
+      "latency_s": 3.734,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.006438
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 1687,
+      "output_tokens": 407,
+      "latency_s": 5.013,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.008258
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1078,
+      "output_tokens": 91,
+      "latency_s": 1.648,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.003248
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.017944
+}

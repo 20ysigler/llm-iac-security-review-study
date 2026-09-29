@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:18:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Compromise of this user's credentials yields full control over compute, storage, serverless and monitoring resources across the account, enabling data exfiltration from any S3 bucket and privilege escalation via iam:PassRole-style lambda/ec2 patterns.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "plaintext credentials in state",
+      "description": "A permanent IAM access key is created with no pgp_key, so the secret access key is written in cleartext to the Terraform state file and never rotates. Anyone with read access to state (commonly a remote S3 backend) obtains long-lived working credentials carrying the attached wildcard permissions.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "credential exposure via module output",
+      "description": "The root module exports the IAM username and the access key secret as outputs. Because no pgp_key was supplied, encrypted_secret is not usable encrypted material and the credential is recorded in plaintext in state and rendered by `terraform output` or CI/CD logs, leaking credentials for a highly privileged principal.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "policy attached directly to user",
+      "description": "Broad permissions are granted through an inline user policy rather than via a group or an assumable role issuing temporary, MFA-conditioned credentials, bypassing centralised permission management and making revocation and rotation harder.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8168,
+  "output_tokens": 2052,
+  "latency_s": 31.088,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Compromise of this user's credentials yields full control over compute, storage, serverless and monitoring resources across the account, enabling data exfiltration from any S3 bucket and privilege escalation via iam:PassRole-style lambda/ec2 patterns.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"plaintext credentials in state\", \"description\": \"A permanent IAM access key is created with no pgp_key, so the secret access key is written in cleartext to the Terraform state file and never rotates. Anyone with read access to state (commonly a remote S3 backend) obtains long-lived working credentials carrying the attached wildcard permissions.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"credential exposure via module output\", \"description\": \"The root module exports the IAM username and the access key secret as outputs. Because no pgp_key was supplied, encrypted_secret is not usable encrypted material and the credential is recorded in plaintext in state and rendered by `terraform output` or CI/CD logs, leaking credentials for a highly privileged principal.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"policy attached directly to user\", \"description\": \"Broad permissions are granted through an inline user policy rather than via a group or an assumable role issuing temporary, MFA-conditioned credentials, bypassing centralised permission management and making revocation and rotation harder.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2197,
+      "output_tokens": 656,
+      "latency_s": 12.748,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027385
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2197,
+      "output_tokens": 684,
+      "latency_s": 9.662,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.028085
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3774,
+      "output_tokens": 712,
+      "latency_s": 8.678,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03667
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.09214
+}

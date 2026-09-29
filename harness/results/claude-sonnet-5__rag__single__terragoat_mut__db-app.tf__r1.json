@@ -1,0 +1,100 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:26:34Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, exposing the database to direct connections from the internet rather than restricting it to the private application layer.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the database data at rest is not encrypted, violating the requirement to encrypt data at rest by default.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext database credentials",
+      "description": "The master password is sourced from var.password and injected directly into the instance; combined with its use in user_data, this leads to credential exposure and static long-lived database credentials with no rotation or secrets manager use.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets exposed in instance metadata/user data",
+      "description": "The user_data script embeds the database password and username in plaintext, which is readable by anyone with EC2 describe-instance-attribute permissions or console access to the instance metadata, a much wider audience than the secrets store.",
+      "severity": "high",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource \"*\", far exceeding least privilege for an application server and effectively granting broad administrative capability over these services.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing an unrestricted data exfiltration path from the database tier.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled encryption in transit enforcement",
+      "description": "No parameter enforcing SSL/TLS connections (e.g., require_secure_transport) is set in the associated parameter group, and the option/parameter groups do not enforce encrypted connections to MySQL, allowing unencrypted client-database traffic.",
+      "severity": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_iam_instance_profile.catalog_app_profile",
+      "issue_category": "overly broad role attachment",
+      "description": "The instance profile attaches catalog_app_role, which via its inline policy grants excessive wildcard permissions to any process running on the EC2 instance, expanding the blast radius of instance compromise.",
+      "severity": "high"
+    }
+  ],
+  "input_tokens": 7241,
+  "output_tokens": 1159,
+  "latency_s": 9.937,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, exposing the database to direct connections from the internet rather than restricting it to the private application layer.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database data at rest is not encrypted, violating the requirement to encrypt data at rest by default.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext database credentials\", \"description\": \"The master password is sourced from var.password and injected directly into the instance; combined with its use in user_data, this leads to credential exposure and static long-lived database credentials with no rotation or secrets manager use.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets exposed in instance metadata/user data\", \"description\": \"The user_data script embeds the database password and username in plaintext, which is readable by anyone with EC2 describe-instance-attribute permissions or console access to the instance metadata, a much wider audience than the secrets store.\", \"severity\": \"high\", \"cwe\": \"CWE-522\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", far exceeding least privilege for an application server and effectively granting broad administrative capability over these services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing an unrestricted data exfiltration path from the database tier.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled encryption in transit enforcement\", \"description\": \"No parameter enforcing SSL/TLS connections (e.g., require_secure_transport) is set in the associated parameter group, and the option/parameter groups do not enforce encrypted connections to MySQL, allowing unencrypted client-database traffic.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_iam_instance_profile.catalog_app_profile\", \"issue_category\": \"overly broad role attachment\", \"description\": \"The instance profile attaches catalog_app_role, which via its inline policy grants excessive wildcard permissions to any process running on the EC2 instance, expanding the blast radius of instance compromise.\", \"severity\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7241,
+      "output_tokens": 1159,
+      "latency_s": 9.937,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.026072
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026072
+}

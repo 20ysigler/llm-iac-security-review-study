@@ -1,0 +1,54 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__iam.tf__r7",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 7,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:15:31Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action across multiple services.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating an IAM access key/secret for a human/service user establishes long-lived static credentials attached to an over-privileged user, increasing risk if leaked; combined with the excessive policy this significantly expands the attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user with force_destroy enabled",
+      "description": "force_destroy = true allows the user (and its access keys, MFA devices, etc.) to be deleted without safeguards, but more importantly this user is provisioned with programmatic access keys and broad permissions, increasing the impact of credential compromise.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "The output 'secret' exposes aws_iam_access_key.user.encrypted_secret, which can leak encrypted secret key material into Terraform state/output logs and CLI output, risking credential disclosure.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1843,
+  "output_tokens": 629,
+  "latency_s": 6.386,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege and allowing this IAM user to perform virtually any action across multiple services.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating an IAM access key/secret for a human/service user establishes long-lived static credentials attached to an over-privileged user, increasing risk if leaked; combined with the excessive policy this significantly expands the attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user with force_destroy enabled\", \"description\": \"force_destroy = true allows the user (and its access keys, MFA devices, etc.) to be deleted without safeguards, but more importantly this user is provisioned with programmatic access keys and broad permissions, increasing the impact of credential compromise.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"The output 'secret' exposes aws_iam_access_key.user.encrypted_secret, which can leak encrypted secret key material into Terraform state/output logs and CLI output, risking credential disclosure.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.009976
+}

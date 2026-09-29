@@ -1,0 +1,47 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__iam.tf__r6",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 6,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:22:35Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually unrestricted actions across multiple services, including potential privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret is created for a human/service user rather than using temporary, role-based credentials, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standing IAM user with excess privilege",
+      "description": "Creating a standalone IAM user (rather than a role) that is later attached to an overly broad policy creates a persistent, highly privileged identity with static credentials, expanding the attack surface if the credentials are compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2265,
+  "output_tokens": 532,
+  "latency_s": 5.2,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually unrestricted actions across multiple services, including potential privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret is created for a human/service user rather than using temporary, role-based credentials, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standing IAM user with excess privilege\", \"description\": \"Creating a standalone IAM user (rather than a role) that is later attached to an overly broad policy creates a persistent, highly privileged identity with static credentials, expanding the attack surface if the credentials are compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.00985
+}

@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* (effectively full administrative control over services and all data) on Resource \"*\" with no conditions. A compromise of this deploy user permits lateral movement, data exfiltration, and persistence across the whole account.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key with full-service permissions is created for the deploy user. Static keys never rotate automatically and cannot be tied to a short-lived role/session, so a leaked key remains valid indefinitely.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "no MFA enforcement",
+      "description": "The IAM user has no MFA device and no policy requiring multi-factor authentication, yet it holds broad programmatic permissions. Credentials alone are sufficient for full access, removing a key defense against credential theft.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force_destroy on identity",
+      "description": "force_destroy = true means the user can be deleted along with attached policies/keys without protection, allowing an accidental or malicious destroy to remove or recreate identities and potentially leave orphaned or hijacked credentials.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output svc_deploy_key_material",
+      "issue_category": "sensitive value in output",
+      "description": "The access key material is exported as a root-module output without the sensitive flag, so the secret is written to plan/apply logs and state and is visible to anyone with access to state or CI output.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 1010,
+  "output_tokens": 514,
+  "latency_s": 3.166,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[4] resource 'output svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* (effectively full administrative control over services and all data) on Resource \\\"*\\\" with no conditions. A compromise of this deploy user permits lateral movement, data exfiltration, and persistence across the whole account.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key with full-service permissions is created for the deploy user. Static keys never rotate automatically and cannot be tied to a short-lived role/session, so a leaked key remains valid indefinitely.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"no MFA enforcement\", \"description\": \"The IAM user has no MFA device and no policy requiring multi-factor authentication, yet it holds broad programmatic permissions. Credentials alone are sufficient for full access, removing a key defense against credential theft.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force_destroy on identity\", \"description\": \"force_destroy = true means the user can be deleted along with attached policies/keys without protection, allowing an accidental or malicious destroy to remove or recreate identities and potentially leave orphaned or hijacked credentials.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"output svc_deploy_key_material\", \"issue_category\": \"sensitive value in output\", \"description\": \"The access key material is exported as a root-module output without the sensitive flag, so the secret is written to plan/apply logs and state and is visible to anyone with access to state or CI output.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1010,
+      "output_tokens": 514,
+      "latency_s": 3.166,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000285
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000285
+}

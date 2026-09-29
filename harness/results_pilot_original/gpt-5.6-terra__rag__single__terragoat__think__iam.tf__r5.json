@@ -1,0 +1,49 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__iam.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:45:20Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "description": "This creates a persistent IAM user access key rather than using federated, temporary credentials. Long-lived keys are susceptible to theft and remain usable until manually disabled or rotated.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants full EC2, S3, Lambda, and CloudWatch permissions against every resource. These broad service-wide permissions violate least privilege and can enable data access, infrastructure modification, and privilege escalation depending on resources in the account.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "exposed access key secret",
+      "description": "The IAM access-key secret is emitted as a Terraform output without `sensitive = true`. It can therefore be displayed in CLI output and exposed to users or systems able to read Terraform outputs/state.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1801,
+  "output_tokens": 244,
+  "latency_s": 3.165,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"description\":\"This creates a persistent IAM user access key rather than using federated, temporary credentials. Long-lived keys are susceptible to theft and remain usable until manually disabled or rotated.\",\"severity\":\"medium\",\"cwe\":\"CWE-522\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The policy grants full EC2, S3, Lambda, and CloudWatch permissions against every resource. These broad service-wide permissions violate least privilege and can enable data access, infrastructure modification, and privilege escalation depending on resources in the account.\",\"severity\":\"high\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"output.secret\",\"issue_category\":\"exposed access key secret\",\"description\":\"The IAM access-key secret is emitted as a Terraform output without `sensitive = true`. It can therefore be displayed in CLI output and exposed to users or systems able to read Terraform outputs/state.\",\"severity\":\"high\",\"cwe\":\"CWE-312\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.00653
+}

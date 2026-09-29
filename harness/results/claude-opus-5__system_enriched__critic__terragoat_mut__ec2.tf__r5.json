@@ -1,0 +1,150 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__ec2.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:46:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress from internet",
+      "description": "The security group allows inbound TCP/22 from 0.0.0.0/0, exposing SSH on a publicly-addressed instance to the entire internet and enabling brute-force or exploitation attempts against the management port.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials in user data",
+      "description": "The user_data script exports a static AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. EC2 user data is retrievable from the instance metadata service by any local process or via SSRF against the public web server, leaking long-lived AWS credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "instance metadata service v1 enabled",
+      "description": "No metadata_options block is set, so IMDSv1 (token-optional) remains enabled on an internet-facing Apache host, making retrieval of user data and any role credentials via SSRF against 169.254.169.254 trivial.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "missing root volume encryption",
+      "description": "The instance defines no root_block_device with encrypted = true, so unless the AMI or account default enforces it the root volume is stored unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the web server does not set encrypted = true or a KMS key, so its data is stored unencrypted.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The VPC flow log bucket declares no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration resource), so sensitive network telemetry is stored without an explicit encryption control or customer-managed key.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is defined for the flow-log bucket, so it relies solely on account-level defaults to prevent a future ACL or policy from exposing network traffic records publicly.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "no TLS-only bucket policy",
+      "description": "The bucket has no policy denying requests where aws:SecureTransport is false, permitting cleartext HTTP access to stored flow log data.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true combined with the 0.0.0.0/0 route to the internet gateway means every instance launched here, including portal_server, is directly internet-reachable with no bastion, NAT, or load balancer boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true and association with the internet-gateway route table mean all instances in this subnet are automatically assigned public IPs; there is no private subnet tier for backend workloads.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress to internet",
+      "description": "The egress rule permits all protocols and ports to 0.0.0.0/0, allowing a compromised host to exfiltrate data or reach command-and-control infrastructure without restriction.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "cleartext HTTP exposed publicly",
+      "description": "Port 80 is open to 0.0.0.0/0 and the user_data installs plain Apache with no TLS listener or terminating load balancer, so all portal traffic is transmitted in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 10376,
+  "output_tokens": 3787,
+  "latency_s": 37.282,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress from internet\", \"description\": \"The security group allows inbound TCP/22 from 0.0.0.0/0, exposing SSH on a publicly-addressed instance to the entire internet and enabling brute-force or exploitation attempts against the management port.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded cloud credentials in user data\", \"description\": \"The user_data script exports a static AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. EC2 user data is retrievable from the instance metadata service by any local process or via SSRF against the public web server, leaking long-lived AWS credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"instance metadata service v1 enabled\", \"description\": \"No metadata_options block is set, so IMDSv1 (token-optional) remains enabled on an internet-facing Apache host, making retrieval of user data and any role credentials via SSRF against 169.254.169.254 trivial.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"missing root volume encryption\", \"description\": \"The instance defines no root_block_device with encrypted = true, so unless the AMI or account default enforces it the root volume is stored unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume attached to the web server does not set encrypted = true or a KMS key, so its data is stored unencrypted.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The VPC flow log bucket declares no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration resource), so sensitive network telemetry is stored without an explicit encryption control or customer-managed key.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is defined for the flow-log bucket, so it relies solely on account-level defaults to prevent a future ACL or policy from exposing network traffic records publicly.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"no TLS-only bucket policy\", \"description\": \"The bucket has no policy denying requests where aws:SecureTransport is false, permitting cleartext HTTP access to stored flow log data.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true combined with the 0.0.0.0/0 route to the internet gateway means every instance launched here, including portal_server, is directly internet-reachable with no bastion, NAT, or load balancer boundary.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true and association with the internet-gateway route table mean all instances in this subnet are automatically assigned public IPs; there is no private subnet tier for backend workloads.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress to internet\", \"description\": \"The egress rule permits all protocols and ports to 0.0.0.0/0, allowing a compromised host to exfiltrate data o",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3970,
+      "output_tokens": 2084,
+      "latency_s": 22.192,
+      "n_findings": 15,
+      "error": "",
+      "cost_usd": 0.07195
+    },
+    {
+      "step": "critique",
+      "input_tokens": 6406,
+      "output_tokens": 1703,
+      "latency_s": 15.09,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.074605
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.146555
+}

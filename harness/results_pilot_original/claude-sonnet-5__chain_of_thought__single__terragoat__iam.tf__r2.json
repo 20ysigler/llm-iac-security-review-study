@@ -1,0 +1,51 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:52:19Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard '*' actions on ec2, s3, lambda, and cloudwatch services with Resource '*', violating least privilege and allowing the IAM user to perform virtually any action on these services, including data exfiltration, resource destruction, or privilege escalation.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "An IAM access key is created for a user with excessive permissions, creating long-lived static credentials that can be leaked or misused; combined with the overly broad policy, compromise of this key would grant broad account access.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user with force_destroy and broad access",
+      "description": "An IAM user is created (rather than using roles) with force_destroy enabled, and is attached to an overly permissive policy, increasing the attack surface for credential-based compromise instead of leveraging short-lived role-based access.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, which, along with the corresponding username output, risks leaking sensitive credential material into Terraform state/logs and CLI output.",
+      "severity": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 2019,
+  "output_tokens": 634,
+  "latency_s": 6.579,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard '*' actions on ec2, s3, lambda, and cloudwatch services with Resource '*', violating least privilege and allowing the IAM user to perform virtually any action on these services, including data exfiltration, resource destruction, or privilege escalation.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"An IAM access key is created for a user with excessive permissions, creating long-lived static credentials that can be leaked or misused; combined with the overly broad policy, compromise of this key would grant broad account access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user with force_destroy and broad access\", \"description\": \"An IAM user is created (rather than using roles) with force_destroy enabled, and is attached to an overly permissive policy, increasing the attack surface for credential-based compromise instead of leveraging short-lived role-based access.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, which, along with the corresponding username output, risks leaking sensitive credential material into Terraform state/logs and CLI output.\", \"severity\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "cost_usd": 0.010378
+}

@@ -1,0 +1,225 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat__ec2.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:33:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script exports static AWS access key ID and secret access key as environment variables. User data is retrievable in cleartext from the instance metadata service by anyone who can reach the instance or exploit an SSRF, leaking long-lived AWS credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "instance metadata service v1 enabled",
+      "description": "No metadata_options block is set, so IMDSv1 (token-optional) remains enabled. Combined with credentials in user data and a web server on the instance, an SSRF flaw can trivially read user data and any instance role credentials.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "missing root volume encryption",
+      "description": "No root_block_device or ebs_block_device with encrypted = true is specified, so the instance's root EBS volume may be stored unencrypted, leaving data at rest unprotected.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "cleartext transmission of data",
+      "description": "The bootstrap script installs Apache serving plain HTTP with no TLS configuration, so all traffic to the host is transmitted in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created with the 'encrypted' argument commented out, so the volume defaults to unencrypted and any data written to it (and derived snapshots) is stored in plaintext.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created from the volume without encryption enabled (no encrypted/KMS key configuration and the source volume is not shown as encrypted), so block-level data in the snapshot is stored in cleartext and any principal able to copy or restore the snapshot gains plaintext data access.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress rule allows TCP/22 from 0.0.0.0/0, exposing SSH administrative access on the attached instance (aws_instance.web_host, which is internet-reachable via the IGW/public subnet) to the entire internet and enabling brute-force and exploitation attempts.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "Ingress on TCP/80 from 0.0.0.0/0 exposes an unencrypted HTTP service to the internet, permitting cleartext transmission of traffic and credentials with no TLS boundary.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress to internet",
+      "description": "The egress rule permits all protocols and ports to 0.0.0.0/0, providing no outbound segmentation and allowing a compromised host to exfiltrate data or reach command-and-control infrastructure.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true, so every instance launched into it (including aws_instance.web_host / its ENI) automatically receives a public IP address and becomes directly reachable from the internet, removing the network boundary that would otherwise limit exposure to a NAT or load balancer.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1327"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true, automatically exposing any instance launched into it to the public internet rather than keeping workloads on private addressing behind a controlled egress/ingress point.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1327"
+    },
+    {
+      "resource": "aws_vpc.web_vpc",
+      "issue_category": "missing VPC flow log enforcement/default SG lockdown",
+      "description": "The VPC does not restrict its default security group (no aws_default_security_group resource restricting all ingress/egress), so the default SG remains available with permissive intra-group rules for any resource attached without an explicit security group.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_route.public_internet_gateway",
+      "issue_category": "unrestricted egress route to internet",
+      "description": "The route table associated with both subnets sends all traffic (0.0.0.0/0) to the internet gateway, making every subnet public. Combined with the EC2 host and its network interface placed in these subnets, workloads become directly internet-reachable with no private/segmented tier.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1327"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket receiving VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration or sse_algorithm defined), so sensitive network telemetry is stored unencrypted by configuration intent.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing public access block",
+      "description": "No public access block or bucket-level restriction is declared for the flow log bucket, leaving it reliant on account defaults to prevent public ACLs or policies from exposing network flow data.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing access logging",
+      "description": "The flow log bucket has no server access logging configured, so unauthorized reads or deletions of the stored flow log data would not be recorded, weakening auditability of a security-relevant data store.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-778"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "no versioning / destructive deletion enabled",
+      "description": "force_destroy = true combined with no versioning allows the entire flow log bucket and its audit data to be deleted without recovery, enabling destruction of security evidence.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing TLS-only bucket policy",
+      "description": "No bucket policy enforces aws:SecureTransport, so objects in the flow log bucket may be retrieved over unencrypted HTTP connections.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 14845,
+  "output_tokens": 2753,
+  "latency_s": 40.133,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket receiving VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration or sse_algorithm defined), so sensitive network telemetry is stored unencrypted by configuration intent.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing public access block\", \"description\": \"No public access block or bucket-level restriction is declared for the flow log bucket, leaving it reliant on account defaults to prevent public ACLs or policies from exposing network flow data.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing access logging\", \"description\": \"The flow log bucket has no server access logging configured, so unauthorized reads or deletions of the stored flow log data would not be recorded, weakening auditability of a security-relevant data store.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-778\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"no versioning / destructive deletion enabled\", \"description\": \"force_destroy = true combined with no versioning allows the entire flow log bucket and its audit data to be deleted without recovery, enabling destruction of security evidence.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-693\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing TLS-only bucket policy\", \"description\": \"No bucket policy enforces aws:SecureTransport, so objects in the flow log bucket may be retrieved over unencrypted HTTP connections.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2919,
+      "output_tokens": 709,
+      "latency_s": 9.947,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03232
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2954,
+      "output_tokens": 648,
+      "latency_s": 8.95,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03097
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 2963,
+      "output_tokens": 492,
+      "latency_s": 7.577,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.027115
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 3140,
+      "output_tokens": 196,
+      "latency_s": 3.938,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.0206
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 2869,
+      "output_tokens": 708,
+      "latency_s": 9.721,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.032045
+    }
+  ],
+  "n_calls": 5,
+  "chunks": 5,
+  "cost_usd": 0.14305
+}

@@ -1,0 +1,87 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:54:59Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "encryption at rest disabled",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private network layer.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database username is a default admin account and the password is passed in as a variable and also embedded in plaintext within the EC2 user_data script, making credentials readable to anyone with describe permissions on the instance.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hardcoded/plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and password in plaintext (DB_USERNAME/DB_PASSWORD), which is visible to anyone with ec2:DescribeInstanceAttribute permissions and stored unencrypted in instance metadata/logs.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, providing a potential data exfiltration path with no restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\"), far exceeding least privilege and effectively granting broad administrative access across these services.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "no encryption in transit enforcement",
+      "description": "No parameter group setting or configuration enforces SSL/TLS for MySQL client connections, allowing unencrypted communication between the application and the database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "missing IMDSv2 enforcement",
+      "description": "The EC2 instance does not set metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 8754,
+  "output_tokens": 1212,
+  "latency_s": 10.644,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"encryption at rest disabled\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private network layer.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database username is a default admin account and the password is passed in as a variable and also embedded in plaintext within the EC2 user_data script, making credentials readable to anyone with describe permissions on the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hardcoded/plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and password in plaintext (DB_USERNAME/DB_PASSWORD), which is visible to anyone with ec2:DescribeInstanceAttribute permissions and stored unencrypted in instance metadata/logs.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, providing a potential data exfiltration path with no restriction.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\"), far exceeding least privilege and effectively granting broad administrative access across these services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"no encryption in transit enforcement\", \"description\": \"No parameter group setting or configuration enforces SSL/TLS for MySQL client connections, allowing unencrypted communication between the application and the database.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"missing IMDSv2 enforcement\", \"description\": \"The EC2 instance does not set metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service enabled and vulnerable to SSRF-based credential theft.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.029628
+}

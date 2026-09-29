@@ -1,0 +1,137 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__ec2.tf__r3",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:01:59Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The instance user_data script exports a static AWS access key ID and secret access key in plain text. User data is readable by anyone with ec2:DescribeInstanceAttribute and from the instance metadata service, so these long-lived credentials are effectively disclosed.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 permitted (no metadata_options)",
+      "description": "No metadata_options block requiring http_tokens = \"required\", so the legacy unauthenticated instance metadata service (IMDSv1) remains enabled. An SSRF in the web application can then retrieve instance credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-918"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "missing root volume encryption",
+      "description": "No root_block_device / ebs_block_device configuration with encrypted = true, so the instance's attached storage is created unencrypted, leaving data at rest unprotected.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "instance in public subnet with public IP",
+      "description": "The instance is launched in a subnet with map_public_ip_on_launch enabled and is directly reachable from the internet (public_dns is exported), placing compute that could sit behind a load balancer directly on the internet edge.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without encrypted = true (the attribute is deliberately commented out), so block storage attached to the web host stores data unencrypted and any snapshot of it is also unencrypted.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted EBS snapshot",
+      "description": "The snapshot is taken from an unencrypted volume and therefore is itself unencrypted; snapshots are easily shared/copied across accounts, exposing the data if permissions are ever loosened.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress allows TCP port 22 from 0.0.0.0/0, exposing SSH administrative access to the entire internet for brute-force and exploitation attempts.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress to internet",
+      "description": "The egress rule allows all protocols and ports to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the compromised host.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1327"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unencrypted HTTP exposed publicly",
+      "description": "Port 80 is open to 0.0.0.0/0 with no HTTPS/TLS listener configured, so all traffic to end users travels in cleartext and is subject to interception or tampering.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true means every instance launched in this subnet receives a public IP address, removing the private network layer for components that do not need inbound internet access.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically exposes all instances in this subnet to the internet with public addressing rather than keeping them in a private layer.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket that receives VPC flow logs has no server_side_encryption_configuration and no KMS customer-managed key, so sensitive network audit data is stored without enforced encryption.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing public access restrictions",
+      "description": "No aws_s3_bucket_public_access_block, ACL, or bucket policy restricting access is configured for the flow log bucket, so account-level or accidental permissive policies could expose network telemetry publicly.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "audit log tampering risk",
+      "description": "force_destroy = true with no versioning, MFA delete, or object lock allows the VPC flow log audit trail to be deleted wholesale, destroying forensic evidence.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-778"
+    }
+  ],
+  "input_tokens": 7690,
+  "output_tokens": 2193,
+  "latency_s": 24.884,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The instance user_data script exports a static AWS access key ID and secret access key in plain text. User data is readable by anyone with ec2:DescribeInstanceAttribute and from the instance metadata service, so these long-lived credentials are effectively disclosed.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"IMDSv1 permitted (no metadata_options)\", \"description\": \"No metadata_options block requiring http_tokens = \\\"required\\\", so the legacy unauthenticated instance metadata service (IMDSv1) remains enabled. An SSRF in the web application can then retrieve instance credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-918\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"missing root volume encryption\", \"description\": \"No root_block_device / ebs_block_device configuration with encrypted = true, so the instance's attached storage is created unencrypted, leaving data at rest unprotected.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"instance in public subnet with public IP\", \"description\": \"The instance is launched in a subnet with map_public_ip_on_launch enabled and is directly reachable from the internet (public_dns is exported), placing compute that could sit behind a load balancer directly on the internet edge.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without encrypted = true (the attribute is deliberately commented out), so block storage attached to the web host stores data unencrypted and any snapshot of it is also unencrypted.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted EBS snapshot\", \"description\": \"The snapshot is taken from an unencrypted volume and therefore is itself unencrypted; snapshots are easily shared/copied across accounts, exposing the data if permissions are ever loosened.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress allows TCP port 22 from 0.0.0.0/0, exposing SSH administrative access to the entire internet for brute-force and exploitation attempts.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress to internet\", \"description\": \"The egress rule allows all protocols and ports to 0.0.0.0/0, providing an unrestricted data exfiltration and command-and-control channel from the compromised host.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1327\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unencrypted HTTP exposed publicly\", \"description\": \"Port 80 is open to 0.0.0.0/0 with no HTTPS/TLS listener configured, so all traffic to end users travels in cleartext and is subject to interception or tampering.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true means every instance launched in this subnet receives a public IP address, removing the private network layer for components that do not need inbound internet access.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true automatically exposes all instances in this subnet to the internet with public addressing rather than keeping them in a private lay",
+  "cost_usd": 0.093275
+}

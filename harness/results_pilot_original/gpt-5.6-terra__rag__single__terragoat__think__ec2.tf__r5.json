@@ -1,0 +1,89 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__ec2.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:44:57Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded AWS credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key in plaintext. User-data is retrievable by principals with instance describe access and the values are also committed to IaC source, exposing reusable credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options configuration requires IMDSv2 tokens. This leaves IMDSv1 available, so an SSRF flaw on the instance could be used to retrieve instance metadata and any role credentials.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "root volume encryption not enforced",
+      "description": "The instance does not configure an encrypted root_block_device. Consequently, root-volume encryption depends on AMI and account defaults rather than being enforced by this workload configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "encryption at rest not enforced",
+      "description": "The EBS volume has no encrypted = true setting or KMS key. Its data may therefore be created unencrypted when account-level default EBS encryption is not enabled.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted EBS snapshot",
+      "description": "This snapshot is created from a volume whose encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this can preserve the volume's data without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is allowed from 0.0.0.0/0, exposing remote administration to every internet host. This permits internet-wide scanning and password/key-authentication attacks against the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The egress rule permits all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "bucket encryption not enforced",
+      "description": "The flow-log bucket has no server-side encryption configuration. Sensitive network-flow records can be stored without encryption at rest unless an external account-level default happens to supply it.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4577,
+  "output_tokens": 1022,
+  "latency_s": 11.109,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded AWS credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key in plaintext. User-data is retrievable by principals with instance describe access and the values are also committed to IaC source, exposing reusable credentials.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No metadata_options configuration requires IMDSv2 tokens. This leaves IMDSv1 available, so an SSRF flaw on the instance could be used to retrieve instance metadata and any role credentials.\",\"severity\":\"medium\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"root volume encryption not enforced\",\"description\":\"The instance does not configure an encrypted root_block_device. Consequently, root-volume encryption depends on AMI and account defaults rather than being enforced by this workload configuration.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"medium\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"encryption at rest not enforced\",\"description\":\"The EBS volume has no encrypted = true setting or KMS key. Its data may therefore be created unencrypted when account-level default EBS encryption is not enabled.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted EBS snapshot\",\"description\":\"This snapshot is created from a volume whose encryption is not enforced. EBS snapshots inherit the source volume's encryption state, so this can preserve the volume's data without encryption at rest.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is allowed from 0.0.0.0/0, exposing remote administration to every internet host. This permits internet-wide scanning and password/key-authentication attacks against the instance.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The egress rule permits all protocols and ports to 0.0.0.0/0. A compromised web host can use this unrestricted path for command-and-control communications or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"bucket encryption not enforced\",\"description\":\"The flow-log bucket has no server-side encryption configuration. Sensitive network-flow records can be stored without encryption at rest unless an external account-level default happens to supply it.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.021418
+}

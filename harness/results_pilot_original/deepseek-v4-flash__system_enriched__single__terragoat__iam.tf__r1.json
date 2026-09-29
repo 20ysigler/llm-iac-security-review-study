@@ -1,0 +1,47 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:46Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "exposed static credentials",
+      "description": "An IAM access key is created and its encrypted secret is exposed as a Terraform output. Outputs are often displayed in logs, CI, and state files, which can leak long-lived credentials for the IAM user.",
+      "severity": "high",
+      "cwe": "CWE-256",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive access policy",
+      "description": "The attached inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* actions on all resources, an excessive set of permissions far beyond least privilege. Combined with the access key created for the same user, this enables broad data access and control over the AWS account if the key is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "exposed IAM user credentials",
+      "description": "An access key is generated for this IAM user and the encrypted secret is written to a Terraform output ('secret'), exposing long-lived static credentials in output logs and state.",
+      "severity": "high",
+      "cwe": "CWE-256",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1391,
+  "output_tokens": 332,
+  "latency_s": 4.617,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"exposed static credentials\", \"description\": \"An IAM access key is created and its encrypted secret is exposed as a Terraform output. Outputs are often displayed in logs, CI, and state files, which can leak long-lived credentials for the IAM user.\", \"severity\": \"high\", \"cwe\": \"CWE-256\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive access policy\", \"description\": \"The attached inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* actions on all resources, an excessive set of permissions far beyond least privilege. Combined with the access key created for the same user, this enables broad data access and control over the AWS account if the key is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"exposed IAM user credentials\", \"description\": \"An access key is generated for this IAM user and the encrypted secret is written to a Terraform output ('secret'), exposing long-lived static credentials in output logs and state.\", \"severity\": \"high\", \"cwe\": \"CWE-256\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000288
+}

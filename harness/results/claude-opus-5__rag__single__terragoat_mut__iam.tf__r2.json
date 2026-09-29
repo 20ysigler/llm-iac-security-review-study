@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat_mut__iam.tf__r2",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:32:22Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy wildcards",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", which is effectively administrative control over compute, storage, and serverless resources in the account. Any compromise of this user's credentials yields near-total account takeover, and ec2:*/lambda:* include iam:PassRole-adjacent privilege escalation paths.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is provisioned for a highly privileged user instead of using an IAM role with temporary credentials. The key never expires or rotates automatically and its secret is stored in Terraform state in plaintext (no PGP key is supplied), making state files a credential store.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user without permissions boundary",
+      "description": "A long-lived IAM user is created for service/deployment automation with no permissions boundary and no MFA, so nothing caps the privileges that can be delegated or self-granted via the attached wildcard policy. Federated roles with temporary credentials should be preferred over static IAM users.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret exposed via Terraform output",
+      "description": "The output \"svc_deploy_key_material\" exports the access key secret without marking it sensitive, so it is printed to the console/CI logs and persisted in plaintext in Terraform state and any state backend or artifact store.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 3434,
+  "output_tokens": 725,
+  "latency_s": 9.344,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy wildcards\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", which is effectively administrative control over compute, storage, and serverless resources in the account. Any compromise of this user's credentials yields near-total account takeover, and ec2:*/lambda:* include iam:PassRole-adjacent privilege escalation paths.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is provisioned for a highly privileged user instead of using an IAM role with temporary credentials. The key never expires or rotates automatically and its secret is stored in Terraform state in plaintext (no PGP key is supplied), making state files a credential store.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user without permissions boundary\", \"description\": \"A long-lived IAM user is created for service/deployment automation with no permissions boundary and no MFA, so nothing caps the privileges that can be delegated or self-granted via the attached wildcard policy. Federated roles with temporary credentials should be preferred over static IAM users.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret exposed via Terraform output\", \"description\": \"The output \\\"svc_deploy_key_material\\\" exports the access key secret without marking it sensitive, so it is printed to the console/CI logs and persisted in plaintext in Terraform state and any state backend or artifact store.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3434,
+      "output_tokens": 725,
+      "latency_s": 9.344,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.035295
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.035295
+}

@@ -1,0 +1,102 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__ec2.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:35:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The instance user_data embeds a live-looking AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY) in cleartext. user_data is retrievable from the EC2 instance metadata service and stored unencrypted in Terraform state and any log that captures the resource, so anyone able to reach the instance, read state, or view the console can recover reusable long-lived credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The ingress rule allows TCP/22 from 0.0.0.0/0, exposing SSH on this internet-facing host (public subnet with map_public_ip_on_launch = true) to brute-force, credential-stuffing, and exploitation by any source on the internet. Administrative access should be restricted to known bastion or administrative CIDRs.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The ingress rule allows TCP/80 from 0.0.0.0/0. Combined with the embedded plaintext credentials and no TLS listener, web traffic and any data submitted to the host is exposed to interception and tampering from any network; exposure should be limited to intended clients and served over HTTPS.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume backing the portal server is created without the `encrypted` attribute, so data on the disk (and the snapshot made from it) is stored unencrypted at rest. Anyone with access to the underlying storage or a snapshot copy can read the contents, and credentials/secrets placed on the host are not protected by KMS.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used as the VPC flow log destination has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), so network flow records are written unencrypted. Flow logs reveal internal IP topology and traffic metadata, and the absence of SSE leaves the archive readable to anyone who obtains the underlying objects.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "`map_public_ip_on_launch = true` makes every instance launched in this subnet automatically internet-reachable. The portal server resides here, so the EC2 host (with its world-open security group and embedded credentials) is directly addressable from the internet rather than requiring an explicit opt-in per resource.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "`map_public_ip_on_launch = true` causes any instance launched in this subnet to receive a public IP automatically, expanding the internet-facing attack surface of the VPC beyond resources that intentionally require public addressing.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2539,
+  "output_tokens": 4003,
+  "latency_s": 18.677,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user_data\", \"description\": \"The instance user_data embeds a live-looking AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY) in cleartext. user_data is retrievable from the EC2 instance metadata service and stored unencrypted in Terraform state and any log that captures the resource, so anyone able to reach the instance, read state, or view the console can recover reusable long-lived credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The ingress rule allows TCP/22 from 0.0.0.0/0, exposing SSH on this internet-facing host (public subnet with map_public_ip_on_launch = true) to brute-force, credential-stuffing, and exploitation by any source on the internet. Administrative access should be restricted to known bastion or administrative CIDRs.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The ingress rule allows TCP/80 from 0.0.0.0/0. Combined with the embedded plaintext credentials and no TLS listener, web traffic and any data submitted to the host is exposed to interception and tampering from any network; exposure should be limited to intended clients and served over HTTPS.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume backing the portal server is created without the `encrypted` attribute, so data on the disk (and the snapshot made from it) is stored unencrypted at rest. Anyone with access to the underlying storage or a snapshot copy can read the contents, and credentials/secrets placed on the host are not protected by KMS.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used as the VPC flow log destination has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), so network flow records are written unencrypted. Flow logs reveal internal IP topology and traffic metadata, and the absence of SSE leaves the archive readable to anyone who obtains the underlying objects.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"`map_public_ip_on_launch = true` makes every instance launched in this subnet automatically internet-reachable. The portal server resides here, so the EC2 host (with its world-open security group and embedded credentials) is directly addressable from the internet rather than requiring an explicit opt-in per resource.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"`map_public_ip_on_launch = true` causes any instance launched in this subnet to receive a public IP automatically, expanding the internet-facing attack surface of the VPC beyond resources that intentionally require public addressing.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2539,
+      "output_tokens": 4003,
+      "latency_s": 18.677,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.001476
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001476
+}

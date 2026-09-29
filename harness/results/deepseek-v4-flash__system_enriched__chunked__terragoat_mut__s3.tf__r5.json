@@ -1,0 +1,141 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__s3.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket defines no server_side_encryption_configuration block, so objects such as the vendor roster seed object are stored using S3's unconfigured default with no customer-managed KMS key and no enforceable at-rest encryption control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket contains financial ledger data but declares no server_side_encryption_configuration, leaving export objects without an enforced encryption-at-rest configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket stores operational runbooks and has no server_side_encryption_configuration block, so its contents are not covered by an enforced encryption-at-rest setting.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket is versioned and logged but declares no server_side_encryption_configuration, so model artifacts and their retained versions are not protected by an enforced at-rest encryption configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "insecure log destination acl",
+      "description": "The bucket that receives server access logs from model_artifacts is configured with the legacy canned ACL 'log-delivery-write'. This grants WRITE and READ_ACP to the global LogDelivery group rather than to a narrowly scoped logging principal, enabling any account's logging service to write objects into the audit bucket and overwrite access-log evidence. It also relies on a deprecated ACL-based access model rather than bucket-owner-enforced ownership and policy.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "unrestricted log deletion",
+      "description": "With force_destroy = true and a writable log-delivery ACL, the audit trail bucket holding access-log evidence can be destroyed along with all objects, undermining the integrity and non-repudiability of the audit record. Audit stores should be deletion-protected (e.g. Object Lock / MFA delete style controls) rather than destroyable.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing logging and lifecycle protection",
+      "description": "The audit bucket itself has no access logging of its own and no policy restricting the log-delivery principal, so reads and deletes of audit objects are not themselves auditable \u2014 a gap in defence in depth for the most security-sensitive store in the account.",
+      "severity": "low",
+      "cwe": "CWE-778",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "unrestricted destroy of data store",
+      "description": "force_destroy = true on reports_archive means a single erroneous or malicious Terraform apply deletes every object in the bucket, including the seeded vendor roster, without any retention guard.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "unrestricted destroy of data store",
+      "description": "force_destroy = true on the ledger export bucket allows all financial export objects to be irreversibly deleted during destroy or replacement, removing any retention safeguard on regulated data.",
+      "severity": "medium",
+      "cwe": "CWE-693",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "unrestricted destroy of data store",
+      "description": "force_destroy = true on model_artifacts permits mass deletion of all model artifact versions, removing the ability to roll back to a previously trusted model.",
+      "severity": "low",
+      "cwe": "CWE-693",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "unrestricted destroy of data store",
+      "description": "force_destroy = true on ops_runbooks allows all runbook content to be destroyed on a single apply, removing operational and incident-response documentation.",
+      "severity": "low",
+      "cwe": "CWE-693",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption at rest",
+      "description": "The seed object is written to reports_archive, which has no encryption configuration and the object itself specifies no server_side_encryption, so the vendor roster is stored without an enforced encryption-at-rest setting.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1670,
+  "output_tokens": 1222,
+  "latency_s": 5.363,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket defines no server_side_encryption_configuration block, so objects such as the vendor roster seed object are stored using S3's unconfigured default with no customer-managed KMS key and no enforceable at-rest encryption control.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket contains financial ledger data but declares no server_side_encryption_configuration, leaving export objects without an enforced encryption-at-rest configuration.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket stores operational runbooks and has no server_side_encryption_configuration block, so its contents are not covered by an enforced encryption-at-rest setting.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket is versioned and logged but declares no server_side_encryption_configuration, so model artifacts and their retained versions are not protected by an enforced at-rest encryption configuration.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"insecure log destination acl\", \"description\": \"The bucket that receives server access logs from model_artifacts is configured with the legacy canned ACL 'log-delivery-write'. This grants WRITE and READ_ACP to the global LogDelivery group rather than to a narrowly scoped logging principal, enabling any account's logging service to write objects into the audit bucket and overwrite access-log evidence. It also relies on a deprecated ACL-based access model rather than bucket-owner-enforced ownership and policy.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"unrestricted log deletion\", \"description\": \"With force_destroy = true and a writable log-delivery ACL, the audit trail bucket holding access-log evidence can be destroyed along with all objects, undermining the integrity and non-repudiability of the audit record. Audit stores should be deletion-protected (e.g. Object Lock / MFA delete style controls) rather than destroyable.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing logging and lifecycle protection\", \"description\": \"The audit bucket itself has no access logging of its own and no policy restricting the log-delivery principal, so reads and deletes of audit objects are not themselves auditable \u2014 a gap in defence in depth for the most security-sensitive store in the account.\", \"severity\": \"low\", \"cwe\": \"CWE-778\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"unrestricted destroy of data store\", \"description\": \"force_destroy = true on reports_archive means a single erroneous or malicious Terraform apply deletes every object in the bucket, including the seeded vendor roster, without any retention guard.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"unrestricted destroy of data store\", \"description\": \"force_destroy = true on the ledger export bucket allows all financial export objects to be irreversibly deleted during destroy or replacement, removing any retention safeguard on regulated data.\", \"severity\": \"medium\", \"cwe\": \"CWE-693\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"unrestricted destroy of data store\", \"descri",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1670,
+      "output_tokens": 1222,
+      "latency_s": 5.363,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.000576
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.000576
+}

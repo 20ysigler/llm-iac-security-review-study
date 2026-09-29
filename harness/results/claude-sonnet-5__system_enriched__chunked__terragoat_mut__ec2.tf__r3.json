@@ -1,0 +1,134 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__ec2.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to any instance launched in this subnet, increasing exposure to untrusted networks unless tightly controlled elsewhere.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to any instance launched in this subnet, increasing exposure to untrusted networks unless tightly controlled elsewhere.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (nor a kms_key_id), meaning data stored on this disk is unencrypted at rest, violating encryption-at-rest best practices for regulated environments.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials",
+      "description": "AWS access key ID and secret access key are hard-coded in plaintext in the instance user_data script, which is stored in the Terraform state and visible via the EC2 instance metadata service to anyone with access to the instance or state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing administrative access to the entire internet.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs does not configure server-side encryption, leaving potentially sensitive network traffic metadata stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing access controls / public access block",
+      "description": "The S3 bucket has no bucket policy, ACL restriction, or public access block configuration defined, and force_destroy is enabled, increasing risk that flow log data could be exposed or accidentally deleted without safeguards.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted snapshot / missing encryption at rest",
+      "description": "The snapshot inherits encryption from the source aws_ebs_volume.portal_server_disk; since no encryption setting is visible or enforced here and no KMS key is specified, if the source volume is unencrypted this snapshot will store portal disk data (potentially including sensitive data) unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "low",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "no access restriction on snapshot sharing",
+      "description": "The snapshot resource does not set any restriction on sharing (e.g., ensuring it stays private); EBS snapshots can be inadvertently shared publicly if permissions are modified elsewhere, and no explicit safeguard is configured here.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 8654,
+  "output_tokens": 1613,
+  "latency_s": 16.193,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"unencrypted snapshot / missing encryption at rest\", \"description\": \"The snapshot inherits encryption from the source aws_ebs_volume.portal_server_disk; since no encryption setting is visible or enforced here and no KMS key is specified, if the source volume is unencrypted this snapshot will store portal disk data (potentially including sensitive data) unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"low\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"no access restriction on snapshot sharing\", \"description\": \"The snapshot resource does not set any restriction on sharing (e.g., ensuring it stays private); EBS snapshots can be inadvertently shared publicly if permissions are modified elsewhere, and no explicit safeguard is configured here.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2992,
+      "output_tokens": 451,
+      "latency_s": 4.215,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.010494
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3330,
+      "output_tokens": 763,
+      "latency_s": 6.95,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.01429
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 2332,
+      "output_tokens": 399,
+      "latency_s": 5.028,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.008654
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.033438
+}

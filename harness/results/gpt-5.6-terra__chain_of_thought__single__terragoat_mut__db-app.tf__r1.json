@@ -1,0 +1,85 @@
+{
+  "run_id": "gpt-5.6-terra__chain_of_thought__single__terragoat_mut__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, which assigns it a public network endpoint. Although the shown security group restricts MySQL ingress to the VPC CIDR, this unnecessarily exposes the database to Internet reachability and makes any future security-group broadening immediately externally exploitable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The database explicitly sets storage_encrypted = false, leaving database storage, backups, and snapshots unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:*, and rds:* on every resource. Compromise of the application instance would give an attacker broad ability to read, alter, create, or delete AWS resources and data.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overbroad database ingress",
+      "description": "MySQL port 3306 is allowed from the entire portal VPC CIDR rather than only the application security group or required hosts. Any compromised or unauthorized workload in that VPC can attempt to connect to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credentials in user data",
+      "description": "The DB username and var.password are interpolated into EC2 user data and written to /var/www/inc/dbinfo.inc. User data is exposed to principals or processes able to retrieve instance metadata or inspect the launch configuration, and the resulting credential file is left readable by non-root users under default directory permissions.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2960,
+  "output_tokens": 431,
+  "latency_s": 5.089,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, which assigns it a public network endpoint. Although the shown security group restricts MySQL ingress to the VPC CIDR, this unnecessarily exposes the database to Internet reachability and makes any future security-group broadening immediately externally exploitable.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The database explicitly sets storage_encrypted = false, leaving database storage, backups, and snapshots unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The instance role grants s3:*, ec2:*, and rds:* on every resource. Compromise of the application instance would give an attacker broad ability to read, alter, create, or delete AWS resources and data.\",\"severity\":\"high\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_inbound\",\"issue_category\":\"overbroad database ingress\",\"description\":\"MySQL port 3306 is allowed from the entire portal VPC CIDR rather than only the application security group or required hosts. Any compromised or unauthorized workload in that VPC can attempt to connect to the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"database credentials in user data\",\"description\":\"The DB username and var.password are interpolated into EC2 user data and written to /var/www/inc/dbinfo.inc. User data is exposed to principals or processes able to retrieve instance metadata or inspect the launch configuration, and the resulting credential file is left readable by non-root users under default directory permissions.\",\"severity\":\"high\",\"cwe\":\"CWE-522\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2960,
+      "output_tokens": 431,
+      "latency_s": 5.089,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.011092
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.011092
+}

@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__kms.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:14:22Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Automatic key rotation disabled",
+      "description": "The KMS key protecting the audit trail bucket does not set enable_key_rotation, which defaults to false. Key material is never rotated, extending the useful life of compromised key material and failing common compliance expectations for audit-log encryption keys.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Missing explicit key policy",
+      "description": "No policy argument is supplied, so AWS applies the default key policy delegating full kms:* control to the account root principal. Any IAM principal in the account that can be granted KMS permissions could then use or administer the key protecting audit trail data, permitting decryption or tampering with audit logs \u2014 a least-privilege violation for a key of this sensitivity.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 6321,
+  "output_tokens": 1128,
+  "latency_s": 16.096,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Automatic key rotation disabled\", \"description\": \"The KMS key protecting the audit trail bucket does not set enable_key_rotation, which defaults to false. Key material is never rotated, extending the useful life of compromised key material and failing common compliance expectations for audit-log encryption keys.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Missing explicit key policy\", \"description\": \"No policy argument is supplied, so AWS applies the default key policy delegating full kms:* control to the account root principal. Any IAM principal in the account that can be granted KMS permissions could then use or administer the key protecting audit trail data, permitting decryption or tampering with audit logs \\u2014 a least-privilege violation for a key of this sensitivity.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1796,
+      "output_tokens": 383,
+      "latency_s": 6.187,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.018555
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1796,
+      "output_tokens": 373,
+      "latency_s": 5.431,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.018305
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2729,
+      "output_tokens": 372,
+      "latency_s": 4.478,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.022945
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.059805
+}

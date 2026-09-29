@@ -1,0 +1,75 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:43:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and allowing broad account-wide access including data exfiltration, resource destruction, and privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret is created for a user with broad wildcard permissions; static credentials are more easily leaked or misused than temporary role-based credentials, and combined with the attached policy this represents a significant credential exposure risk.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "sensitive credential output not marked sensitive",
+      "description": "The encrypted_secret attribute is exposed via a Terraform output without the sensitive flag, causing it to be displayed in plaintext in CLI output/logs and stored in state; even though it is KMS-encrypted ciphertext (not the raw secret), exposing it broadly plus the lack of a sensitive marker is poor practice for credential-adjacent data.",
+      "severity": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 5077,
+  "output_tokens": 1240,
+  "latency_s": 11.439,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and allowing broad account-wide access including data exfiltration, resource destruction, and privilege escalation.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret is created for a user with broad wildcard permissions; static credentials are more easily leaked or misused than temporary role-based credentials, and combined with the attached policy this represents a significant credential exposure risk.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"sensitive credential output not marked sensitive\", \"description\": \"The encrypted_secret attribute is exposed via a Terraform output without the sensitive flag, causing it to be displayed in plaintext in CLI output/logs and stored in state; even though it is KMS-encrypted ciphertext (not the raw secret), exposing it broadly plus the lack of a sensitive marker is poor practice for credential-adjacent data.\", \"severity\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2128,
+      "output_tokens": 696,
+      "latency_s": 6.792,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011216
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2949,
+      "output_tokens": 544,
+      "latency_s": 4.647,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011338
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.022554
+}

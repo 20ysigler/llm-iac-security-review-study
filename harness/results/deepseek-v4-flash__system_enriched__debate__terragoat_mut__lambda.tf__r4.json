@@ -1,0 +1,87 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__lambda.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "AWS access key ID and secret access key are embedded as literal plaintext values in the Lambda environment variables (access_key = \"AKIAIOSFODNN7EXAMPLE\", secret_key = \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"). They persist in Terraform state and in the function configuration, are visible to any principal with lambda:GetFunctionConfiguration or state access, and cannot be rotated without a redeploy. Secrets should be retrieved at runtime from Secrets Manager or SSM Parameter Store using the execution role's permissions.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses the end-of-life runtime \"nodejs12.x\", which no longer receives security patches from AWS, leaving known language and library vulnerabilities unpatched in the execution environment.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "secrets not encrypted with KMS",
+      "description": "The environment variables holding the access and secret keys are configured without a kms_key_arn, so there is no enforced encryption using a customer-managed KMS key. The sensitive values are exposed in plaintext to any principal that can read the function configuration and in the Terraform state, compounding the embedded-credential issue. Note this is not a defect where a KMS key is present but misconfigured; the omission only weakens an already-comprised control.",
+      "severity": "low",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4602,
+  "output_tokens": 1161,
+  "latency_s": 7.031,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in configuration\", \"description\": \"AWS access key ID and secret access key are embedded as literal plaintext values in the Lambda environment variables (access_key = \\\"AKIAIOSFODNN7EXAMPLE\\\", secret_key = \\\"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\\\"). They persist in Terraform state and in the function configuration, are visible to any principal with lambda:GetFunctionConfiguration or state access, and cannot be rotated without a redeploy. Secrets should be retrieved at runtime from Secrets Manager or SSM Parameter Store using the execution role's permissions.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses the end-of-life runtime \\\"nodejs12.x\\\", which no longer receives security patches from AWS, leaving known language and library vulnerabilities unpatched in the execution environment.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"secrets not encrypted with KMS\", \"description\": \"The environment variables holding the access and secret keys are configured without a kms_key_arn, so there is no enforced encryption using a customer-managed KMS key. The sensitive values are exposed in plaintext to any principal that can read the function configuration and in the Terraform state, compounding the embedded-credential issue. Note this is not a defect where a KMS key is present but misconfigured; the omission only weakens an already-comprised control.\", \"severity\": \"low\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1263,
+      "output_tokens": 411,
+      "latency_s": 2.832,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000292
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1263,
+      "output_tokens": 306,
+      "latency_s": 2.019,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000263
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2076,
+      "output_tokens": 444,
+      "latency_s": 2.18,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000415
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.000969
+}

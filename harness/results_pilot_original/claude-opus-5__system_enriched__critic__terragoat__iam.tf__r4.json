@@ -1,0 +1,86 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:01:40Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege. Compromise of this user's static credentials would permit full control of compute, storage and serverless resources, including data exfiltration from any S3 bucket and privilege escalation via lambda:CreateFunction/iam:PassRole-style patterns.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key is created for a static IAM user holding wildcard permissions. No pgp_key is supplied, so the secret and ses_smtp_password are stored in cleartext in the Terraform state file, exposing usable credentials to anyone who can read state. Static keys also have no automatic expiry or rotation.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "permissions attached directly to user",
+      "description": "High privilege is granted directly to an IAM user via an inline policy rather than through a group or an assumable role with temporary credentials, creating a standing high-privilege identity that is hard to audit, rotate, or revoke centrally.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential material in outputs",
+      "description": "The root output 'secret' surfaces access key material derived from the key resource. Although encrypted_secret is empty without a pgp_key, the output pattern propagates key material into state and downstream module consumers; the associated plaintext secret attribute remains in state regardless.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 5414,
+  "output_tokens": 1536,
+  "latency_s": 21.518,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege. Compromise of this user's static credentials would permit full control of compute, storage and serverless resources, including data exfiltration from any S3 bucket and privilege escalation via lambda:CreateFunction/iam:PassRole-style patterns.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key is created for a static IAM user holding wildcard permissions. No pgp_key is supplied, so the secret and ses_smtp_password are stored in cleartext in the Terraform state file, exposing usable credentials to anyone who can read state. Static keys also have no automatic expiry or rotation.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"permissions attached directly to user\", \"description\": \"High privilege is granted directly to an IAM user via an inline policy rather than through a group or an assumable role with temporary credentials, creating a standing high-privilege identity that is hard to audit, rotate, or revoke centrally.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential material in outputs\", \"description\": \"The root output 'secret' surfaces access key material derived from the key resource. Although encrypted_secret is empty without a pgp_key, the output pattern propagates key material into state and downstream module consumers; the associated plaintext secret attribute remains in state regardless.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2197,
+      "output_tokens": 818,
+      "latency_s": 12.475,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031435
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3217,
+      "output_tokens": 718,
+      "latency_s": 9.043,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.034035
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.06547
+}

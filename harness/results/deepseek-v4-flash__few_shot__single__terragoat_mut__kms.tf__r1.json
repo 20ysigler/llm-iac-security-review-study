@@ -1,0 +1,60 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__kms.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:55Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The KMS key does not enable key rotation (enable_key_rotation is absent, which defaults to false). Long-lived customer master keys with no rotation increase the blast radius if key material is ever compromised and violate the practice of periodic re-keying for data-at-rest encryption keys.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "no key policy defined",
+      "description": "No aws_kms_key_policy is attached to the key. When no key policy is supplied, only the default policy granting the account root full KMS access applies, so there are no explicit, least-privilege restrictions on which principals may encrypt, decrypt, or administer this key. Any principal with broad kms:* IAM permissions in the account can use or re-target the key, weakening access control over the audit-trail data encryption key.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1227,
+  "output_tokens": 278,
+  "latency_s": 2.408,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The KMS key does not enable key rotation (enable_key_rotation is absent, which defaults to false). Long-lived customer master keys with no rotation increase the blast radius if key material is ever compromised and violate the practice of periodic re-keying for data-at-rest encryption keys.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"no key policy defined\", \"description\": \"No aws_kms_key_policy is attached to the key. When no key policy is supplied, only the default policy granting the account root full KMS access applies, so there are no explicit, least-privilege restrictions on which principals may encrypt, decrypt, or administer this key. Any principal with broad kms:* IAM permissions in the account can use or re-target the key, weakening access control over the audit-trail data encryption key.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1227,
+      "output_tokens": 278,
+      "latency_s": 2.408,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00025
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00025
+}

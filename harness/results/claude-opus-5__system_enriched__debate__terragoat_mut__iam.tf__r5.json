@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__iam.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:14:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Because the same user holds a long-lived static access key, theft of that key yields full control of compute, storage, and serverless resources in the account, enabling S3 data exfiltration and privilege escalation via ec2:RunInstances / lambda with instance or execution roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is minted for a service identity instead of using an assumable role with short-lived STS credentials. The key does not expire or rotate, and it is bound to an identity holding wildcard permissions, making it a durable high-value credential-theft target.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret stored unencrypted in state",
+      "description": "No pgp_key is supplied, so the secret access key is written in cleartext to the Terraform state file (the encrypted_secret attribute is only populated when a PGP key is given). Anyone with read access to state obtains working credentials for this over-privileged user.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential material in module output",
+      "description": "The root module output svc_deploy_key_material exports access key secret material and is not marked sensitive = true, so the value can be rendered in CLI/plan output, CI/CD logs, and read by any consumer of the remote state.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "privileged IAM user without permissions boundary",
+      "description": "A persistent programmatic IAM user carries admin-like inline permissions with no permissions boundary and no conditional constraints (MFA, source IP, or aws:PrincipalOrgID), so there is no defence-in-depth limit on the wildcard grant if the static key is compromised. An assumable role with a boundary would be the safer pattern.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 8152,
+  "output_tokens": 2607,
+  "latency_s": 32.951,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Because the same user holds a long-lived static access key, theft of that key yields full control of compute, storage, and serverless resources in the account, enabling S3 data exfiltration and privilege escalation via ec2:RunInstances / lambda with instance or execution roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is minted for a service identity instead of using an assumable role with short-lived STS credentials. The key does not expire or rotate, and it is bound to an identity holding wildcard permissions, making it a durable high-value credential-theft target.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret stored unencrypted in state\", \"description\": \"No pgp_key is supplied, so the secret access key is written in cleartext to the Terraform state file (the encrypted_secret attribute is only populated when a PGP key is given). Anyone with read access to state obtains working credentials for this over-privileged user.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential material in module output\", \"description\": \"The root module output svc_deploy_key_material exports access key secret material and is not marked sensitive = true, so the value can be rendered in CLI/plan output, CI/CD logs, and read by any consumer of the remote state.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"privileged IAM user without permissions boundary\", \"description\": \"A persistent programmatic IAM user carries admin-like inline permissions with no permissions boundary and no conditional constraints (MFA, source IP, or aws:PrincipalOrgID), so there is no defence-in-depth limit on the wildcard grant if the static key is compromised. An assumable role with a boundary would be the safer pattern.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2060,
+      "output_tokens": 831,
+      "latency_s": 10.872,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031075
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2060,
+      "output_tokens": 874,
+      "latency_s": 10.97,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03215
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4032,
+      "output_tokens": 902,
+      "latency_s": 11.109,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.04271
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.105935
+}

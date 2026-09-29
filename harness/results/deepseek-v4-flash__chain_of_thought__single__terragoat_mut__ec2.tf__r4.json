@@ -1,0 +1,101 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__ec2.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The instance's user_data script contains literal AWS access key and secret access key values (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). This exposes long-lived credentials to anyone who can read the EC2 instance metadata/user data or the Terraform state file, allowing full API access under that identity.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows SSH (port 22) from 0.0.0.0/0, exposing remote shell access to the internet and enabling brute-force or credential-based attacks on the portal server.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "HTTP (port 80) is open to 0.0.0.0/0. If the instance serves anything other than intended public static content, this exposes the application and any management endpoints to the entire internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume has no encrypted attribute set and no KMS key, so data written to the volume (and its snapshots) is stored unencrypted and is readable by anyone with access to the underlying storage media.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot is created from the unencrypted volume and itself declares no encryption, so the backup copy of the disk is also stored in plaintext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket that receives VPC flow logs has no server-side encryption configuration, so network traffic metadata is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_volume_attachment.portal_disk_attach",
+      "issue_category": "unencrypted volume attached",
+      "description": "The attachment wires the unencrypted EBS volume to the public-facing instance, making the unencrypted disk the live backing store for the server.",
+      "severity": "low",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2374,
+  "output_tokens": 701,
+  "latency_s": 3.406,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The instance's user_data script contains literal AWS access key and secret access key values (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). This exposes long-lived credentials to anyone who can read the EC2 instance metadata/user data or the Terraform state file, allowing full API access under that identity.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows SSH (port 22) from 0.0.0.0/0, exposing remote shell access to the internet and enabling brute-force or credential-based attacks on the portal server.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"HTTP (port 80) is open to 0.0.0.0/0. If the instance serves anything other than intended public static content, this exposes the application and any management endpoints to the entire internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume has no encrypted attribute set and no KMS key, so data written to the volume (and its snapshots) is stored unencrypted and is readable by anyone with access to the underlying storage media.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot is created from the unencrypted volume and itself declares no encryption, so the backup copy of the disk is also stored in plaintext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket that receives VPC flow logs has no server-side encryption configuration, so network traffic metadata is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_volume_attachment.portal_disk_attach\", \"issue_category\": \"unencrypted volume attached\", \"description\": \"The attachment wires the unencrypted EBS volume to the public-facing instance, making the unencrypted disk the live backing store for the server.\", \"severity\": \"low\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2374,
+      "output_tokens": 701,
+      "latency_s": 3.406,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000529
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000529
+}

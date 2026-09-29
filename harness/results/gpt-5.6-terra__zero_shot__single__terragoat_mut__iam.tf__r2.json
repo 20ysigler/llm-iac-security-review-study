@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__zero_shot__single__terragoat_mut__iam.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly broad IAM permissions",
+      "description": "The policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* permissions against every resource. Compromise of this deployment identity would permit broad control of compute, serverless functions, storage (including potentially sensitive data), and monitoring resources.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived access credentials",
+      "description": "A programmatic IAM access key is created for a user with highly privileged wildcard permissions. If the key material is exposed or stolen, an attacker can use the broad permissions until the key is disabled or rotated.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "sensitive credential output exposure",
+      "description": "The access key secret is exposed as a Terraform output and is not marked sensitive. Terraform outputs can be displayed in CLI output and retained in state, increasing the risk that this credential is disclosed.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 731,
+  "output_tokens": 266,
+  "latency_s": 3.636,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly broad IAM permissions\",\"description\":\"The policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* permissions against every resource. Compromise of this deployment identity would permit broad control of compute, serverless functions, storage (including potentially sensitive data), and monitoring resources.\",\"severity\":\"critical\",\"cwe\":\"CWE-269\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"long-lived access credentials\",\"description\":\"A programmatic IAM access key is created for a user with highly privileged wildcard permissions. If the key material is exposed or stolen, an attacker can use the broad permissions until the key is disabled or rotated.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"sensitive credential output exposure\",\"description\":\"The access key secret is exposed as a Terraform output and is not marked sensitive. Terraform outputs can be displayed in CLI output and retained in state, increasing the risk that this credential is disclosed.\",\"severity\":\"high\",\"cwe\":\"CWE-200\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 731,
+      "output_tokens": 266,
+      "latency_s": 3.636,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.004654
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.004654
+}

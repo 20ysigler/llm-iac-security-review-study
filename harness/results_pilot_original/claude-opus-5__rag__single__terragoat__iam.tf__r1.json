@@ -1,0 +1,63 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:35:57Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions on ec2:*, s3:*, lambda:*, and cloudwatch:* against Resource \"*\", which is effectively administrative control over compute, storage, serverless, and monitoring in the account. This violates least privilege and enables privilege escalation (e.g., iam:PassRole-free lambda/ec2 abuse, data exfiltration from any S3 bucket).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is provisioned for a user with near-administrative permissions. Static keys persist until manually rotated and are a common source of credential compromise; federated/temporary credentials via roles should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret material in Terraform state",
+      "description": "No PGP key is configured, so the secret access key is stored in plaintext in the Terraform state file (and the encrypted_secret attribute is unusable/plaintext), exposing the credential to anyone with state access.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user instead of role",
+      "description": "An IAM user with directly attached inline permissions and a static access key is created rather than a role assumed with temporary credentials, and force_destroy allows silent removal of attached credentials/keys. This creates a long-lived identity that must be manually managed and rotated.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The access key secret is exposed as an unmarked (non-sensitive) Terraform output, so it is printed to the console and CI logs and stored in state, leaking the credential to anyone with pipeline or state visibility.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 3571,
+  "output_tokens": 798,
+  "latency_s": 10.276,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions on ec2:*, s3:*, lambda:*, and cloudwatch:* against Resource \\\"*\\\", which is effectively administrative control over compute, storage, serverless, and monitoring in the account. This violates least privilege and enables privilege escalation (e.g., iam:PassRole-free lambda/ec2 abuse, data exfiltration from any S3 bucket).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is provisioned for a user with near-administrative permissions. Static keys persist until manually rotated and are a common source of credential compromise; federated/temporary credentials via roles should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret material in Terraform state\", \"description\": \"No PGP key is configured, so the secret access key is stored in plaintext in the Terraform state file (and the encrypted_secret attribute is unusable/plaintext), exposing the credential to anyone with state access.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user instead of role\", \"description\": \"An IAM user with directly attached inline permissions and a static access key is created rather than a role assumed with temporary credentials, and force_destroy allows silent removal of attached credentials/keys. This creates a long-lived identity that must be manually managed and rotated.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key secret is exposed as an unmarked (non-sensitive) Terraform output, so it is printed to the console and CI logs and stored in state, leaking the credential to anyone with pipeline or state visibility.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}]}",
+  "cost_usd": 0.037805
+}

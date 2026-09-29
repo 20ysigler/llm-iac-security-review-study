@@ -1,0 +1,111 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:22:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket does not define a server_side_encryption_configuration block, so objects stored in it are not encrypted at rest by default, risking exposure of sensitive report data.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access restrictions / no ACL set",
+      "description": "No ACL is specified for this bucket (defaults to 'private' in some provider versions but not guaranteed), and there is no explicit public access block resource, leaving the bucket potentially accessible if defaults change or bucket policies are added later.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores ledger exports (likely sensitive financial data) but has no server_side_encryption_configuration, meaning data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "Versioning is not enabled on a bucket holding financial ledger export data, increasing risk of accidental or malicious data loss/tampering without recovery ability, which weakens data integrity controls.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has versioning and logging configured but no server_side_encryption_configuration, leaving model artifacts unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data (which may contain credentials or sensitive operational details) is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "insecure ACL for log delivery",
+      "description": "The 'log-delivery-write' ACL grants write access to the log delivery group broadly; combined with force_destroy=true this could allow unintended write/overwrite of the audit trail bucket contents, weakening integrity guarantees of the audit log.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled on data bucket",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted without protection, which can lead to accidental or malicious permanent data loss for reports data.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "force_destroy enabled on sensitive data bucket",
+      "description": "force_destroy = true is set on a bucket holding ledger/financial export data, allowing the bucket and all objects to be destroyed without safeguard, risking irreversible loss of sensitive financial records.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "plaintext object upload without encryption",
+      "description": "The object is uploaded to a bucket lacking server-side encryption configuration and no explicit server_side_encryption is set on the object itself, so the vendor roster file (potentially containing PII/vendor data) is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 2138,
+  "output_tokens": 1394,
+  "latency_s": 11.725,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket does not define a server_side_encryption_configuration block, so objects stored in it are not encrypted at rest by default, risking exposure of sensitive report data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access restrictions / no ACL set\", \"description\": \"No ACL is specified for this bucket (defaults to 'private' in some provider versions but not guaranteed), and there is no explicit public access block resource, leaving the bucket potentially accessible if defaults change or bucket policies are added later.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores ledger exports (likely sensitive financial data) but has no server_side_encryption_configuration, meaning data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing versioning\", \"description\": \"Versioning is not enabled on a bucket holding financial ledger export data, increasing risk of accidental or malicious data loss/tampering without recovery ability, which weakens data integrity controls.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has versioning and logging configured but no server_side_encryption_configuration, leaving model artifacts unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data (which may contain credentials or sensitive operational details) is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"insecure ACL for log delivery\", \"description\": \"The 'log-delivery-write' ACL grants write access to the log delivery group broadly; combined with force_destroy=true this could allow unintended write/overwrite of the audit trail bucket contents, weakening integrity guarantees of the audit log.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled on data bucket\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted without protection, which can lead to accidental or malicious permanent data loss for reports data.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"force_destroy enabled on sensitive data bucket\", \"description\": \"force_destroy = true is set on a bucket holding ledger/financial export data, allowing the bucket and all objects to be destroyed without safeguard, risking irreversible loss of sensitive financial records.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"plaintext object upload without encryption\", \"description\": \"The object is uploaded to a bucket lacking server-side encryption configuration and no explicit server_side_encryption is set on the object itself, so the vendor roster file (potentially containing PII/vendor data) is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2138,
+      "output_tokens": 1394,
+      "latency_s": 11.725,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.018216
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.018216
+}

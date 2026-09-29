@@ -1,0 +1,41 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__kms.tf__r4",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:05:06Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "KMS key rotation disabled",
+      "description": "The customer-managed KMS key does not set enable_key_rotation, which defaults to false, so the key material used to encrypt the logs bucket is never automatically rotated. Long-lived key material increases the blast radius if the key is ever compromised and violates CIS AWS Foundations guidance requiring rotation for customer-managed CMKs.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "short key deletion window",
+      "description": "deletion_window_in_days is set to the minimum of 7 days, leaving a narrow window to cancel an accidental or malicious key deletion. Destroying this key permanently renders all data encrypted under it (the logs bucket) unrecoverable, so a longer window is a safeguard against destructive action.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-404"
+    }
+  ],
+  "input_tokens": 3247,
+  "output_tokens": 571,
+  "latency_s": 9.361,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"KMS key rotation disabled\", \"description\": \"The customer-managed KMS key does not set enable_key_rotation, which defaults to false, so the key material used to encrypt the logs bucket is never automatically rotated. Long-lived key material increases the blast radius if the key is ever compromised and violates CIS AWS Foundations guidance requiring rotation for customer-managed CMKs.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"short key deletion window\", \"description\": \"deletion_window_in_days is set to the minimum of 7 days, leaving a narrow window to cancel an accidental or malicious key deletion. Destroying this key permanently renders all data encrypted under it (the logs bucket) unrecoverable, so a longer window is a safeguard against destructive action.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-404\"}]}",
+  "cost_usd": 0.03051
+}

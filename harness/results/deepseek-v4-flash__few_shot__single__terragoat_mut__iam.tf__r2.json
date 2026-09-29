@@ -1,0 +1,87 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:43Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the deploy user full control over compute, storage, and serverless workloads including the ability to read/exfiltrate any S3 object, delete instances, and modify Lambda code. Permissions should be scoped to the specific actions and resource ARNs the deployment pipeline requires.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user",
+      "issue_category": "long-lived static credentials",
+      "description": "The deploy identity is a standalone IAM user authenticating with static access keys rather than a role, so credentials are long-lived and must be manually rotated; a leaked key grants the wildcard permissions above until it is deleted. Prefer an IAM role with temporary credentials (e.g., OIDC federation or instance role).",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret material exposure",
+      "description": "An access key is created for the deploy user, and the accompanying output exposes the key's secret material. Terraform output values are retrievable by anyone with read access to the state file or plan (and the state itself stores the secret in plaintext), so the credential can leak beyond the intended consumer.",
+      "severity": "critical",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "sensitive output not marked",
+      "description": "The encrypted_secret access key is emitted as a plain Terraform output without sensitive = true, so it is printed to console/CI logs and stored unredacted in state. Anyone with access to pipeline logs or the state backend obtains usable credentials for the wildcard deploy user.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force destroy of IAM identity",
+      "description": "force_destroy = true lets Terraform delete the IAM user along with all attached policies and access keys without confirmation, which can silently remove access controls or leave the pipeline referencing destroyed credentials. It weakens protection of an identity that holds broad permissions.",
+      "severity": "low",
+      "cwe": "CWE-272",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1398,
+  "output_tokens": 606,
+  "latency_s": 3.615,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[1] resource 'aws_iam_user' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the deploy user full control over compute, storage, and serverless workloads including the ability to read/exfiltrate any S3 object, delete instances, and modify Lambda code. Permissions should be scoped to the specific actions and resource ARNs the deployment pipeline requires.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"The deploy identity is a standalone IAM user authenticating with static access keys rather than a role, so credentials are long-lived and must be manually rotated; a leaked key grants the wildcard permissions above until it is deleted. Prefer an IAM role with temporary credentials (e.g., OIDC federation or instance role).\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret material exposure\", \"description\": \"An access key is created for the deploy user, and the accompanying output exposes the key's secret material. Terraform output values are retrievable by anyone with read access to the state file or plan (and the state itself stores the secret in plaintext), so the credential can leak beyond the intended consumer.\", \"severity\": \"critical\", \"cwe\": \"CWE-200\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"sensitive output not marked\", \"description\": \"The encrypted_secret access key is emitted as a plain Terraform output without sensitive = true, so it is printed to console/CI logs and stored unredacted in state. Anyone with access to pipeline logs or the state backend obtains usable credentials for the wildcard deploy user.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force destroy of IAM identity\", \"description\": \"force_destroy = true lets Terraform delete the IAM user along with all attached policies and access keys without confirmation, which can silently remove access controls or leave the pipeline referencing destroyed credentials. It weakens protection of an identity that holds broad permissions.\", \"severity\": \"low\", \"cwe\": \"CWE-272\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1398,
+      "output_tokens": 606,
+      "latency_s": 3.615,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000365
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000365
+}

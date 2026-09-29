@@ -1,0 +1,110 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__ec2.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data embeds long-lived AWS access key ID and secret access key values in the startup script. User data is retrievable from the instance metadata service and is retained in the launch configuration, so anyone with access to the instance or the metadata endpoint obtains durable credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group permits TCP/22 from 0.0.0.0/0, exposing SSH management of the portal server to the entire internet and enabling brute-force and unauthorized access attempts.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The security group permits TCP/80 from 0.0.0.0/0 while the instance sits in a subnet that auto-assigns public IPs behind an internet gateway, making the web service directly reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols and all ports to 0.0.0.0/0, so a compromised workload can reach arbitrary external endpoints and exfiltrate data without restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server is created without the encrypted attribute, so data written to the disk, including the credentials in user data and application data, is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The snapshot of the portal server disk is created without encryption, so its contents are stored unencrypted and remain readable if the snapshot is shared or copied.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used as the VPC flow log destination has no server-side encryption configuration, so captured network metadata is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 6322,
+  "output_tokens": 1798,
+  "latency_s": 8.382,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data embeds long-lived AWS access key ID and secret access key values in the startup script. User data is retrievable from the instance metadata service and is retained in the launch configuration, so anyone with access to the instance or the metadata endpoint obtains durable credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group permits TCP/22 from 0.0.0.0/0, exposing SSH management of the portal server to the entire internet and enabling brute-force and unauthorized access attempts.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted HTTP ingress\", \"description\": \"The security group permits TCP/80 from 0.0.0.0/0 while the instance sits in a subnet that auto-assigns public IPs behind an internet gateway, making the web service directly reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols and all ports to 0.0.0.0/0, so a compromised workload can reach arbitrary external endpoints and exfiltrate data without restriction.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume attached to the portal server is created without the encrypted attribute, so data written to the disk, including the credentials in user data and application data, is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The snapshot of the portal server disk is created without encryption, so its contents are stored unencrypted and remain readable if the snapshot is shared or copied.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used as the VPC flow log destination has no server-side encryption configuration, so captured network metadata is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2519,
+      "output_tokens": 1113,
+      "latency_s": 5.184,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.000664
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3803,
+      "output_tokens": 685,
+      "latency_s": 3.198,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.000724
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.001389
+}

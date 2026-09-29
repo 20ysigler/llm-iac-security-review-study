@@ -1,0 +1,143 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:05Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true causes every instance launched into this subnet to receive a public IP automatically, exposing the portal hosts directly to the internet with no explicit opt-in at launch time.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true causes every instance launched into this subnet to receive a public IP automatically, exposing the portal hosts directly to the internet with no explicit opt-in at launch time.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server has no encrypted = true and no KMS key, so data written to the disk is stored unencrypted and is readable from any snapshot taken of it.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.portal_public_dns",
+      "issue_category": "public endpoint disclosure in output",
+      "description": "This output exposes the portal instance's public DNS name, which in combination with the public subnet and internet route advertises a directly reachable internet-facing endpoint.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance user_data embeds a literal AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). user_data is stored in instance metadata and is readable by any process or user on the instance via the metadata service, and the credentials are also exposed in Terraform state and plan output.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The ingress rule for port 22 permits 0.0.0.0/0, exposing SSH on the instance to the entire internet and enabling brute-force and credential-stuffing attacks, especially relevant since the instance also carries hard-coded credentials.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "The ingress rule for port 80 permits 0.0.0.0/0, exposing the Apache service on the instance to the entire internet without any network boundary or intermediary load balancer/WAF.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows protocol -1 (all traffic) to 0.0.0.0/0, giving the instance unrestricted outbound reach to any destination. This permits data exfiltration and command-and-control egress from a publicly reachable instance that already holds hard-coded credentials.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket that stores VPC flow logs has no server_side_encryption_configuration block, so flow log data is stored unencrypted at rest by default.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "insecure bucket configuration",
+      "description": "force_destroy = true allows the bucket and all archived flow logs to be deleted even when it contains objects, weakening the integrity and retention of security-relevant log data. No public access block or bucket policy is defined, so the bucket relies entirely on account-level defaults for access control.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5379,
+  "output_tokens": 1108,
+  "latency_s": 6.963,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1878,
+      "output_tokens": 395,
+      "latency_s": 2.406,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000374
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2075,
+      "output_tokens": 678,
+      "latency_s": 3.325,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.00048
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1426,
+      "output_tokens": 35,
+      "latency_s": 1.232,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.000209
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.001063
+}

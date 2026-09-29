@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__kms.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:10Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "Missing key rotation",
+      "description": "The KMS key does not enable automatic key rotation (enable_key_rotation = true), so the same cryptographic material protects the audit bucket indefinitely; a compromised or leaked key version remains valid and cannot be retired on a routine schedule.",
+      "severity": "high",
+      "cwe": "CWE-320",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "No key policy attached",
+      "description": "No aws_kms_key_policy is defined for this key, so AWS applies the default policy granting full kms:* permissions to the entire account root principal (all IAM principals in the account). Any principal with an attacker-controlled or over-broad policy can administer or use the audit-trail key, violating least privilege for encryption of audit data.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 839,
+  "output_tokens": 256,
+  "latency_s": 2.167,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"Missing key rotation\", \"description\": \"The KMS key does not enable automatic key rotation (enable_key_rotation = true), so the same cryptographic material protects the audit bucket indefinitely; a compromised or leaked key version remains valid and cannot be retired on a routine schedule.\", \"severity\": \"high\", \"cwe\": \"CWE-320\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"No key policy attached\", \"description\": \"No aws_kms_key_policy is defined for this key, so AWS applies the default policy granting full kms:* permissions to the entire account root principal (all IAM principals in the account). Any principal with an attacker-controlled or over-broad policy can administer or use the audit-trail key, violating least privilege for encryption of audit data.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 839,
+      "output_tokens": 256,
+      "latency_s": 2.167,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000189
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000189
+}

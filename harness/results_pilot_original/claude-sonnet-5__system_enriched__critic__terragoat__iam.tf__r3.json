@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:58:01Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and enabling broad access, data exfiltration, or privilege escalation if the user's credentials are compromised.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived IAM user access key",
+      "description": "Creating a static access key for an IAM user with excessive permissions produces long-lived credentials that can be leaked or misused; combined with the overly permissive attached policy, compromise of this key grants near full account access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "human/programmatic user with excessive privilege",
+      "description": "An IAM user is created and paired with an access key and an overly broad inline policy rather than relying on scoped roles, increasing the blast radius if the user's identity or credentials are compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5341,
+  "output_tokens": 1168,
+  "latency_s": 11.229,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and enabling broad access, data exfiltration, or privilege escalation if the user's credentials are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived IAM user access key\", \"description\": \"Creating a static access key for an IAM user with excessive permissions produces long-lived credentials that can be leaked or misused; combined with the overly permissive attached policy, compromise of this key grants near full account access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"human/programmatic user with excessive privilege\", \"description\": \"An IAM user is created and paired with an access key and an overly broad inline policy rather than relying on scoped roles, increasing the blast radius if the user's identity or credentials are compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2265,
+      "output_tokens": 686,
+      "latency_s": 7.03,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.01139
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3076,
+      "output_tokens": 482,
+      "latency_s": 4.199,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.010972
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.022362
+}

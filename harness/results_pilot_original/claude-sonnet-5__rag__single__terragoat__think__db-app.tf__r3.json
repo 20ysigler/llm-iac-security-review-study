@@ -1,0 +1,81 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__think__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:15:10Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, so the RDS instance and its underlying storage are not encrypted at rest, exposing data to anyone with access to the underlying storage or snapshots.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, placing the database directly reachable from the internet rather than restricting it to private subnets/VPC-internal access only, significantly increasing the attack surface for a data store holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "default administrative credentials",
+      "description": "The database uses the default administrative username 'admin', which is a well-known default account name that increases the risk of credential-guessing attacks combined with the instance being publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secret in instance user data",
+      "description": "The EC2 user_data script embeds the database password (var.password) and username in plaintext inside a PHP config file written by the boot script; user_data is readable by anyone with ec2:DescribeInstanceAttribute permissions, exposing the database credentials far beyond the intended audience.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which creates a potential data exfiltration path.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('Resource': '*'), far exceeding least privilege for an EC2 instance role and enabling broad access to unrelated AWS services and resources if the instance is compromised.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "legacy instance metadata service enabled",
+      "description": "No metadata_options block is defined to enforce IMDSv2, leaving the instance metadata service accessible via the legacy IMDSv1, which permits unauthenticated retrieval of the attached IAM role's temporary credentials via SSRF.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 8628,
+  "output_tokens": 1840,
+  "latency_s": 17.855,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the RDS instance and its underlying storage are not encrypted at rest, exposing data to anyone with access to the underlying storage or snapshots.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, placing the database directly reachable from the internet rather than restricting it to private subnets/VPC-internal access only, significantly increasing the attack surface for a data store holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"default administrative credentials\", \"description\": \"The database uses the default administrative username 'admin', which is a well-known default account name that increases the risk of credential-guessing attacks combined with the instance being publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secret in instance user data\", \"description\": \"The EC2 user_data script embeds the database password (var.password) and username in plaintext inside a PHP config file written by the boot script; user_data is readable by anyone with ec2:DescribeInstanceAttribute permissions, exposing the database credentials far beyond the intended audience.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which creates a potential data exfiltration path.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources ('Resource': '*'), far exceeding least privilege for an EC2 instance role and enabling broad access to unrelated AWS services and resources if the instance is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"legacy instance metadata service enabled\", \"description\": \"No metadata_options block is defined to enforce IMDSv2, leaving the instance metadata service accessible via the legacy IMDSv1, which permits unauthenticated retrieval of the attached IAM role's temporary credentials via SSRF.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.035656
+}

@@ -1,0 +1,100 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:27:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS database and its underlying storage/snapshots are not encrypted at rest, exposing sensitive catalog and employee data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private application tier.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via var.password and stored in the instance user_data/state in plaintext, and the master username 'admin' is a well-known default administrative account name.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secret exposure in user data",
+      "description": "The database password and connection details are embedded in plaintext within the EC2 instance user_data script, which is readable by anyone with ec2:DescribeInstanceAttribute permissions, far wider than those needing access to the secret.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing a broad data exfiltration path from the database tier.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled backup retention aiding data loss risk",
+      "description": "backup_retention_period is set to 0 combined with skip_final_snapshot true, meaning no automated backups or final snapshot exist, but more importantly this combined with publicly_accessible=true and unencrypted storage compounds exposure risk for the sensitive data store.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7241,
+  "output_tokens": 970,
+  "latency_s": 8.683,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS database and its underlying storage/snapshots are not encrypted at rest, exposing sensitive catalog and employee data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private application tier.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via var.password and stored in the instance user_data/state in plaintext, and the master username 'admin' is a well-known default administrative account name.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secret exposure in user data\", \"description\": \"The database password and connection details are embedded in plaintext within the EC2 instance user_data script, which is readable by anyone with ec2:DescribeInstanceAttribute permissions, far wider than those needing access to the secret.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing a broad data exfiltration path from the database tier.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled backup retention aiding data loss risk\", \"description\": \"backup_retention_period is set to 0 combined with skip_final_snapshot true, meaning no automated backups or final snapshot exist, but more importantly this combined with publicly_accessible=true and unencrypted storage compounds exposure risk for the sensitive data store.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7241,
+      "output_tokens": 970,
+      "latency_s": 8.683,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.024182
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.024182
+}

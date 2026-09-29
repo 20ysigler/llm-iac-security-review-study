@@ -1,0 +1,41 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:25:53Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \"*\", giving the user unrestricted access to every S3 object, EC2/Lambda resource, and CloudWatch data in the account. This violates least privilege and enables data exfiltration (s3:* over all buckets) as well as privilege-escalation paths (e.g., s3:PutBucketPolicy, lambda:AddPermission, ec2 instance manipulation).",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "static credential exposure",
+      "description": "A long-lived IAM access key is provisioned without a pgp_key, so the secret is stored in plaintext in Terraform state, and the \"secret\" output additionally surfaces the credential in console output and logs. Because this static key is attached to the user carrying the wildcard policy, it represents a highly privileged, long-lived credential that is exposed outside the secure secrets pipeline.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1463,
+  "output_tokens": 2889,
+  "latency_s": 23.544,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \\\"*\\\", giving the user unrestricted access to every S3 object, EC2/Lambda resource, and CloudWatch data in the account. This violates least privilege and enables data exfiltration (s3:* over all buckets) as well as privilege-escalation paths (e.g., s3:PutBucketPolicy, lambda:AddPermission, ec2 instance manipulation).\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"static credential exposure\", \"description\": \"A long-lived IAM access key is provisioned without a pgp_key, so the secret is stored in plaintext in Terraform state, and the \\\"secret\\\" output additionally surfaces the credential in console output and logs. Because this static key is attached to the user carrying the wildcard policy, it represents a highly privileged, long-lived credential that is exposed outside the secure secrets pipeline.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001014
+}

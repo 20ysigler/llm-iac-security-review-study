@@ -1,0 +1,40 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__kms.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:54:00Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "disabled automatic key rotation",
+      "description": "The KMS customer-managed key omits enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Because this CMK encrypts a logs bucket, a single compromised key version would expose the entire historical log dataset, and the indefinite cryptoperiod conflicts with standard key-management requirements.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "minimum key deletion window",
+      "description": "deletion_window_in_days is set to 7, the shortest value AWS permits. A principal holding kms:ScheduleKeyDeletion could destroy the key protecting audit logs with only a 7-day window for detection and cancellation, rendering the encrypted logs permanently unreadable and enabling anti-forensic destruction of evidence.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1873,
+  "output_tokens": 1056,
+  "latency_s": 16.503,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"disabled automatic key rotation\", \"description\": \"The KMS customer-managed key omits enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Because this CMK encrypts a logs bucket, a single compromised key version would expose the entire historical log dataset, and the indefinite cryptoperiod conflicts with standard key-management requirements.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"minimum key deletion window\", \"description\": \"deletion_window_in_days is set to 7, the shortest value AWS permits. A principal holding kms:ScheduleKeyDeletion could destroy the key protecting audit logs with only a 7-day window for detection and cancellation, rendering the encrypted logs permanently unreadable and enabling anti-forensic destruction of evidence.\", \"severity\": \"informational\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.035765
+}

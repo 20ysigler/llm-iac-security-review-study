@@ -1,0 +1,53 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__think__iam.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:17:53Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on a wildcard resource (*), giving the IAM user near-administrative privileges across multiple services, violating least privilege.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret is created for an IAM user instead of using temporary credentials or federated roles, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of IAM user instead of role",
+      "description": "Creating a standalone IAM user with directly attached permissions (rather than using roles/federation) encourages long-lived credentials and broad standing access, increasing the attack surface for credential compromise.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "secret exposure via output",
+      "description": "The output exposes the encrypted secret access key value, which can be printed to console/state/logs by anyone with access to run or view Terraform outputs, increasing exposure of sensitive credential material beyond the intended secret store.",
+      "severity": "high",
+      "cwe": "CWE-522"
+    }
+  ],
+  "input_tokens": 3513,
+  "output_tokens": 595,
+  "latency_s": 6.338,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on a wildcard resource (*), giving the IAM user near-administrative privileges across multiple services, violating least privilege.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret is created for an IAM user instead of using temporary credentials or federated roles, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of IAM user instead of role\", \"description\": \"Creating a standalone IAM user with directly attached permissions (rather than using roles/federation) encourages long-lived credentials and broad standing access, increasing the attack surface for credential compromise.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"output.secret\", \"issue_category\": \"secret exposure via output\", \"description\": \"The output exposes the encrypted secret access key value, which can be printed to console/state/logs by anyone with access to run or view Terraform outputs, increasing exposure of sensitive credential material beyond the intended secret store.\", \"severity\": \"high\", \"cwe\": \"CWE-522\"}]}",
+  "cost_usd": 0.012976
+}

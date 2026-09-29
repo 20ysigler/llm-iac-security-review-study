@@ -1,0 +1,72 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:46:01Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to a service account user, violating least privilege and allowing this credential to fully control EC2, S3, Lambda, and CloudWatch if compromised.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a long-lived IAM access key for a service account tied to an over-privileged user creates a persistent credential that, if leaked, grants broad access; static keys are inherently riskier than short-lived roles/temporary credentials.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The encrypted_secret attribute of the access key is exposed as a Terraform output (svc_deploy_key_material), which will be stored in state and shown in CLI/plan output, risking leakage of sensitive key material to anyone with access to state files or logs.",
+      "severity": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "human-usable service account",
+      "description": "An IAM user is created for a service/deploy purpose with force_destroy enabled and no permissions boundary, increasing the attack surface for credential misuse and making it easier to recreate/destroy the account without additional controls.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 2291,
+  "output_tokens": 670,
+  "latency_s": 6.63,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to a service account user, violating least privilege and allowing this credential to fully control EC2, S3, Lambda, and CloudWatch if compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a long-lived IAM access key for a service account tied to an over-privileged user creates a persistent credential that, if leaked, grants broad access; static keys are inherently riskier than short-lived roles/temporary credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The encrypted_secret attribute of the access key is exposed as a Terraform output (svc_deploy_key_material), which will be stored in state and shown in CLI/plan output, risking leakage of sensitive key material to anyone with access to state files or logs.\", \"severity\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"human-usable service account\", \"description\": \"An IAM user is created for a service/deploy purpose with force_destroy enabled and no permissions boundary, increasing the attack surface for credential misuse and making it easier to recreate/destroy the account without additional controls.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2291,
+      "output_tokens": 670,
+      "latency_s": 6.63,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011282
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.011282
+}

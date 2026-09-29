@@ -1,0 +1,77 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__ec2.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:00:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User data is stored in Terraform state and can be retrieved from the instance metadata/control plane by principals with appropriate access, exposing reusable credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "SSH (TCP/22) is open to 0.0.0.0/0. The associated instance is launched in a subnet with public IP assignment and a default route to an Internet gateway, making remote administrative access reachable from the public Internet.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The attached EBS data volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, are therefore not guaranteed to be encrypted at rest by this configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing bucket encryption",
+      "description": "The S3 bucket used as the destination for VPC flow logs has no server-side encryption configuration. Flow-log records stored in this archive are not explicitly protected at rest by this Terraform configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2118,
+  "output_tokens": 331,
+  "latency_s": 8.578,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key. User data is stored in Terraform state and can be retrieved from the instance metadata/control plane by principals with appropriate access, exposing reusable credentials.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"SSH (TCP/22) is open to 0.0.0.0/0. The associated instance is launched in a subnet with public IP assignment and a default route to an Internet gateway, making remote administrative access reachable from the public Internet.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The attached EBS data volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, are therefore not guaranteed to be encrypted at rest by this configuration.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing bucket encryption\",\"description\":\"The S3 bucket used as the destination for VPC flow logs has no server-side encryption configuration. Flow-log records stored in this archive are not explicitly protected at rest by this Terraform configuration.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2118,
+      "output_tokens": 331,
+      "latency_s": 8.578,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.008208
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.008208
+}

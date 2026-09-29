@@ -1,0 +1,63 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:37:14Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are stored in plain text in the Lambda function's environment variables, readable by anyone with lambda:GetFunctionConfiguration and committed to source control.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "unencrypted environment variables",
+      "description": "The Lambda function does not specify a kms_key_arn, so environment variables (which contain secrets here) are encrypted only with the default service-owned key rather than a customer-managed KMS key with controlled key policy and rotation.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config is defined, so the function runs outside any customer VPC with unrestricted outbound internet access and no security-group-based egress control, providing a data exfiltration path.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing permissions boundary and confused deputy protection",
+      "description": "The Lambda execution role's trust policy allows any lambda.amazonaws.com principal to assume it with no aws:SourceAccount/aws:SourceArn condition and no permissions boundary, weakening cross-account confused-deputy protection and privilege guardrails.",
+      "severity": "low",
+      "cwe": "CWE-269",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3881,
+  "output_tokens": 737,
+  "latency_s": 9.492,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are stored in plain text in the Lambda function's environment variables, readable by anyone with lambda:GetFunctionConfiguration and committed to source control.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"The Lambda function does not specify a kms_key_arn, so environment variables (which contain secrets here) are encrypted only with the default service-owned key rather than a customer-managed KMS key with controlled key policy and rotation.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config is defined, so the function runs outside any customer VPC with unrestricted outbound internet access and no security-group-based egress control, providing a data exfiltration path.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing permissions boundary and confused deputy protection\", \"description\": \"The Lambda execution role's trust policy allows any lambda.amazonaws.com principal to assume it with no aws:SourceAccount/aws:SourceArn condition and no permissions boundary, weakening cross-account confused-deputy protection and privilege guardrails.\", \"severity\": \"low\", \"cwe\": \"CWE-269\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.03783
+}

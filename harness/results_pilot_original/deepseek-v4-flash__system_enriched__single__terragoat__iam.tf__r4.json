@@ -1,0 +1,47 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:58Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "description": "Creates a static long-lived IAM access key for the user. IAM access keys do not rotate automatically and are exposed in state; a long-lived credential increases the window of exposure if compromised.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "excessive wildcard permissions",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against a wildcard Resource, far exceeding least privilege. Combined with the static access key this creates broad compromise blast radius.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credentials in output",
+      "description": "The 'secret' output exposes the access key secret (encrypted_secret) from Terraform state/outputs, making the credential accessible wherever outputs are viewed and increasing secret leakage risk.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1391,
+  "output_tokens": 302,
+  "latency_s": 3.765,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived access key\", \"description\": \"Creates a static long-lived IAM access key for the user. IAM access keys do not rotate automatically and are exposed in state; a long-lived credential increases the window of exposure if compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"excessive wildcard permissions\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* against a wildcard Resource, far exceeding least privilege. Combined with the static access key this creates broad compromise blast radius.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credentials in output\", \"description\": \"The 'secret' output exposes the access key secret (encrypted_secret) from Terraform state/outputs, making the credential accessible wherever outputs are viewed and increasing secret leakage risk.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000279
+}

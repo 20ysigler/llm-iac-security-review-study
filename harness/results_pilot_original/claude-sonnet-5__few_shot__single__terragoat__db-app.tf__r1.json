@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:43:30Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is set to false, meaning data at rest in the RDS instance is not encrypted, exposing sensitive data if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and increasing the attack surface for unauthorized access.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database username is hardcoded to 'admin' and the password is passed via a variable and also embedded in plaintext in EC2 user data, risking credential exposure through instance metadata and Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which increases the risk of data exfiltration if the instance or database is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 user_data script embeds the database password in plaintext (var.password) which is stored in instance metadata and can be retrieved by anyone with access to the instance or the metadata service, exposing credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing final snapshot / data loss control",
+      "description": "skip_final_snapshot is true combined with backup_retention_period of 0, meaning no backups exist and no final snapshot is taken; while primarily an availability concern, this also removes recovery options after a security incident. (Included due to potential security recovery impact.)",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7543,
+  "output_tokens": 915,
+  "latency_s": 8.603,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is set to false, meaning data at rest in the RDS instance is not encrypted, exposing sensitive data if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and increasing the attack surface for unauthorized access.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database username is hardcoded to 'admin' and the password is passed via a variable and also embedded in plaintext in EC2 user data, risking credential exposure through instance metadata and Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, which increases the risk of data exfiltration if the instance or database is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources, violating least privilege and allowing the EC2 instance role to perform virtually any action on these services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 user_data script embeds the database password in plaintext (var.password) which is stored in instance metadata and can be retrieved by anyone with access to the instance or the metadata service, exposing credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing final snapshot / data loss control\", \"description\": \"skip_final_snapshot is true combined with backup_retention_period of 0, meaning no backups exist and no final snapshot is taken; while primarily an availability concern, this also removes recovery options after a security incident. (Included due to potential security recovery impact.)\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.024236
+}

@@ -1,0 +1,63 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:40:59Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database files, snapshots, and automated backups unencrypted at rest."
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "`publicly_accessible = true` gives the RDS instance a public endpoint/addressing path. Although the shown security group currently limits MySQL ingress to the VPC CIDR, public exposure unnecessarily expands the attack surface and can become internet-reachable if network rules change."
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound traffic",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0`. This allows unrestricted outbound connections from the database, creating an exfiltration and command-and-control path if it is compromised."
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269",
+      "description": "The EC2 instance role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Compromise of the web instance or its role credentials would give an attacker broad control over S3, EC2, and RDS resources in the account."
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext database credential",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The database password is interpolated into EC2 user data and written into a PHP configuration file. User data and instance configuration can be read by principals with instance describe access, exposing the credential beyond a dedicated secrets-management boundary."
+    }
+  ],
+  "input_tokens": 5023,
+  "output_tokens": 424,
+  "latency_s": 4.569,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unencrypted database storage\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database files, snapshots, and automated backups unencrypted at rest.\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"`publicly_accessible = true` gives the RDS instance a public endpoint/addressing path. Although the shown security group currently limits MySQL ingress to the VPC CIDR, public exposure unnecessarily expands the attack surface and can become internet-reachable if network rules change.\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound traffic\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0`. This allows unrestricted outbound connections from the database, creating an exfiltration and command-and-control path if it is compromised.\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-269\",\"description\":\"The EC2 instance role grants `s3:*`, `ec2:*`, and `rds:*` on every resource. Compromise of the web instance or its role credentials would give an attacker broad control over S3, EC2, and RDS resources in the account.\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"plaintext database credential\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The database password is interpolated into EC2 user data and written into a PHP configuration file. User data and instance configuration can be read by principals with instance describe access, exposing the credential beyond a dedicated secrets-management boundary.\"}]}",
+  "cost_usd": 0.015134
+}

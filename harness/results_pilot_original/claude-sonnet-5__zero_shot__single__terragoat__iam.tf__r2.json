@@ -1,0 +1,44 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": 0.0,
+  "timestamp": "2026-08-16T21:14:16Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard '*' actions on ec2, s3, lambda, and cloudwatch with Resource '*', violating least privilege and allowing the IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static IAM credentials",
+      "description": "Creating a static IAM access key/secret for a user provides long-lived credentials that can be leaked or misused; combined with the overly permissive policy this significantly increases risk, and access keys are generally discouraged in favor of roles/temporary credentials.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standalone IAM user with excessive privileges",
+      "description": "An IAM user is created without any group-based or role-based access control, directly attached to an overly permissive inline policy, increasing the blast radius if the credentials are compromised.",
+      "severity": "medium",
+      "cwe": "CWE-269"
+    }
+  ],
+  "input_tokens": 1843,
+  "output_tokens": 467,
+  "latency_s": 6.071,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard '*' actions on ec2, s3, lambda, and cloudwatch with Resource '*', violating least privilege and allowing the IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static IAM credentials\", \"description\": \"Creating a static IAM access key/secret for a user provides long-lived credentials that can be leaked or misused; combined with the overly permissive policy this significantly increases risk, and access keys are generally discouraged in favor of roles/temporary credentials.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standalone IAM user with excessive privileges\", \"description\": \"An IAM user is created without any group-based or role-based access control, directly attached to an overly permissive inline policy, increasing the blast radius if the credentials are compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-269\"}]}",
+  "cost_usd": 0.008356
+}

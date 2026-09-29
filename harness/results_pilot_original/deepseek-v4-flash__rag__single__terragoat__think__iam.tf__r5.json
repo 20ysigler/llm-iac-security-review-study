@@ -1,0 +1,49 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__think__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:38:28Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "excessive IAM privileges",
+      "description": "The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", which is effectively administrative access to compute, storage, and monitoring services. This violates least privilege and means any compromised credential (such as the access key below) gives an attacker broad control over the account.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "This creates a long-lived static access key that persists until manually rotated, a recurring source of credential compromise. Per the guidance, identity federation with temporary credentials should be preferred; combined with the over-privileged user policy, this key grants lasting broad access.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive secret exposure",
+      "description": "The `secret` output renders the IAM access key secret (encrypted_secret) to the CLI and persists it in the Terraform state and console output, exposing secret material to anyone with read access to the state file or output.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2278,
+  "output_tokens": 3281,
+  "latency_s": 25.364,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"excessive IAM privileges\", \"description\": \"The policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", which is effectively administrative access to compute, storage, and monitoring services. This violates least privilege and means any compromised credential (such as the access key below) gives an attacker broad control over the account.\", \"severity\": \"high\", \"cwe\": \"CWE-250\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"This creates a long-lived static access key that persists until manually rotated, a recurring source of credential compromise. Per the guidance, identity federation with temporary credentials should be preferred; combined with the over-privileged user policy, this key grants lasting broad access.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive secret exposure\", \"description\": \"The `secret` output renders the IAM access key secret (encrypted_secret) to the CLI and persists it in the Terraform state and console output, exposing secret material to anyone with read access to the state file or output.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.001238
+}

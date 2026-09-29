@@ -1,0 +1,94 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:42:53Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, making the MySQL database reachable from the internet. This expands the attack surface beyond the private network.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables encryption of the database volume, leaving sensitive customer data at rest unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "deprecated/insecure configuration",
+      "description": "skip_final_snapshot = true combined with backup_retention_period = 0 means no backups are retained, so the only available snapshot is skipped on destroy; this is a data-loss/availability gap but also leaves no recoverable copy of sensitive data, and apply_immediately = true can cause availability disruption during maintenance.",
+      "severity": "informational",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded secrets in user data",
+      "description": "The EC2 user_data script embeds the RDS database password via ${var.password} in plaintext in the instance user data. This exposes the database credentials to anyone able to read the instance metadata/launch configuration and leaves them stored in plaintext on the instance.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "excessive privileged permissions",
+      "description": "The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources to any EC2 instance assuming this role. This is an overly permissive, least-privilege-violating policy that allows broad data access and infrastructure modification.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "database exposed over network",
+      "description": "The ingress rule allows TCP 3306 (MySQL) from the entire VPC CIDR. While scoped to the VPC, combined with publicly_accessible = true and the egress rule permitting all traffic, this exposes the database to any host in the VPC and contributes to weak network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule permits all outbound traffic (protocol -1, ports 0-0) to 0.0.0.0/0, allowing the database to communicate with arbitrary external hosts, which is unnecessary and expands blast radius in the event of compromise.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_subnet_group.default",
+      "issue_category": "database in public subnets",
+      "description": "The DB subnet group references web_subnet and web_subnet2 (web-tier public subnets) rather than dedicated private subnets, so the RDS instance is placed on the VPC's public network segment rather than an isolated database tier.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unrestricted ingress / no encryption in transit",
+      "description": "The instance does not set a CA certificate or require SSL/TLS (no ssl enforced), and the MySQL connection is made in plaintext in the user-data PHP script, transmitting database credentials and data in cleartext across the network.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4765,
+  "output_tokens": 922,
+  "latency_s": 9.806,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, making the MySQL database reachable from the internet. This expands the attack surface beyond the private network.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables encryption of the database volume, leaving sensitive customer data at rest unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"deprecated/insecure configuration\", \"description\": \"skip_final_snapshot = true combined with backup_retention_period = 0 means no backups are retained, so the only available snapshot is skipped on destroy; this is a data-loss/availability gap but also leaves no recoverable copy of sensitive data, and apply_immediately = true can cause availability disruption during maintenance.\", \"severity\": \"informational\", \"confidence\": \"low\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded secrets in user data\", \"description\": \"The EC2 user_data script embeds the RDS database password via ${var.password} in plaintext in the instance user data. This exposes the database credentials to anyone able to read the instance metadata/launch configuration and leaves them stored in plaintext on the instance.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"excessive privileged permissions\", \"description\": \"The IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources to any EC2 instance assuming this role. This is an overly permissive, least-privilege-violating policy that allows broad data access and infrastructure modification.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.ingress\", \"issue_category\": \"database exposed over network\", \"description\": \"The ingress rule allows TCP 3306 (MySQL) from the entire VPC CIDR. While scoped to the VPC, combined with publicly_accessible = true and the egress rule permitting all traffic, this exposes the database to any host in the VPC and contributes to weak network segmentation.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule permits all outbound traffic (protocol -1, ports 0-0) to 0.0.0.0/0, allowing the database to communicate with arbitrary external hosts, which is unnecessary and expands blast radius in the event of compromise.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_subnet_group.default\", \"issue_category\": \"database in public subnets\", \"description\": \"The DB subnet group references web_subnet and web_subnet2 (web-tier public subnets) rather than dedicated private subnets, so the RDS instance is placed on the VPC's public network segment rather than an isolated database tier.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unrestricted ingress / no encryption in transit\", \"description\": \"The instance does not set a CA certificate or require SSL/TLS (no ssl enforced), and the MySQL connection is made in plaintext in the user-data PHP script, transmitting database credentials and data in cleartext across the network.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000925
+}

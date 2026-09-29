@@ -1,0 +1,70 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__lambda.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:59:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "AWS access key and secret key are hard-coded in plaintext as Lambda environment variables. These are stored unencrypted in the Terraform state and Lambda configuration, making them easily exposed to anyone with read access to the function configuration, state file, or console, enabling credential theft and further AWS account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption of environment variables",
+      "description": "The Lambda function does not specify a KMS key (kms_key_arn) for encrypting its environment variables, so any secrets stored there rely only on default AWS-managed encryption and are more exposed to disclosure, compounding the risk of the hard-coded credentials present in this configuration.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5832,
+  "output_tokens": 936,
+  "latency_s": 9.864,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"AWS access key and secret key are hard-coded in plaintext as Lambda environment variables. These are stored unencrypted in the Terraform state and Lambda configuration, making them easily exposed to anyone with read access to the function configuration, state file, or console, enabling credential theft and further AWS account compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"The Lambda function does not specify a KMS key (kms_key_arn) for encrypting its environment variables, so any secrets stored there rely only on default AWS-managed encryption and are more exposed to disclosure, compounding the risk of the hard-coded credentials present in this configuration.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2575,
+      "output_tokens": 557,
+      "latency_s": 5.851,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.01072
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3257,
+      "output_tokens": 379,
+      "latency_s": 4.013,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.010304
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.021024
+}

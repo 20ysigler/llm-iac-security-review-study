@@ -1,0 +1,75 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__lambda.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function embeds a long-lived AWS access key ID and secret access key as plaintext environment variables. These are stored in Terraform state and in the function's configuration, readable by anyone with lambda:GetFunctionConfiguration or state access, and cannot be rotated without a redeploy. Static IAM credentials should never be embedded; the function should use its execution role.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unsupported end-of-life runtime",
+      "description": "The function targets nodejs12.x, which is an end-of-life AWS Lambda runtime that no longer receives security patches. Known vulnerabilities in the bundled Node.js and its dependencies remain unpatched, and AWS will refuse or has refused new deployments on it. Upgrade to a supported runtime.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing KMS encryption of environment",
+      "description": "The environment variables are encrypted only with the default AWS-managed Lambda key, which is not sufficient when the variables hold real secrets. A customer-managed KMS key with a restricted key policy should be supplied via kms_key_arn so that decryption of the secret values is explicitly access-controlled.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "overly permissive trust policy",
+      "description": "The assume-role policy has no aws:SourceArn or aws:SourceAccount condition, so it permits any AWS account's Lambda service to assume this role and invoke the function with its permissions. The confused-deputy risk is low here because the role has no attached policies, but a source restriction should still be added and the role is unusable as written (no permission policy or logging access attached).",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1390,
+  "output_tokens": 501,
+  "latency_s": 3.646,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function embeds a long-lived AWS access key ID and secret access key as plaintext environment variables. These are stored in Terraform state and in the function's configuration, readable by anyone with lambda:GetFunctionConfiguration or state access, and cannot be rotated without a redeploy. Static IAM credentials should never be embedded; the function should use its execution role.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unsupported end-of-life runtime\", \"description\": \"The function targets nodejs12.x, which is an end-of-life AWS Lambda runtime that no longer receives security patches. Known vulnerabilities in the bundled Node.js and its dependencies remain unpatched, and AWS will refuse or has refused new deployments on it. Upgrade to a supported runtime.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing KMS encryption of environment\", \"description\": \"The environment variables are encrypted only with the default AWS-managed Lambda key, which is not sufficient when the variables hold real secrets. A customer-managed KMS key with a restricted key policy should be supplied via kms_key_arn so that decryption of the secret values is explicitly access-controlled.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"overly permissive trust policy\", \"description\": \"The assume-role policy has no aws:SourceArn or aws:SourceAccount condition, so it permits any AWS account's Lambda service to assume this role and invoke the function with its permissions. The confused-deputy risk is low here because the role has no attached policies, but a source restriction should still be added and the role is unusable as written (no permission policy or logging access attached).\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1390,
+      "output_tokens": 501,
+      "latency_s": 3.646,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000335
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000335
+}

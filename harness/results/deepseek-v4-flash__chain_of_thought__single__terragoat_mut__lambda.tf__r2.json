@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__lambda.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:52Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Hardcoded credentials in environment",
+      "description": "The Lambda's environment block embeds a plaintext AWS access key ID and secret access key (\"AKIAIOSFODNN7EXAMPLE\" / \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"). These values are stored in the Lambda configuration, visible in state files, the console, and to anyone with GetFunction access, and would allow direct impersonation of that IAM principal.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Unencrypted environment variables",
+      "description": "The function does not define a kms_key_arn for environment variable encryption, so the access_key and secret_key values are protected only by the default AWS-managed service key rather than a customer-managed KMS key with controlled access; combined with the plaintext secrets this broadens who can read them at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1118,
+  "output_tokens": 295,
+  "latency_s": 2.341,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Hardcoded credentials in environment\", \"description\": \"The Lambda's environment block embeds a plaintext AWS access key ID and secret access key (\\\"AKIAIOSFODNN7EXAMPLE\\\" / \\\"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\\\"). These values are stored in the Lambda configuration, visible in state files, the console, and to anyone with GetFunction access, and would allow direct impersonation of that IAM principal.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Unencrypted environment variables\", \"description\": \"The function does not define a kms_key_arn for environment variable encryption, so the access_key and secret_key values are protected only by the default AWS-managed service key rather than a customer-managed KMS key with controlled access; combined with the plaintext secrets this broadens who can read them at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1118,
+      "output_tokens": 295,
+      "latency_s": 2.341,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000239
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000239
+}

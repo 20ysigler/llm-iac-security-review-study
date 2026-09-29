@@ -1,0 +1,46 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__lambda.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:44:25Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "The Lambda function stores an AWS access key and secret key as plaintext environment variables. Hard-coded credentials embedded in configuration can be leaked through source control and IAM secret exposure, and the use of static long-lived keys violates secure secret management practices.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "insecure default runtime version",
+      "description": "The function uses runtime 'nodejs12.x', which is an end-of-life runtime that no longer receives security patches or bug fixes, exposing the function to known vulnerabilities.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing least-privilege boundary",
+      "description": "The IAM role for the Lambda has no attached policies here, relying on whatever permissions are attached externally, but more critically the assume role policy is restricted only to lambda.amazonaws.com which is appropriate; however the role ARN is broad. This is not substantiated as a vulnerability on its own \u2014 skipped.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1599,
+  "output_tokens": 336,
+  "latency_s": 4.173,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"The Lambda function stores an AWS access key and secret key as plaintext environment variables. Hard-coded credentials embedded in configuration can be leaked through source control and IAM secret exposure, and the use of static long-lived keys violates secure secret management practices.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"insecure default runtime version\", \"description\": \"The function uses runtime 'nodejs12.x', which is an end-of-life runtime that no longer receives security patches or bug fixes, exposing the function to known vulnerabilities.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing least-privilege boundary\", \"description\": \"The IAM role for the Lambda has no attached policies here, relying on whatever permissions are attached externally, but more critically the assume role policy is restricted only to lambda.amazonaws.com which is appropriate; however the role ARN is broad. This is not substantiated as a vulnerability on its own \u2014 skipped.\", \"severity\": \"informational\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.000318
+}

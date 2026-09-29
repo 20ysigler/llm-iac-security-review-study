@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat__iam.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:34:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to a long-lived IAM user. This violates least privilege and allows the user to read/modify all data in S3, launch or terminate any EC2 instance, and create or modify Lambda functions, which is a direct privilege-escalation and data-exfiltration path.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a human/service IAM user rather than using temporary credentials from an assumed role. The key never rotates, and its secret material is stored in Terraform state in plaintext (no pgp_key is set), so anyone with state access obtains credentials with the broad permissions granted by the attached policy.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The access key secret is exposed as a Terraform output and is not marked sensitive, so it will be printed to the console/CI logs on apply and stored readable in state, leaking credentials that carry wildcard ec2/s3/lambda/cloudwatch permissions.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user instead of role",
+      "description": "Permissions are attached directly to a standalone IAM user with force_destroy enabled, bypassing group- and role-based access control and centralized credential lifecycle management; combined with the wildcard inline policy this creates a highly privileged static identity.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 2331,
+  "output_tokens": 710,
+  "latency_s": 10.094,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to a long-lived IAM user. This violates least privilege and allows the user to read/modify all data in S3, launch or terminate any EC2 instance, and create or modify Lambda functions, which is a direct privilege-escalation and data-exfiltration path.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a human/service IAM user rather than using temporary credentials from an assumed role. The key never rotates, and its secret material is stored in Terraform state in plaintext (no pgp_key is set), so anyone with state access obtains credentials with the broad permissions granted by the attached policy.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key secret is exposed as a Terraform output and is not marked sensitive, so it will be printed to the console/CI logs on apply and stored readable in state, leaking credentials that carry wildcard ec2/s3/lambda/cloudwatch permissions.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user instead of role\", \"description\": \"Permissions are attached directly to a standalone IAM user with force_destroy enabled, bypassing group- and role-based access control and centralized credential lifecycle management; combined with the wildcard inline policy this creates a highly privileged static identity.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2331,
+      "output_tokens": 710,
+      "latency_s": 10.094,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.029405
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.029405
+}

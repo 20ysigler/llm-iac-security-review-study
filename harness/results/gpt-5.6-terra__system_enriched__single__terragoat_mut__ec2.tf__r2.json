@@ -1,0 +1,77 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:00:35Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User data can be retrieved by principals with instance access or metadata/user-data permissions and is commonly retained in Terraform state and deployment records, exposing reusable credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "SSH (TCP/22) is allowed from 0.0.0.0/0. The attached instance is placed in a public subnet with a default route to an Internet Gateway and receives a public IP, making administrative access reachable from any Internet host.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, may be stored unencrypted at rest unless account-level default EBS encryption is enabled outside this configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The flow-log archive bucket has no server-side encryption configuration. Sensitive network-flow records written to this bucket are not explicitly protected with SSE-S3 or SSE-KMS at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2118,
+  "output_tokens": 338,
+  "latency_s": 4.49,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.portal_server\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The instance user-data embeds an AWS access key ID and secret access key. User data can be retrieved by principals with instance access or metadata/user-data permissions and is commonly retained in Terraform state and deployment records, exposing reusable credentials.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.portal_sg\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"SSH (TCP/22) is allowed from 0.0.0.0/0. The attached instance is placed in a public subnet with a default route to an Internet Gateway and receives a public IP, making administrative access reachable from any Internet host.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.portal_server_disk\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its contents, and the snapshot created from it, may be stored unencrypted at rest unless account-level default EBS encryption is enabled outside this configuration.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.netflow_archive\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The flow-log archive bucket has no server-side encryption configuration. Sensitive network-flow records written to this bucket are not explicitly protected with SSE-S3 or SSE-KMS at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2118,
+      "output_tokens": 338,
+      "latency_s": 4.49,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.008292
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.008292
+}

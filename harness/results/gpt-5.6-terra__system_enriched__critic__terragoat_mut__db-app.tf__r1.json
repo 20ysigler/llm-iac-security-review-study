@@ -1,0 +1,102 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__critic__terragoat_mut__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credential in user data",
+      "description": "The database password is interpolated into EC2 user data and written into a local PHP configuration file. User data is retrievable by principals or processes with instance-level access, exposing the database credential beyond a dedicated secrets-management mechanism.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance has publicly_accessible = true, giving it public addressing. Its currently shown inbound rule is limited to the VPC CIDR, but public exposure is nevertheless enabled and makes the database externally reachable if network controls are altered or bypassed.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly false, leaving the RDS storage and its automated backups unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role permits s3:*, ec2:*, and rds:* against every resource. Since the role is attached to catalog_app_server, compromise of that instance grants broad access to S3, EC2, and RDS resources and can enable EC2-based privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overbroad database ingress",
+      "description": "MySQL ingress is allowed from the full VPC CIDR rather than being restricted to the application security group or specifically authorized clients. Any workload able to operate within the VPC address space can attempt connections to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted database egress",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0. This gives the database unrestricted outbound network reachability, increasing the impact of database compromise and allowing unnecessary external communications.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 6819,
+  "output_tokens": 934,
+  "latency_s": 13.793,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"database credential in user data\",\"description\":\"The database password is interpolated into EC2 user data and written into a local PHP configuration file. User data is retrievable by principals or processes with instance-level access, exposing the database credential beyond a dedicated secrets-management mechanism.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance has publicly_accessible = true, giving it public addressing. Its currently shown inbound rule is limited to the VPC CIDR, but public exposure is nevertheless enabled and makes the database externally reachable if network controls are altered or bypassed.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"storage_encrypted is explicitly false, leaving the RDS storage and its automated backups unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The instance role permits s3:*, ec2:*, and rds:* against every resource. Since the role is attached to catalog_app_server, compromise of that instance grants broad access to S3, EC2, and RDS resources and can enable EC2-based privilege escalation.\",\"severity\":\"critical\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_inbound\",\"issue_category\":\"overbroad database ingress\",\"description\":\"MySQL ingress is allowed from the full VPC CIDR rather than being restricted to the application security group or specifically authorized clients. Any workload able to operate within the VPC address space can attempt connections to the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_outbound\",\"issue_category\":\"unrestricted database egress\",\"description\":\"The database security group permits all protocols and ports to 0.0.0.0/0. This gives the database unrestricted outbound network reachability, increasing the impact of database compromise and allowing unnecessary external communications.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3098,
+      "output_tokens": 436,
+      "latency_s": 7.665,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.011428
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3721,
+      "output_tokens": 498,
+      "latency_s": 6.128,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.013418
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.024846
+}

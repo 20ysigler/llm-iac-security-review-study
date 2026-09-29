@@ -1,0 +1,78 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__lambda.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda environment variables, committing them to source control and exposing them to any principal with lambda:GetFunction/GetFunctionConfiguration or console read access. The function should use its execution role credentials or retrieve secrets from Secrets Manager/SSM Parameter Store.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing CMK encryption of environment variables",
+      "description": "No kms_key_arn is set, so the environment variables - which contain secret material here - are protected only by the default AWS-managed Lambda key, whose use cannot be constrained by a customer key policy and whose access is granted implicitly to anyone able to read the function configuration.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime version",
+      "description": "The nodejs12.x runtime is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the runtime and its bundled libraries unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 5175,
+  "output_tokens": 1346,
+  "latency_s": 17.916,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda environment variables, committing them to source control and exposing them to any principal with lambda:GetFunction/GetFunctionConfiguration or console read access. The function should use its execution role credentials or retrieve secrets from Secrets Manager/SSM Parameter Store.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing CMK encryption of environment variables\", \"description\": \"No kms_key_arn is set, so the environment variables - which contain secret material here - are protected only by the default AWS-managed Lambda key, whose use cannot be constrained by a customer key policy and whose access is granted implicitly to anyone able to read the function configuration.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime version\", \"description\": \"The nodejs12.x runtime is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the runtime and its bundled libraries unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2079,
+      "output_tokens": 815,
+      "latency_s": 10.772,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03077
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3096,
+      "output_tokens": 531,
+      "latency_s": 7.144,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.028755
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.059525
+}

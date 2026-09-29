@@ -1,0 +1,49 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:11:38Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key/secret is created for a human/service user with an excessively permissive policy attached, increasing the blast radius if the credential is leaked; combined with the output below, the secret material is exposed via Terraform outputs/state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure via output",
+      "description": "The output exposes the IAM access key's encrypted_secret value, which can end up in Terraform state, logs, or CI/CD output, leading to credential disclosure even though it is 'encrypted' it is tied to a specific key that may be mismanaged or the value could still be sensitive material exposed unnecessarily.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2139,
+  "output_tokens": 545,
+  "latency_s": 5.599,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (*), violating least privilege and allowing this IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key/secret is created for a human/service user with an excessively permissive policy attached, increasing the blast radius if the credential is leaked; combined with the output below, the secret material is exposed via Terraform outputs/state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure via output\", \"description\": \"The output exposes the IAM access key's encrypted_secret value, which can end up in Terraform state, logs, or CI/CD output, leading to credential disclosure even though it is 'encrypted' it is tied to a specific key that may be mismanaged or the value could still be sensitive material exposed unnecessarily.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.009728
+}

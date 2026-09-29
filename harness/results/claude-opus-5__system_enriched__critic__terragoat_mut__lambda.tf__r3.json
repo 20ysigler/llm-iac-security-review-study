@@ -1,0 +1,94 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__lambda.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:49:56Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "The Lambda function embeds a static AWS access key ID and secret access key in plaintext environment variables in the Terraform source. These are committed to version control, visible to any principal with lambda:GetFunctionConfiguration, and grant the associated IAM user's permissions independently of the execution role.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is set, so sensitive environment variables are protected only by the default AWS-managed key, whose usage is not restricted by a customer-controlled key policy; any principal with basic Lambda read permissions can retrieve the decrypted values.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The nodejs12.x runtime is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities in the runtime and its bundled libraries.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group boundary. Combined with the embedded static credentials, this makes exfiltration trivial if the function is compromised.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing confused-deputy protection",
+      "description": "The trust policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the service principal may be leveraged from another account's Lambda function to assume this execution role (confused deputy).",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 5018,
+  "output_tokens": 1483,
+  "latency_s": 19.465,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"The Lambda function embeds a static AWS access key ID and secret access key in plaintext environment variables in the Terraform source. These are committed to version control, visible to any principal with lambda:GetFunctionConfiguration, and grant the associated IAM user's permissions independently of the execution role.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is set, so sensitive environment variables are protected only by the default AWS-managed key, whose usage is not restricted by a customer-controlled key policy; any principal with basic Lambda read permissions can retrieve the decrypted values.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The nodejs12.x runtime is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities in the runtime and its bundled libraries.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group boundary. Combined with the embedded static credentials, this makes exfiltration trivial if the function is compromised.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing confused-deputy protection\", \"description\": \"The trust policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so the service principal may be leveraged from another account's Lambda function to assume this execution role (confused deputy).\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2079,
+      "output_tokens": 673,
+      "latency_s": 9.931,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02722
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2939,
+      "output_tokens": 810,
+      "latency_s": 9.534,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.034945
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.062165
+}

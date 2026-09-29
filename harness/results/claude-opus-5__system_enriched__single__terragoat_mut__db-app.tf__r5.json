@@ -1,0 +1,125 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__db-app.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:06:59Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving the database a public IP and DNS endpoint reachable from the internet, expanding attack surface for a datastore that should only be reachable from the application subnet.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables KMS encryption of the RDS volume and snapshots, leaving stored data unprotected at the storage layer.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database credentials from variable",
+      "description": "The master password is supplied via var.password and also interpolated into EC2 user_data; the same plaintext secret is stored in Terraform state, instance metadata, and the AMI-launched config file rather than being sourced from Secrets Manager.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext transmission to database",
+      "description": "No parameter forces TLS (e.g. require_secure_transport) and the application connects with mysqli_connect without SSL, so credentials and query data traverse the network in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded secret in user data",
+      "description": "The RDS master password is embedded in the EC2 user_data script, which is retrievable in plaintext from the instance metadata service (and by any process or SSRF vector on the host) and is stored unencrypted in Terraform state.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:* and rds:* on Resource \"*\", allowing the EC2 instance (which runs a public-facing PHP app) to read any bucket, modify any RDS instance, and launch or alter EC2 resources \u2014 a broad privilege escalation and data exfiltration path.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0, enabling unrestricted outbound traffic that could be used for data exfiltration or command-and-control from a compromised database host.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "missing EBS root volume encryption",
+      "description": "No root_block_device with encrypted = true is specified, so the application server's disk \u2014 which holds the database credentials file /var/www/inc/dbinfo.inc \u2014 may be stored unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "instance metadata service v1 allowed",
+      "description": "No metadata_options block enforcing http_tokens = \"required\" is set, so IMDSv1 remains available; combined with the highly privileged instance role and a public-facing PHP application, an SSRF flaw could be used to steal role credentials.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "IAM database authentication disabled",
+      "description": "iam_database_authentication_enabled is not set and a static 'admin' master user is used for application access, relying solely on a shared long-lived password instead of IAM-based authentication.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 5799,
+  "output_tokens": 1452,
+  "latency_s": 17.378,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving the database a public IP and DNS endpoint reachable from the internet, expanding attack surface for a datastore that should only be reachable from the application subnet.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables KMS encryption of the RDS volume and snapshots, leaving stored data unprotected at the storage layer.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database credentials from variable\", \"description\": \"The master password is supplied via var.password and also interpolated into EC2 user_data; the same plaintext secret is stored in Terraform state, instance metadata, and the AMI-launched config file rather than being sourced from Secrets Manager.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext transmission to database\", \"description\": \"No parameter forces TLS (e.g. require_secure_transport) and the application connects with mysqli_connect without SSL, so credentials and query data traverse the network in cleartext.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded secret in user data\", \"description\": \"The RDS master password is embedded in the EC2 user_data script, which is retrievable in plaintext from the instance metadata service (and by any process or SSRF vector on the host) and is stored unencrypted in Terraform state.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", allowing the EC2 instance (which runs a public-facing PHP app) to read any bucket, modify any RDS instance, and launch or alter EC2 resources \\u2014 a broad privilege escalation and data exfiltration path.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all protocols and ports to 0.0.0.0/0, enabling unrestricted outbound traffic that could be used for data exfiltration or command-and-control from a compromised database host.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"missing EBS root volume encryption\", \"description\": \"No root_block_device with encrypted = true is specified, so the application server's disk \\u2014 which holds the database credentials file /var/www/inc/dbinfo.inc \\u2014 may be stored unencrypted.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"instance metadata service v1 allowed\", \"description\": \"No metadata_options block enforcing http_tokens = \\\"required\\\" is set, so IMDSv1 remains available; combined with the highly privileged instance role and a public-facing PHP application, an SSRF flaw could be used to steal role credentials.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"IAM database authentication disabled\", \"description\": \"iam_database_authentication_enabled is not set and a static 'admin' master user is used for application access, relying solely on a shared long-lived password instead of IAM-based authentication.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5799,
+      "output_tokens": 1452,
+      "latency_s": 17.378,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.065295
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.065295
+}

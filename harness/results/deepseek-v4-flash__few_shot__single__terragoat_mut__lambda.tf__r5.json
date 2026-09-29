@@ -1,0 +1,76 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__lambda.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in configuration",
+      "description": "Long-lived AWS access keys (access_key/secret_key) are embedded in plaintext Lambda environment variables, which are stored unencrypted in Terraform state and readable by anyone with lambda:GetFunctionConfiguration. Credentials should be supplied from Secrets Manager or SSM Parameter Store via a KMS-encrypted reference instead.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "The environment block does not set a kms_key_arn, so Lambda stores the sensitive variables under the default service key rather than a customer-managed key, weakening confidentiality and auditability of the secrets it holds.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "end-of-life runtime",
+      "description": "runtime is set to nodejs12.x, which is deprecated and no longer receives security patches; known Node.js and dependency vulnerabilities will remain unpatched in the function.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing least-privilege permissions boundary",
+      "description": "The role's trust policy allows lambda.amazonaws.com to assume it, but no permissions policies or boundary are defined in this configuration; depending on attached policies this can yield broad access, so the role should be scoped to the specific actions the analytics function requires.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1390,
+  "output_tokens": 429,
+  "latency_s": 2.641,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in configuration\", \"description\": \"Long-lived AWS access keys (access_key/secret_key) are embedded in plaintext Lambda environment variables, which are stored unencrypted in Terraform state and readable by anyone with lambda:GetFunctionConfiguration. Credentials should be supplied from Secrets Manager or SSM Parameter Store via a KMS-encrypted reference instead.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"The environment block does not set a kms_key_arn, so Lambda stores the sensitive variables under the default service key rather than a customer-managed key, weakening confidentiality and auditability of the secrets it holds.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"end-of-life runtime\", \"description\": \"runtime is set to nodejs12.x, which is deprecated and no longer receives security patches; known Node.js and dependency vulnerabilities will remain unpatched in the function.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing least-privilege permissions boundary\", \"description\": \"The role's trust policy allows lambda.amazonaws.com to assume it, but no permissions policies or boundary are defined in this configuration; depending on attached policies this can yield broad access, so the role should be scoped to the specific actions the analytics function requires.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1390,
+      "output_tokens": 429,
+      "latency_s": 2.641,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000315
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000315
+}

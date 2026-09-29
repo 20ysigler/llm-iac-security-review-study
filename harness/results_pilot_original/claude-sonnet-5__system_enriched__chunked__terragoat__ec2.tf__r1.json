@@ -1,0 +1,168 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat__ec2.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:13:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds a plaintext AWS access key ID and secret access key. These credentials are stored in the Terraform state and instance metadata in cleartext, making them easily retrievable by anyone with access to the instance metadata service, console, or state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (it is commented out), meaning data stored on the volume is not encrypted at rest, exposing it to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot does not specify encryption, and if the source volume is unencrypted the snapshot will also be unencrypted, exposing sensitive data at rest and any downstream volumes restored from it.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing administrative access to the entire internet and enabling brute-force or credential-stuffing attacks against the host.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "Egress is fully open to all protocols and destinations (0.0.0.0/0), providing no network segmentation or exfiltration control if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, meaning any instance launched in this subnet automatically receives a public IP, increasing exposure to untrusted networks unless carefully controlled by other layers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, meaning any instance launched in this subnet automatically receives a public IP, increasing exposure to untrusted networks unless carefully controlled by other layers.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_flow_log.vpcflowlogs",
+      "issue_category": "incomplete flow log configuration",
+      "description": "The excerpt shows a comment introducing VPC Flow Logs to S3 but no visible content ensuring log delivery is encrypted or properly scoped; while the resource itself isn't shown, the route table sends all traffic (0.0.0.0/0) through an internet gateway, increasing the importance of properly configured flow logs and network segmentation which cannot be verified here.",
+      "severity": "informational",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) defined, meaning flow log data, which can contain sensitive network metadata, is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing access controls / public access block",
+      "description": "The bucket has no associated aws_s3_bucket_public_access_block, versioning, or bucket policy restricting access, leaving it with default ACLs and no explicit protection against public exposure of flow log data.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "force_destroy enabled on sensitive log bucket",
+      "description": "force_destroy = true allows the bucket and all its log contents to be deleted even when non-empty, undermining the integrity and availability of audit/flow log data needed for security investigations.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 15185,
+  "output_tokens": 2061,
+  "latency_s": 23.781,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration (aws_s3_bucket_server_side_encryption_configuration) defined, meaning flow log data, which can contain sensitive network metadata, is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing access controls / public access block\", \"description\": \"The bucket has no associated aws_s3_bucket_public_access_block, versioning, or bucket policy restricting access, leaving it with default ACLs and no explicit protection against public exposure of flow log data.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"force_destroy enabled on sensitive log bucket\", \"description\": \"force_destroy = true allows the bucket and all its log contents to be deleted even when non-empty, undermining the integrity and availability of audit/flow log data needed for security investigations.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2987,
+      "output_tokens": 338,
+      "latency_s": 4.165,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009354
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3022,
+      "output_tokens": 640,
+      "latency_s": 6.252,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.012444
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3031,
+      "output_tokens": 344,
+      "latency_s": 4.006,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009502
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 3208,
+      "output_tokens": 218,
+      "latency_s": 3.436,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.008596
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 2937,
+      "output_tokens": 521,
+      "latency_s": 5.922,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011084
+    }
+  ],
+  "n_calls": 5,
+  "chunks": 5,
+  "cost_usd": 0.05098
+}

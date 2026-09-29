@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:21:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet and significantly increasing attack surface for a data store holding application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled encryption at rest",
+      "description": "storage_encrypted is set to false, meaning the database's underlying storage is not encrypted at rest, risking exposure of sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credential usage",
+      "description": "The database password is passed via var.password directly into the resource and also injected in plaintext into instance user_data, risking credential leakage through Terraform state, plan output, and EC2 instance metadata/logs.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets exposed via user data",
+      "description": "The user_data script embeds the database password and other DB connection information in plaintext, which is retrievable by anyone with access to the instance metadata service or console, exposing credentials.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants s3:*, ec2:*, and rds:* on Resource '*', giving the EC2 instance role far more privilege than needed (full administrative access to these services), violating least privilege and enabling privilege escalation or lateral movement if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which is overly permissive and could facilitate data exfiltration if the database or associated instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network access",
+      "description": "The ingress rule opens port 3306 to the entire VPC CIDR block rather than restricting access to only the application server's security group, unnecessarily widening the database's exposure within the network, and is compounded by publicly_accessible=true on the DB instance.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5445,
+  "output_tokens": 1077,
+  "latency_s": 10.358,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet and significantly increasing attack surface for a data store holding application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled encryption at rest\", \"description\": \"storage_encrypted is set to false, meaning the database's underlying storage is not encrypted at rest, risking exposure of sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credential usage\", \"description\": \"The database password is passed via var.password directly into the resource and also injected in plaintext into instance user_data, risking credential leakage through Terraform state, plan output, and EC2 instance metadata/logs.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets exposed via user data\", \"description\": \"The user_data script embeds the database password and other DB connection information in plaintext, which is retrievable by anyone with access to the instance metadata service or console, exposing credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants s3:*, ec2:*, and rds:* on Resource '*', giving the EC2 instance role far more privilege than needed (full administrative access to these services), violating least privilege and enabling privilege escalation or lateral movement if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which is overly permissive and could facilitate data exfiltration if the database or associated instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network access\", \"description\": \"The ingress rule opens port 3306 to the entire VPC CIDR block rather than restricting access to only the application server's security group, unnecessarily widening the database's exposure within the network, and is compounded by publicly_accessible=true on the DB instance.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5445,
+      "output_tokens": 1077,
+      "latency_s": 10.358,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02166
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02166
+}

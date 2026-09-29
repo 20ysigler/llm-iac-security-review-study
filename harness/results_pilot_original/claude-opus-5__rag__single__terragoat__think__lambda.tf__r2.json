@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:05:37Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "The Lambda function embeds an AWS access key ID and secret access key in plain text environment variables. Anyone with lambda:GetFunctionConfiguration or console read access can retrieve them, and they are committed to version control, so they must be treated as compromised.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is specified, so the environment variables (which hold secrets here) are protected only by the default service-owned key rather than a customer-managed KMS key with a controllable key policy and rotation.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses runtime nodejs12.x, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing code-signing validation",
+      "description": "No code_signing_config_arn is attached, so the deployment package is not signature-verified; tampering with the artefact between build and deployment would not be detected.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    }
+  ],
+  "input_tokens": 3755,
+  "output_tokens": 806,
+  "latency_s": 11.458,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"The Lambda function embeds an AWS access key ID and secret access key in plain text environment variables. Anyone with lambda:GetFunctionConfiguration or console read access can retrieve them, and they are committed to version control, so they must be treated as compromised.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is specified, so the environment variables (which hold secrets here) are protected only by the default service-owned key rather than a customer-managed KMS key with a controllable key policy and rotation.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses runtime nodejs12.x, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing code-signing validation\", \"description\": \"No code_signing_config_arn is attached, so the deployment package is not signature-verified; tampering with the artefact between build and deployment would not be detected.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}]}",
+  "cost_usd": 0.038925
+}

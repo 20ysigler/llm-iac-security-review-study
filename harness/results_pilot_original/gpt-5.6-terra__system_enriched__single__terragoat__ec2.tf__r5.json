@@ -1,0 +1,71 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__ec2.tf__r5",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:39:59Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded cloud credentials",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "Long-lived AWS access-key credentials are embedded in EC2 user data. User data is stored and can be retrieved by principals with instance-description access, while any compromise of the publicly reachable instance can expose and misuse these credentials."
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The EBS volume does not set encrypted = true, so encryption relies on an account-level default that is not established in this configuration. Data written to this attached volume may therefore be stored unencrypted."
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot data",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "This snapshot is created from aws_ebs_volume.web_host_storage, which is not configured for encryption. The snapshot will consequently preserve the volume's unencrypted state."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "TCP/22 is permitted from 0.0.0.0/0. The associated instance is in a public-IP subnet with a default route through an internet gateway, making SSH reachable from untrusted networks."
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted outbound traffic",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284",
+      "description": "All outbound protocols and ports are allowed to 0.0.0.0/0. This removes egress network controls for the web host and allows unrestricted external connections following a compromise."
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311",
+      "description": "The bucket holding VPC flow logs has no server-side encryption configuration. Flow-log records may be stored without an explicitly enforced encryption-at-rest control."
+    }
+  ],
+  "input_tokens": 3867,
+  "output_tokens": 461,
+  "latency_s": 5.056,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded cloud credentials\",\"severity\":\"critical\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"Long-lived AWS access-key credentials are embedded in EC2 user data. User data is stored and can be retrieved by principals with instance-description access, while any compromise of the publicly reachable instance can expose and misuse these credentials.\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The EBS volume does not set encrypted = true, so encryption relies on an account-level default that is not established in this configuration. Data written to this attached volume may therefore be stored unencrypted.\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted snapshot data\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"This snapshot is created from aws_ebs_volume.web_host_storage, which is not configured for encryption. The snapshot will consequently preserve the volume's unencrypted state.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"TCP/22 is permitted from 0.0.0.0/0. The associated instance is in a public-IP subnet with a default route through an internet gateway, making SSH reachable from untrusted networks.\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted outbound traffic\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-284\",\"description\":\"All outbound protocols and ports are allowed to 0.0.0.0/0. This removes egress network controls for the web host and allows unrestricted external connections following a compromise.\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing encryption at rest\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-311\",\"description\":\"The bucket holding VPC flow logs has no server-side encryption configuration. Flow-log records may be stored without an explicitly enforced encryption-at-rest control.\"}]}",
+  "cost_usd": 0.013266
+}

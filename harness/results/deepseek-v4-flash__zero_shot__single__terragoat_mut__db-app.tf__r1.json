@@ -1,0 +1,116 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true while sitting in a VPC, so the MySQL endpoint (admin user, port 3306) receives a public IP and is reachable from the internet if the security group permits it. The instance is also passed to user_data of an EC2 instance, exposing the endpoint further.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the database's underlying EBS volumes and any snapshots unencrypted, so anyone with access to the storage layer can read the catalog data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded administrative master username",
+      "description": "The master username is the well-known default 'admin' with no rotation and the password is supplied via var.password and then embedded into EC2 user_data, so credentials for a publicly accessible admin account are predictable and broadly exposed.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials in user_data",
+      "description": "The instance user_data writes the RDS endpoint, username, and the plaintext database password (var.password) into /var/www/inc/dbinfo.inc via a shell heredoc. User data is retrievable from instance metadata by any process/user on the host and is stored in Terraform state and the AWS console, leaking DB credentials.",
+      "severity": "critical",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "unrestricted database ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR block (aws_vpc.portal_vpc.cidr_block) rather than a specific application security group, so any host in the VPC, including compromised or unrelated instances, can connect to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the web server full control over all S3 buckets, EC2 resources, and RDS databases in the account. A compromise of this instance permits complete account takeover and data destruction.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, enabling data exfiltration and outbound command-and-control from the DB tier if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled audit logging and monitoring",
+      "description": "monitoring_interval = 0 and backup_retention_period = 0 disable enhanced monitoring and automated backups, removing the ability to detect or recover from unauthorized access to the database. Note: reported only as it removes a compensating control for the exposed DB.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unauthenticated HTTP service exposure",
+      "description": "The user_data installs and starts Apache serving the catalog page over plain HTTP with no TLS or authentication; combined with the reported public DNS output and the broad security group, the application and its DB-fetching logic are reachable in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3313,
+  "output_tokens": 970,
+  "latency_s": 5.014,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true while sitting in a VPC, so the MySQL endpoint (admin user, port 3306) receives a public IP and is reachable from the internet if the security group permits it. The instance is also passed to user_data of an EC2 instance, exposing the endpoint further.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the database's underlying EBS volumes and any snapshots unencrypted, so anyone with access to the storage layer can read the catalog data in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded administrative master username\", \"description\": \"The master username is the well-known default 'admin' with no rotation and the password is supplied via var.password and then embedded into EC2 user_data, so credentials for a publicly accessible admin account are predictable and broadly exposed.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials in user_data\", \"description\": \"The instance user_data writes the RDS endpoint, username, and the plaintext database password (var.password) into /var/www/inc/dbinfo.inc via a shell heredoc. User data is retrievable from instance metadata by any process/user on the host and is stored in Terraform state and the AWS console, leaking DB credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"unrestricted database ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR block (aws_vpc.portal_vpc.cidr_block) rather than a specific application security group, so any host in the VPC, including compromised or unrelated instances, can connect to the database.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the web server full control over all S3 buckets, EC2 resources, and RDS databases in the account. A compromise of this instance permits complete account takeover and data destruction.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, enabling data exfiltration and outbound command-and-control from the DB tier if the instance is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled audit logging and monitoring\", \"description\": \"monitoring_interval = 0 and backup_retention_period = 0 disable enhanced monitoring and automated backups, removing the ability to detect or recover from unauthorized access to the database. Note: reported only as it removes a compensating control for the exposed DB.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unauthenticated HTTP service exposure\", \"description\": \"The user_data installs and starts Apache serving the catalog page over plain HTTP with no TLS or authentication; combined with the reported public DNS output and the broad security group, the application and its DB-fetching logic are reachable in cleartext.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3313,
+      "output_tokens": 970,
+      "latency_s": 5.014,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000735
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000735
+}

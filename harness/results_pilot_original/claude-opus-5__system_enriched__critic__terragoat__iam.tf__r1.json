@@ -1,0 +1,86 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:00:43Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. Compromise of this user's credentials yields control of compute, storage, and serverless resources account-wide, including a privilege-escalation path via lambda:CreateFunction combined with iam:PassRole-equivalent behaviour on existing roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is generated for a user holding wildcard permissions, with no rotation mechanism. Static long-lived keys are a primary credential-leak vector; temporary role-based credentials should be used instead.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret material in Terraform state",
+      "description": "No pgp_key is supplied, so the generated secret access key (and ses_smtp_password) is persisted in cleartext in the Terraform state file, giving anyone with state access working credentials for this over-privileged user.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposed via unmasked output",
+      "description": "The 'secret' output exposes aws_iam_access_key.user.encrypted_secret without marking it sensitive. Since no pgp_key is configured this attribute is empty in practice, but the output is not flagged sensitive and the username output likewise advertises the identity; combined with the plaintext secret in state this makes key material easy to harvest from CI logs and state artefacts.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 5258,
+  "output_tokens": 1389,
+  "latency_s": 17.98,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. Compromise of this user's credentials yields control of compute, storage, and serverless resources account-wide, including a privilege-escalation path via lambda:CreateFunction combined with iam:PassRole-equivalent behaviour on existing roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is generated for a user holding wildcard permissions, with no rotation mechanism. Static long-lived keys are a primary credential-leak vector; temporary role-based credentials should be used instead.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret material in Terraform state\", \"description\": \"No pgp_key is supplied, so the generated secret access key (and ses_smtp_password) is persisted in cleartext in the Terraform state file, giving anyone with state access working credentials for this over-privileged user.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposed via unmasked output\", \"description\": \"The 'secret' output exposes aws_iam_access_key.user.encrypted_secret without marking it sensitive. Since no pgp_key is configured this attribute is empty in practice, but the output is not flagged sensitive and the username output likewise advertises the identity; combined with the plaintext secret in state this makes key material easy to harvest from CI logs and state artefacts.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2197,
+      "output_tokens": 677,
+      "latency_s": 9.469,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02791
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3061,
+      "output_tokens": 712,
+      "latency_s": 8.511,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.033105
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.061015
+}

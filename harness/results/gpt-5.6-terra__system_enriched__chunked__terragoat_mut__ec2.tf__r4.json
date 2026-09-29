@@ -1,0 +1,135 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__chunked__terragoat_mut__ec2.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:14Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set `encrypted = true` or a KMS key. Its encryption therefore depends on the account-level EBS encryption-by-default setting, which is not established in this excerpt; data stored on this attached portal disk may be unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses to instances at launch and is associated with a route table containing a default route through an Internet Gateway. Instances launched here can become Internet-reachable if their security groups permit traffic.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "This subnet assigns public IPv4 addresses to instances at launch and is associated with a route table containing a default route through an Internet Gateway. Instances launched here can become Internet-reachable if their security groups permit traffic.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The instance user-data embeds an AWS access key ID and secret access key. User data is stored in instance metadata and Terraform state/context, exposing long-lived credentials to users or processes that can read them; the credentials may also be recoverable from the deployed host.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is permitted from 0.0.0.0/0, exposing administrative SSH access to any Internet host when the instance is publicly reachable through the declared Internet gateway and route infrastructure.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted HTTP ingress",
+      "description": "TCP/80 is permitted from 0.0.0.0/0. The instance installs and starts Apache, so this exposes the web service to all Internet sources when the associated subnet is routed through the declared Internet gateway.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted outbound access",
+      "description": "The security group permits all protocols and ports to 0.0.0.0/0. This removes egress network controls for the Internet-facing instance, enabling unrestricted outbound connections if it is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used as the VPC flow-log destination has no server-side encryption configuration. Flow-log records stored in the archive therefore are not explicitly protected with a customer-managed or bucket-enforced encryption setting.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing snapshot encryption",
+      "description": "The snapshot does not set encrypted storage or an encryption key. Although it may inherit encryption from the source volume in some cases, this excerpt does not establish that aws_ebs_volume.portal_server_disk is encrypted, so the backup's encryption at rest cannot be assured.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4244,
+  "output_tokens": 789,
+  "latency_s": 11.247,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_ebs_snapshot.portal_disk_backup\",\"issue_category\":\"missing snapshot encryption\",\"description\":\"The snapshot does not set encrypted storage or an encryption key. Although it may inherit encryption from the source volume in some cases, this excerpt does not establish that aws_ebs_volume.portal_server_disk is encrypted, so the backup's encryption at rest cannot be assured.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1479,
+      "output_tokens": 267,
+      "latency_s": 3.48,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.006162
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 1687,
+      "output_tokens": 414,
+      "latency_s": 5.626,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.008342
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1078,
+      "output_tokens": 108,
+      "latency_s": 2.141,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.003452
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 3,
+  "cost_usd": 0.017956
+}

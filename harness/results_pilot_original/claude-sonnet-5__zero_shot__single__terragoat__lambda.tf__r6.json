@@ -1,0 +1,37 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat__lambda.tf__r6",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 6,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:16:48Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in plaintext",
+      "description": "AWS access key and secret key are hardcoded in plaintext as Lambda environment variables, exposing sensitive credentials to anyone with read access to the Terraform state, code repository, or Lambda console/API. Credentials should be stored in AWS Secrets Manager or SSM Parameter Store and referenced securely, or encrypted with a KMS key.",
+      "severity": "critical",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption for environment variables",
+      "description": "The Lambda function does not specify a KMS key (kms_key_arn) for encrypting environment variables at rest, leaving sensitive data (including the embedded credentials) protected only by the default AWS-managed key rather than a customer-managed key with tighter access control.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 2153,
+  "output_tokens": 401,
+  "latency_s": 4.193,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in plaintext\", \"description\": \"AWS access key and secret key are hardcoded in plaintext as Lambda environment variables, exposing sensitive credentials to anyone with read access to the Terraform state, code repository, or Lambda console/API. Credentials should be stored in AWS Secrets Manager or SSM Parameter Store and referenced securely, or encrypted with a KMS key.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption for environment variables\", \"description\": \"The Lambda function does not specify a KMS key (kms_key_arn) for encrypting environment variables at rest, leaving sensitive data (including the embedded credentials) protected only by the default AWS-managed key rather than a customer-managed key with tighter access control.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "cost_usd": 0.008316
+}

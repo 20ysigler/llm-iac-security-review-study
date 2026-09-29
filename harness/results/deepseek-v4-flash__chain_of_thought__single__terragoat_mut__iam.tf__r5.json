@@ -1,0 +1,85 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__iam.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this single user full control over compute, storage, serverless, and monitoring services including the ability to read/exfiltrate all S3 objects, modify or delete EC2 instances, and disable logging. This is far beyond what a deploy identity needs and constitutes a privilege-escalation and full-account-compromise path if the access key leaks.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "wildcard resource scope",
+      "description": "Combined with the wildcard actions, \"Resource\": \"*\" means there is no resource-level restriction, so the credentials can act on every S3 bucket, EC2 instance, and Lambda function in the account, including any created by other teams or environments.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the deployment user with no rotation. Long-lived keys cannot be scoped to short sessions and, combined with the wildcard admin-like policy, create a standing credential that grants full control of the account if exposed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "sensitive output exposure",
+      "description": "The access key is emitted as a Terraform output, so the credential material is written to state and printed in plan/apply logs and CI output. It is not marked sensitive = true, so it is displayed in plaintext to anyone with access to the console or logs.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user instead of role",
+      "description": "A long-lived IAM user with force_destroy = true is used for deployment rather than an assumable role with temporary credentials; force_destroy also removes the user (and allows its keys/policies to be destroyed) without protection, weakening credential hygiene and the audit trail.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-250"
+    }
+  ],
+  "input_tokens": 1126,
+  "output_tokens": 608,
+  "latency_s": 3.73,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this single user full control over compute, storage, serverless, and monitoring services including the ability to read/exfiltrate all S3 objects, modify or delete EC2 instances, and disable logging. This is far beyond what a deploy identity needs and constitutes a privilege-escalation and full-account-compromise path if the access key leaks.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"wildcard resource scope\", \"description\": \"Combined with the wildcard actions, \\\"Resource\\\": \\\"*\\\" means there is no resource-level restriction, so the credentials can act on every S3 bucket, EC2 instance, and Lambda function in the account, including any created by other teams or environments.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the deployment user with no rotation. Long-lived keys cannot be scoped to short sessions and, combined with the wildcard admin-like policy, create a standing credential that grants full control of the account if exposed.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"sensitive output exposure\", \"description\": \"The access key is emitted as a Terraform output, so the credential material is written to state and printed in plan/apply logs and CI output. It is not marked sensitive = true, so it is displayed in plaintext to anyone with access to the console or logs.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user instead of role\", \"description\": \"A long-lived IAM user with force_destroy = true is used for deployment rather than an assumable role with temporary credentials; force_destroy also removes the user (and allows its keys/policies to be destroyed) without protection, weakening credential hygiene and the audit trail.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-250\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1126,
+      "output_tokens": 608,
+      "latency_s": 3.73,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.000328
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000328
+}

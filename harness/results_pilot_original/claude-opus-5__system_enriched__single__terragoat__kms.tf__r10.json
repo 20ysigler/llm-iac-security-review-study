@@ -1,0 +1,61 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__kms.tf__r10",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 10,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:50:40Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "KMS key rotation disabled",
+      "description": "The KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the same key material is used indefinitely. This increases the blast radius of a compromised key and violates common key-management requirements for long-lived log data.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "missing key policy least privilege",
+      "description": "No explicit key policy is defined, so AWS applies the default policy granting the entire account root full access to the key, meaning any IAM principal in the account can be granted use of the key that protects log data. An explicit least-privilege key policy should restrict encrypt/decrypt and administrative actions to specific principals.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 1999,
+  "output_tokens": 355,
+  "latency_s": 5.601,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"KMS key rotation disabled\", \"description\": \"The KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the same key material is used indefinitely. This increases the blast radius of a compromised key and violates common key-management requirements for long-lived log data.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"missing key policy least privilege\", \"description\": \"No explicit key policy is defined, so AWS applies the default policy granting the entire account root full access to the key, meaning any IAM principal in the account can be granted use of the key that protects log data. An explicit least-privilege key policy should restrict encrypt/decrypt and administrative actions to specific principals.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1999,
+      "output_tokens": 355,
+      "latency_s": 5.601,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.01887
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.01887
+}

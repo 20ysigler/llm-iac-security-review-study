@@ -1,0 +1,86 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__lambda.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:50:28Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables and committed to source control. Anyone with lambda:GetFunctionConfiguration or repository access can read them and impersonate the associated IAM principal.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "No kms_key_arn is set, so environment variables holding secrets are protected only by the default AWS-managed Lambda key, which any principal able to describe the function can implicitly use to view the values in plaintext. A customer-managed CMK would add key-policy-based access control over the secrets at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses nodejs12.x, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the runtime unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code-signing integrity control",
+      "description": "No code_signing_config_arn is configured, so the deployment package is not verified against a trusted signing profile; an attacker able to write to the deployment artifact or invoke UpdateFunctionCode can substitute malicious code that will execute with the function's IAM role.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    }
+  ],
+  "input_tokens": 4992,
+  "output_tokens": 1301,
+  "latency_s": 17.175,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables and committed to source control. Anyone with lambda:GetFunctionConfiguration or repository access can read them and impersonate the associated IAM principal.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"No kms_key_arn is set, so environment variables holding secrets are protected only by the default AWS-managed Lambda key, which any principal able to describe the function can implicitly use to view the values in plaintext. A customer-managed CMK would add key-policy-based access control over the secrets at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses nodejs12.x, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the runtime unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code-signing integrity control\", \"description\": \"No code_signing_config_arn is configured, so the deployment package is not verified against a trusted signing profile; an attacker able to write to the deployment artifact or invoke UpdateFunctionCode can substitute malicious code that will execute with the function's IAM role.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2079,
+      "output_tokens": 647,
+      "latency_s": 9.248,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02657
+    },
+    {
+      "step": "critique",
+      "input_tokens": 2913,
+      "output_tokens": 654,
+      "latency_s": 7.927,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.030915
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.057485
+}

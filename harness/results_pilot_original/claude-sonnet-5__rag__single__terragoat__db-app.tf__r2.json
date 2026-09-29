@@ -1,0 +1,86 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat__db-app.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:54:38Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS database's data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet rather than restricting it to the private network.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/default admin credentials",
+      "description": "The database uses the default administrative username 'admin' and a password sourced from a variable that is passed in plaintext and later embedded in EC2 user data, increasing risk of credential exposure.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols from the RDS security group, providing a potential data exfiltration path.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy attached to the EC2 role grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and enabling broad access to unrelated services from a compromised instance.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext secrets in user data",
+      "description": "The EC2 instance's user_data script embeds the database password (var.password) and other connection details in plaintext, which is readable by anyone with DescribeInstances/console access to the instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "missing IMDSv2 enforcement",
+      "description": "The instance does not set metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service available and vulnerable to SSRF-based credential theft.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled backup retention",
+      "description": "backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, this also removes point-in-time recovery capability that could be relevant to data protection after a security incident.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 8754,
+  "output_tokens": 1164,
+  "latency_s": 10.237,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS database's data at rest is not encrypted, exposing sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet rather than restricting it to the private network.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/default admin credentials\", \"description\": \"The database uses the default administrative username 'admin' and a password sourced from a variable that is passed in plaintext and later embedded in EC2 user data, increasing risk of credential exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols from the RDS security group, providing a potential data exfiltration path.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy attached to the EC2 role grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and enabling broad access to unrelated services from a compromised instance.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext secrets in user data\", \"description\": \"The EC2 instance's user_data script embeds the database password (var.password) and other connection details in plaintext, which is readable by anyone with DescribeInstances/console access to the instance metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"missing IMDSv2 enforcement\", \"description\": \"The instance does not set metadata_options to require IMDSv2 (http_tokens = required), leaving the legacy instance metadata service available and vulnerable to SSRF-based credential theft.\", \"severity\": \"medium\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled backup retention\", \"description\": \"backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, this also removes point-in-time recovery capability that could be relevant to data protection after a security incident.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.029148
+}

@@ -1,0 +1,84 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:45:06Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, leaving the RDS database unencrypted at rest. This exposes all stored data to anyone who gains access to the underlying storage.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS database directly to the public internet rather than confining it to a private subnet.",
+      "severity": "high",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "automatic backups disabled",
+      "description": "backup_retention_period is set to 0, which disables automated backups, removing the ability to restore data and undermining data durability / recoverability in addition to audit trail capabilities.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "plaintext administrative credentials",
+      "description": "The database username 'admin' is hardcoded, and the well-known default administrator account name is used, which violates guidance against carrying default administrative account names into deployed infrastructure.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all traffic (protocol -1) to 0.0.0.0/0, providing a data exfiltration path and a channel to command-and-control infrastructure.",
+      "severity": "medium",
+      "cwe": "CWE-923",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "administrative privileges",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 role, combining wildcard actions with a wildcard resource, which is equivalent to administrative access and far exceeds the least privilege required.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "plaintext static credentials",
+      "description": "The RDS password is supplied as var.password and embedded in the EC2 user_data as DB_PASSWORD in plain text, making the secret readable by anyone with describe permissions on the instance and committing it into startup scripts.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "secrets in user data",
+      "description": "The EC2 user_data embeds the database password (var.password) and endpoint in plain text within the startup script, exposing credentials to anyone with describe permission on the instance and to the AMI/instance metadata.",
+      "severity": "critical",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5580,
+  "output_tokens": 703,
+  "latency_s": 6.399,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is set to false, leaving the RDS database unencrypted at rest. This exposes all stored data to anyone who gains access to the underlying storage.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS database directly to the public internet rather than confining it to a private subnet.\", \"severity\": \"high\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"automatic backups disabled\", \"description\": \"backup_retention_period is set to 0, which disables automated backups, removing the ability to restore data and undermining data durability / recoverability in addition to audit trail capabilities.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"plaintext administrative credentials\", \"description\": \"The database username 'admin' is hardcoded, and the well-known default administrator account name is used, which violates guidance against carrying default administrative account names into deployed infrastructure.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all traffic (protocol -1) to 0.0.0.0/0, providing a data exfiltration path and a channel to command-and-control infrastructure.\", \"severity\": \"medium\", \"cwe\": \"CWE-923\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"administrative privileges\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the EC2 role, combining wildcard actions with a wildcard resource, which is equivalent to administrative access and far exceeds the least privilege required.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"plaintext static credentials\", \"description\": \"The RDS password is supplied as var.password and embedded in the EC2 user_data as DB_PASSWORD in plain text, making the secret readable by anyone with describe permissions on the instance and committing it into startup scripts.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"secrets in user data\", \"description\": \"The EC2 user_data embeds the database password (var.password) and endpoint in plain text within the startup script, exposing credentials to anyone with describe permission on the instance and to the AMI/instance metadata.\", \"severity\": \"critical\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000978
+}

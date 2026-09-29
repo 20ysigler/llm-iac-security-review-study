@@ -1,0 +1,158 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__s3.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:23Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with SSE-S3 default behavior at best and no KMS-managed key, leaving report data unencrypted under a customer-controlled key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "disabled versioning and no lifecycle protection",
+      "description": "versioning is not enabled on reports_archive, so overwritten or deleted report objects cannot be recovered and ransomware-style deletion is destructive.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "public access block not configured",
+      "description": "No aws_s3_bucket_public_access_block is attached to reports_archive, so the bucket can be made public via ACLs or bucket policy and lacks the account-level guardrail.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket containing financial ledger data has no server_side_encryption_configuration, so ledger exports are not encrypted with a managed KMS key.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "disabled versioning",
+      "description": "versioning is not enabled on ledger_exports, allowing irreversible overwrite or deletion of financial export data.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts stores ML model artifacts without server_side_encryption_configuration, so model data is not encrypted with a customer-managed KMS key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks has no server_side_encryption_configuration, leaving operational runbooks that may contain credentials and internal procedures stored without a KMS-managed key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "log bucket writable by log delivery only",
+      "description": "audit_trail uses acl = \"log-delivery-write\", which grants the S3 log delivery group write and read-acp permissions on the bucket; this is the intended setting for a log target but combines with the audit_trail_key KMS key and no public access block, so the audit bucket's access control depends solely on that ACL.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "public access block not configured",
+      "description": "audit_trail, which receives server access logs including possibly sensitive request metadata, has no aws_s3_bucket_public_access_block preventing public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload",
+      "description": "reports_seed_object uploads vendor-roster.xlsx into reports_archive with no server_side_encryption or kms_key_id attribute, so the seeded object is stored under default encryption rather than a customer-managed key.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy data loss",
+      "description": "force_destroy = true on reports_archive allows terraform destroy to delete the bucket and all report objects without error, removing a recovery safeguard against destructive operations.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "force_destroy data loss",
+      "description": "force_destroy = true on ledger_exports permits deletion of all financial ledger objects on destroy, weakening data retention controls.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "force_destroy data loss",
+      "description": "force_destroy = true on model_artifacts allows the model artifact bucket and its contents to be destroyed without safeguard.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "force_destroy data loss",
+      "description": "force_destroy = true on ops_runbooks permits deletion of runbooks and any embedded secrets during a destroy.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force_destroy audit log destruction",
+      "description": "force_destroy = true on the audit_trail bucket allows the audit log target to be destroyed, deleting the record of access to all other buckets and undermining auditability.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1393,
+  "output_tokens": 1282,
+  "latency_s": 5.129,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with SSE-S3 default behavior at best and no KMS-managed key, leaving report data unencrypted under a customer-controlled key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"disabled versioning and no lifecycle protection\", \"description\": \"versioning is not enabled on reports_archive, so overwritten or deleted report objects cannot be recovered and ransomware-style deletion is destructive.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"public access block not configured\", \"description\": \"No aws_s3_bucket_public_access_block is attached to reports_archive, so the bucket can be made public via ACLs or bucket policy and lacks the account-level guardrail.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket containing financial ledger data has no server_side_encryption_configuration, so ledger exports are not encrypted with a managed KMS key.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"disabled versioning\", \"description\": \"versioning is not enabled on ledger_exports, allowing irreversible overwrite or deletion of financial export data.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts stores ML model artifacts without server_side_encryption_configuration, so model data is not encrypted with a customer-managed KMS key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks has no server_side_encryption_configuration, leaving operational runbooks that may contain credentials and internal procedures stored without a KMS-managed key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"log bucket writable by log delivery only\", \"description\": \"audit_trail uses acl = \\\"log-delivery-write\\\", which grants the S3 log delivery group write and read-acp permissions on the bucket; this is the intended setting for a log target but combines with the audit_trail_key KMS key and no public access block, so the audit bucket's access control depends solely on that ACL.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"public access block not configured\", \"description\": \"audit_trail, which receives server access logs including possibly sensitive request metadata, has no aws_s3_bucket_public_access_block preventing public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object upload\", \"description\": \"reports_seed_object uploads vendor-roster.xlsx into reports_archive with no server_side_encryption or kms_key_id attribute, so the seeded object is stored under default encryption rather than a customer-managed key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy data loss\", \"description\": \"force_destroy = true on reports_archive allows terraform destroy to delete the bucket and all report objects without error, removing a recovery safeguard against destructive operations.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_expo",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1393,
+      "output_tokens": 1282,
+      "latency_s": 5.129,
+      "n_findings": 15,
+      "error": "",
+      "cost_usd": 0.000554
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000554
+}

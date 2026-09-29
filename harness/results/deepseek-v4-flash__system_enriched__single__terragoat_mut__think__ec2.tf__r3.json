@@ -1,0 +1,94 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__ec2.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:09:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds a static AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key in plaintext. user_data is stored by EC2 and readable via DescribeInstanceAttribute and from the instance metadata service, so the long-lived credentials are recoverable by anyone with read access to the instance or its metadata, and they cannot be rotated without rebuilding the host. These keys should never be embedded; use an IAM instance profile with a scoped role instead.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "The ingress rule exposes TCP port 22 (SSH) to 0.0.0.0/0, allowing management access from the entire internet. Combined with the instance's public address (public subnet, public IP auto-assignment) and the hard-coded credentials in user_data, this presents a directly reachable brute-force/exploitation target. Administrative access should be restricted to a known bastion or CIDR range.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume attached to the portal server sets no encryption setting, so it is created unencrypted and any data written to it (and to the snapshot taken from it) is stored in cleartext at rest. Encryption should be enabled on the volume.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket used as the VPC flow log archive has no server-side encryption configuration and no public access block, so the network traffic metadata it stores is unencrypted at rest and lacks an explicit guard against public exposure. Flow logs contain sensitive network topology and endpoint information and should be encrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true and is associated with a route table that has a 0.0.0.0/0 route to the internet gateway, so every instance launched here receives a publicly routable IP. This is the subnet hosting the portal server, placing it directly on the internet in combination with the open security group.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "The subnet sets map_public_ip_on_launch = true and is associated with the internet-routed route table, so instances launched into it are assigned public IPs by default and exposed to the internet unless the security group compensates. Public IP assignment should be opt-in rather than a subnet default.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2539,
+  "output_tokens": 5059,
+  "latency_s": 22.682,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script embeds a static AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key in plaintext. user_data is stored by EC2 and readable via DescribeInstanceAttribute and from the instance metadata service, so the long-lived credentials are recoverable by anyone with read access to the instance or its metadata, and they cannot be rotated without rebuilding the host. These keys should never be embedded; use an IAM instance profile with a scoped role instead.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The ingress rule exposes TCP port 22 (SSH) to 0.0.0.0/0, allowing management access from the entire internet. Combined with the instance's public address (public subnet, public IP auto-assignment) and the hard-coded credentials in user_data, this presents a directly reachable brute-force/exploitation target. Administrative access should be restricted to a known bastion or CIDR range.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume attached to the portal server sets no encryption setting, so it is created unencrypted and any data written to it (and to the snapshot taken from it) is stored in cleartext at rest. Encryption should be enabled on the volume.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket used as the VPC flow log archive has no server-side encryption configuration and no public access block, so the network traffic metadata it stores is unencrypted at rest and lacks an explicit guard against public exposure. Flow logs contain sensitive network topology and endpoint information and should be encrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"The subnet sets map_public_ip_on_launch = true and is associated with a route table that has a 0.0.0.0/0 route to the internet gateway, so every instance launched here receives a publicly routable IP. This is the subnet hosting the portal server, placing it directly on the internet in combination with the open security group.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"The subnet sets map_public_ip_on_launch = true and is associated with the internet-routed route table, so instances launched into it are assigned public IPs by default and exposed to the internet unless the security group compensates. Public IP assignment should be opt-in rather than a subnet default.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2539,
+      "output_tokens": 5059,
+      "latency_s": 22.682,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.001772
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001772
+}

@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:23Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", which is effectively broad administrative access across four services. This violates least privilege and lets the principal read/modify/delete virtually any data or compute resource in the account, including exfiltrating all S3 objects and altering security-relevant configuration.",
+      "severity": "critical",
+      "cwe": "CWE-272",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is issued for the svc_deploy user. Static keys do not expire and remain valid until manually rotated or deleted, making them a durable credential-theft target; the guidance calls for federation/temporary credentials instead.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user instead of role",
+      "description": "A dedicated IAM user is created to hold programmatic permissions rather than a role with temporary credentials. Combined with force_destroy = true, the user (and any residual access) can be torn down or recreated without an-approval trail, and there is no permission boundary or guardrail limiting what this user can delegate.",
+      "severity": "medium",
+      "cwe": "CWE-250",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output \"svc_deploy_key_material\"",
+      "issue_category": "secret exposed as Terraform output",
+      "description": "The access key secret is emitted as a non-sensitive Terraform output. Outputs are stored in state and displayed in CLI/CI logs, so the key material leaks to anyone with read access to state or logs \u2014 a much wider audience than the secret store.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2086,
+  "output_tokens": 492,
+  "latency_s": 3.141,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[3] resource 'output \"svc_deploy_key_material\"' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", which is effectively broad administrative access across four services. This violates least privilege and lets the principal read/modify/delete virtually any data or compute resource in the account, including exfiltrating all S3 objects and altering security-relevant configuration.\", \"severity\": \"critical\", \"cwe\": \"CWE-272\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is issued for the svc_deploy user. Static keys do not expire and remain valid until manually rotated or deleted, making them a durable credential-theft target; the guidance calls for federation/temporary credentials instead.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user instead of role\", \"description\": \"A dedicated IAM user is created to hold programmatic permissions rather than a role with temporary credentials. Combined with force_destroy = true, the user (and any residual access) can be torn down or recreated without an-approval trail, and there is no permission boundary or guardrail limiting what this user can delegate.\", \"severity\": \"medium\", \"cwe\": \"CWE-250\", \"confidence\": \"medium\"}, {\"resource\": \"output \\\"svc_deploy_key_material\\\"\", \"issue_category\": \"secret exposed as Terraform output\", \"description\": \"The access key secret is emitted as a non-sensitive Terraform output. Outputs are stored in state and displayed in CLI/CI logs, so the key material leaks to anyone with read access to state or logs \u2014 a much wider audience than the secret store.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2086,
+      "output_tokens": 492,
+      "latency_s": 3.141,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.00043
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00043
+}

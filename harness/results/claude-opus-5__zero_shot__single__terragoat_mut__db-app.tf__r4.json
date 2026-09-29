@@ -1,0 +1,133 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__db-app.tf__r4",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet, greatly widening attack surface for a backend database.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database volumes and snapshots are stored unencrypted, exposing catalog data if the underlying storage or snapshots are accessed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext DB credentials",
+      "description": "The master password is supplied via var.password and is stored in plaintext in Terraform state; combined with the static username 'admin' and no Secrets Manager integration, credentials are easily leaked.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing transport encryption enforcement",
+      "description": "The parameter group does not set require_secure_transport (and the app connects with plain mysqli_connect), so client connections to the database may occur unencrypted, allowing credential and data interception.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in EC2 user data",
+      "description": "The database password is interpolated directly into user_data, which is stored unencrypted and retrievable from the instance metadata service (http://169.254.169.254/latest/user-data) by any process or SSRF vector on the host.",
+      "severity": "critical",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not enforced",
+      "description": "No metadata_options block requiring http_tokens = \"required\", so IMDSv1 remains enabled and an SSRF in the PHP app could steal the instance profile credentials granting s3:*, ec2:* and rds:*.",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device/ebs encryption configuration is specified, so the instance volume containing the DB credential include file may be stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline role policy grants s3:*, ec2:* and rds:* on Resource \"*\", violating least privilege; compromise of the web server yields near-full control of storage, compute and databases in the account.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress allows all protocols and ports to 0.0.0.0/0 from the database security group, enabling data exfiltration or command-and-control traffic from a compromised database host.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.catalog_db_endpoint",
+      "issue_category": "sensitive endpoint disclosure",
+      "description": "The database endpoint is output without marking sensitive; combined with publicly_accessible = true this advertises the reachable database address.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "database exposed beyond VPC boundary",
+      "description": "The DB security group permits 3306 from the entire VPC CIDR rather than only the application security group, so any instance in the VPC can reach the database; with publicly_accessible = true the group is the only remaining control.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5377,
+  "output_tokens": 1501,
+  "latency_s": 16.439,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving it a public IP and exposing the MySQL endpoint to the internet, greatly widening attack surface for a backend database.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database volumes and snapshots are stored unencrypted, exposing catalog data if the underlying storage or snapshots are accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext DB credentials\", \"description\": \"The master password is supplied via var.password and is stored in plaintext in Terraform state; combined with the static username 'admin' and no Secrets Manager integration, credentials are easily leaked.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing transport encryption enforcement\", \"description\": \"The parameter group does not set require_secure_transport (and the app connects with plain mysqli_connect), so client connections to the database may occur unencrypted, allowing credential and data interception.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets in EC2 user data\", \"description\": \"The database password is interpolated directly into user_data, which is stored unencrypted and retrievable from the instance metadata service (http://169.254.169.254/latest/user-data) by any process or SSRF vector on the host.\", \"severity\": \"critical\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not enforced\", \"description\": \"No metadata_options block requiring http_tokens = \\\"required\\\", so IMDSv1 remains enabled and an SSRF in the PHP app could steal the instance profile credentials granting s3:*, ec2:* and rds:*.\", \"severity\": \"high\", \"cwe\": \"CWE-918\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device/ebs encryption configuration is specified, so the instance volume containing the DB credential include file may be stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline role policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", violating least privilege; compromise of the web server yields near-full control of storage, compute and databases in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress allows all protocols and ports to 0.0.0.0/0 from the database security group, enabling data exfiltration or command-and-control traffic from a compromised database host.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"output.catalog_db_endpoint\", \"issue_category\": \"sensitive endpoint disclosure\", \"description\": \"The database endpoint is output without marking sensitive; combined with publicly_accessible = true this advertises the reachable database address.\", \"severity\": \"low\", \"cwe\": \"CWE-200\", \"confidence\": \"low\"}, {\"resource\": \"aws_security_group.catalog_db_sg\", \"issue_category\": \"database exposed beyond VPC boundary\", \"description\": \"The DB security group permits 3306 from the entire VPC CIDR rather than only the application security group, so any instance in the VPC can reach the database; with publicly_accessible = true the group is the",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5377,
+      "output_tokens": 1501,
+      "latency_s": 16.439,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.06441
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.06441
+}

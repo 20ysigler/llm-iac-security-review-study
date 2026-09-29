@@ -1,0 +1,107 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hardcoded credentials in user_data",
+      "description": "The instance's user_data embeds a plaintext AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). User data is readable via instance metadata and the EC2 API, so anyone with access to the instance or console can harvest long-lived credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted SSH ingress",
+      "description": "The security group opens SSH (tcp/22) to 0.0.0.0/0, exposing the instance to brute-force and exploitation attempts from the entire internet.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted HTTP ingress",
+      "description": "HTTP (tcp/80) is allowed from 0.0.0.0/0, publishing the Apache service directly to the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS volume has no encrypted = true setting, so data on the attached disk is stored unencrypted at rest and can be read from snapshots.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption and public access controls",
+      "description": "The bucket storing VPC flow logs has no server-side encryption configuration, no public access block, and force_destroy = true, leaving log data unencrypted and potentially world-accessible or destructible.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "Unencrypted snapshot",
+      "description": "The snapshot is created without encryption, so a copy of the unencrypted volume data can be shared or restored elsewhere.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "Public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to instances launched in this subnet, removing a layer of isolation for workloads that should not be internet-facing.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "Public IP auto-assignment",
+      "description": "map_public_ip_on_launch = true makes every instance in this subnet internet-addressable by default.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2374,
+  "output_tokens": 737,
+  "latency_s": 3.673,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Hardcoded credentials in user_data\", \"description\": \"The instance's user_data embeds a plaintext AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMAAAKEY). User data is readable via instance metadata and the EC2 API, so anyone with access to the instance or console can harvest long-lived credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted SSH ingress\", \"description\": \"The security group opens SSH (tcp/22) to 0.0.0.0/0, exposing the instance to brute-force and exploitation attempts from the entire internet.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted HTTP ingress\", \"description\": \"HTTP (tcp/80) is allowed from 0.0.0.0/0, publishing the Apache service directly to the internet.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS volume has no encrypted = true setting, so data on the attached disk is stored unencrypted at rest and can be read from snapshots.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Missing encryption and public access controls\", \"description\": \"The bucket storing VPC flow logs has no server-side encryption configuration, no public access block, and force_destroy = true, leaving log data unencrypted and potentially world-accessible or destructible.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"Unencrypted snapshot\", \"description\": \"The snapshot is created without encryption, so a copy of the unencrypted volume data can be shared or restored elsewhere.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"Public IP auto-assignment\", \"description\": \"map_public_ip_on_launch = true automatically assigns public IPs to instances launched in this subnet, removing a layer of isolation for workloads that should not be internet-facing.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"Public IP auto-assignment\", \"description\": \"map_public_ip_on_launch = true makes every instance in this subnet internet-addressable by default.\", \"severity\": \"medium\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2374,
+      "output_tokens": 737,
+      "latency_s": 3.673,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000539
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000539
+}

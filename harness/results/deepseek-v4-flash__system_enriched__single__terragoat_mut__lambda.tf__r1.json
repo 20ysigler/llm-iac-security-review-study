@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__lambda.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:34Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "AWS access key and secret key are embedded as plaintext Lambda environment variables (access_key = \"AKIAIOSFODNN7EXAMPLE\", secret_key = \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"), and are also stored in Terraform state. Anyone with read access to the function configuration, the console, or the state file obtains long-lived credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "No kms_key_arn is set, so environment variables are encrypted only with the AWS-managed default key rather than a customer-managed CMK, providing no control over key policy, rotation, or access to the values.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses runtime \"nodejs12.x\", an end-of-life runtime that no longer receives security patches, so known Node.js vulnerabilities will remain unpatched.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "overly permissive role permissions",
+      "description": "The execution role has no attached or inline permission policies at all, leaving the function with no defined least-privilege permission set; any permissions granted out-of-band (e.g. via a broad managed policy attached outside this configuration) would be unbounded and unauditable.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1263,
+  "output_tokens": 464,
+  "latency_s": 2.717,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in configuration\", \"description\": \"AWS access key and secret key are embedded as plaintext Lambda environment variables (access_key = \\\"AKIAIOSFODNN7EXAMPLE\\\", secret_key = \\\"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\\\"), and are also stored in Terraform state. Anyone with read access to the function configuration, the console, or the state file obtains long-lived credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"No kms_key_arn is set, so environment variables are encrypted only with the AWS-managed default key rather than a customer-managed CMK, providing no control over key policy, rotation, or access to the values.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses runtime \\\"nodejs12.x\\\", an end-of-life runtime that no longer receives security patches, so known Node.js vulnerabilities will remain unpatched.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"overly permissive role permissions\", \"description\": \"The execution role has no attached or inline permission policies at all, leaving the function with no defined least-privilege permission set; any permissions granted out-of-band (e.g. via a broad managed policy attached outside this configuration) would be unbounded and unauditable.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1263,
+      "output_tokens": 464,
+      "latency_s": 2.717,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000307
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000307
+}

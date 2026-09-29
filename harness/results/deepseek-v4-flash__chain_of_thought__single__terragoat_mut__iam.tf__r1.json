@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "over-privileged IAM user policy",
+      "description": "The attached inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", so this user can enumerate, read, alter, and delete essentially all compute, storage, serverless, and logging resources in the account. A leaked deploy credential (an access key is created for this user) yields near-account-wide compromise rather than limited deploy rights.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static access key",
+      "description": "A static IAM access key pair is issued for the svc_deploy user with no rotation mechanism or expiry; combined with the wildcard user policy, compromise of this single credential grants broad administrative access to the account indefinitely.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "missing MFA enforcement",
+      "description": "The svc_deploy user has no MFA device requirement and cannot be protected by one, since a programmatic access key bypasses MFA entirely; there is no policy condition (e.g., aws:MultiFactorAuthPresent) restricting use of these permissions.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-308"
+    }
+  ],
+  "input_tokens": 1126,
+  "output_tokens": 372,
+  "latency_s": 2.616,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"over-privileged IAM user policy\", \"description\": \"The attached inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", so this user can enumerate, read, alter, and delete essentially all compute, storage, serverless, and logging resources in the account. A leaked deploy credential (an access key is created for this user) yields near-account-wide compromise rather than limited deploy rights.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static access key\", \"description\": \"A static IAM access key pair is issued for the svc_deploy user with no rotation mechanism or expiry; combined with the wildcard user policy, compromise of this single credential grants broad administrative access to the account indefinitely.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"missing MFA enforcement\", \"description\": \"The svc_deploy user has no MFA device requirement and cannot be protected by one, since a programmatic access key bypasses MFA entirely; there is no policy condition (e.g., aws:MultiFactorAuthPresent) restricting use of these permissions.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-308\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1126,
+      "output_tokens": 372,
+      "latency_s": 2.616,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000262
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000262
+}

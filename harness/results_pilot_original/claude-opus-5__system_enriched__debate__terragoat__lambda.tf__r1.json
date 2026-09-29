@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__lambda.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:21:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables block, committing credentials to source control and Terraform state. Any principal with lambda:GetFunctionConfiguration, console read access, or repository/state access can retrieve and reuse them.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "environment variables without customer-managed KMS key",
+      "description": "No kms_key_arn is set, so the environment variables \u2014 which hold secrets here \u2014 are protected only by the default AWS-managed key, giving no customer-controlled key policy boundary and leaving them readable in cleartext to any principal that can describe the function.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function runs on nodejs12.x, a runtime that has reached end of life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config block, so it executes outside any customer VPC with unrestricted outbound internet access and no security group or NACL egress controls; combined with the embedded static credentials this eases exfiltration if the function is compromised.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1327"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing confused-deputy conditions",
+      "description": "The assume-role policy grants sts:AssumeRole to the lambda.amazonaws.com service principal with no aws:SourceAccount or aws:SourceArn condition, so nothing scopes which functions or accounts may assume this execution role.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 9365,
+  "output_tokens": 2387,
+  "latency_s": 30.248,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables block, committing credentials to source control and Terraform state. Any principal with lambda:GetFunctionConfiguration, console read access, or repository/state access can retrieve and reuse them.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"environment variables without customer-managed KMS key\", \"description\": \"No kms_key_arn is set, so the environment variables \\u2014 which hold secrets here \\u2014 are protected only by the default AWS-managed key, giving no customer-controlled key policy boundary and leaving them readable in cleartext to any principal that can describe the function.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function runs on nodejs12.x, a runtime that has reached end of life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config block, so it executes outside any customer VPC with unrestricted outbound internet access and no security group or NACL egress controls; combined with the embedded static credentials this eases exfiltration if the function is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-1327\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing confused-deputy conditions\", \"description\": \"The assume-role policy grants sts:AssumeRole to the lambda.amazonaws.com service principal with no aws:SourceAccount or aws:SourceArn condition, so nothing scopes which functions or accounts may assume this execution role.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2507,
+      "output_tokens": 815,
+      "latency_s": 11.376,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03291
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2507,
+      "output_tokens": 758,
+      "latency_s": 10.16,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.031485
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4351,
+      "output_tokens": 814,
+      "latency_s": 8.712,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.042105
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.1065
+}

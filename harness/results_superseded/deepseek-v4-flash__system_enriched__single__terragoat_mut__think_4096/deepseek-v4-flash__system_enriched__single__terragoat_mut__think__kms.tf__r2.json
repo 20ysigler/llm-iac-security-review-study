@@ -1,0 +1,60 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__kms.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:31:45Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing KMS key policy",
+      "description": "No `policy` argument is defined, so this customer-managed key will be created with the AWS default key policy that grants the account root principal `kms:*` and delegates full key usage to every IAM principal in the account holding KMS permissions. Key usage is therefore not scoped to the audit bucket, to the principals that write audit data, or to any service, removing the separation-of-duties boundary that a key policy normally provides for an audit-log key. More restrictive permissions may exist in IAM, but nothing in this configuration constrains who can decrypt or administer the key.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "key rotation not enabled",
+      "description": "The key omits `enable_key_rotation`, which defaults to false, so this customer-managed audit key is never automatically rotated. Unrotated CMKs accumulate cryptographically-bound ciphertext under a single key version and give any exposure of the key material permanent value, contrary to the rotation expectations in CIS AWS 3.8 and NIST key-management guidance.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1120,
+  "output_tokens": 2496,
+  "latency_s": 12.039,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing KMS key policy\", \"description\": \"No `policy` argument is defined, so this customer-managed key will be created with the AWS default key policy that grants the account root principal `kms:*` and delegates full key usage to every IAM principal in the account holding KMS permissions. Key usage is therefore not scoped to the audit bucket, to the principals that write audit data, or to any service, removing the separation-of-duties boundary that a key policy normally provides for an audit-log key. More restrictive permissions may exist in IAM, but nothing in this configuration constrains who can decrypt or administer the key.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"key rotation not enabled\", \"description\": \"The key omits `enable_key_rotation`, which defaults to false, so this customer-managed audit key is never automatically rotated. Unrotated CMKs accumulate cryptographically-bound ciphertext under a single key version and give any exposure of the key material permanent value, contrary to the rotation expectations in CIS AWS 3.8 and NIST key-management guidance.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1120,
+      "output_tokens": 2496,
+      "latency_s": 12.039,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000856
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000856
+}

@@ -1,0 +1,151 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat__db-app.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:10:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the RDS MySQL instance, its underlying storage and any snapshots unencrypted, exposing sensitive data to anyone able to reach the storage layer or copy a snapshot.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the database a routable public endpoint (also exported through the db_endpoint output), exposing MySQL and its admin account to internet-based attack for a database that only needs to serve an in-VPC EC2 application.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "predictable master credentials in config/state",
+      "description": "The master username is the predictable 'admin' and the password comes from a plain Terraform variable that is stored in cleartext in state and reused in EC2 user data, instead of Secrets Manager or IAM database authentication.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "TLS not enforced for DB connections",
+      "description": "Neither the instance nor its parameter group enforces encrypted client connections (require_secure_transport) and IAM database authentication is not enabled, so the PHP client can connect over an unencrypted channel carrying the master credentials and query data in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_parameter_group.default",
+      "issue_category": "cleartext transmission not enforced",
+      "description": "The MySQL 8.0 parameter group does not set require_secure_transport = 1, permitting unencrypted client connections to the database.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\" to the role assumed by the internet-facing web instance; compromise of the PHP application yields account-wide control of S3 data, EC2 (including privilege escalation via instance/role manipulation) and RDS.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The database master username and password are interpolated into user_data and written to /var/www/inc/dbinfo.inc; user data is readable in cleartext from the instance metadata service and stored unencrypted in the instance description and Terraform state.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not enforced",
+      "description": "No metadata_options block with http_tokens = \"required\" is set, so IMDSv1 remains enabled; an SSRF in the user-input-handling PHP app could retrieve both the credential-bearing user data and the highly privileged ec2role session credentials.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device encryption is configured, so the instance disk holding the plaintext dbinfo.inc credentials file is stored unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and ports outbound to 0.0.0.0/0, enabling unrestricted data exfiltration or command-and-control traffic from a compromised resource in that group.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.default",
+      "issue_category": "weak database network boundary",
+      "description": "The RDS security group's only ingress allows 3306 from the entire VPC CIDR rather than just the application instance, and it is paired with allow-all egress; combined with publicly_accessible = true there is effectively no segmentation around the database tier.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 25468,
+  "output_tokens": 4499,
+  "latency_s": 52.211,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the RDS MySQL instance, its underlying storage and any snapshots unencrypted, exposing sensitive data to anyone able to reach the storage layer or copy a snapshot.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true gives the database a routable public endpoint (also exported through the db_endpoint output), exposing MySQL and its admin account to internet-based attack for a database that only needs to serve an in-VPC EC2 application.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"predictable master credentials in config/state\", \"description\": \"The master username is the predictable 'admin' and the password comes from a plain Terraform variable that is stored in cleartext in state and reused in EC2 user data, instead of Secrets Manager or IAM database authentication.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"TLS not enforced for DB connections\", \"description\": \"Neither the instance nor its parameter group enforces encrypted client connections (require_secure_transport) and IAM database authentication is not enabled, so the PHP client can connect over an unencrypted channel carrying the master credentials and query data in cleartext.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_db_parameter_group.default\", \"issue_category\": \"cleartext transmission not enforced\", \"description\": \"The MySQL 8.0 parameter group does not set require_secure_transport = 1, permitting unencrypted client connections to the database.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to the role assumed by the internet-facing web instance; compromise of the PHP application yields account-wide control of S3 data, EC2 (including privilege escalation via instance/role manipulation) and RDS.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The database master username and password are interpolated into user_data and written to /var/www/inc/dbinfo.inc; user data is readable in cleartext from the instance metadata service and stored unencrypted in the instance description and Terraform state.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"IMDSv1 not enforced\", \"description\": \"No metadata_options block with http_tokens = \\\"required\\\" is set, so IMDSv1 remains enabled; an SSRF in the user-input-handling PHP app could retrieve both the credential-bearing user data and the highly privileged ec2role session credentials.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device encryption is configured, so the instance disk holding the plaintext dbinfo.inc credentials file is stored unencrypted.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all protocols and ports outbound to 0.0.0.0/0, enabling unrestricted data exfiltration or command-and-control traffic from a compromised resource in that group.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.default\", ",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7312,
+      "output_tokens": 1470,
+      "latency_s": 17.383,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.07331
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7312,
+      "output_tokens": 1509,
+      "latency_s": 18.411,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.074285
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 10844,
+      "output_tokens": 1520,
+      "latency_s": 16.417,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.09222
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.239815
+}

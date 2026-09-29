@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat_mut__lambda.tf__r3",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:33:41Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "Static AWS access key ID and secret access key are embedded in plain text in the Lambda function's environment variables, making them readable by anyone with lambda:GetFunctionConfiguration and committing them to version control.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing encryption of environment variables",
+      "description": "No kms_key_arn is specified, so Lambda environment variables (which here hold credentials) are protected only by the AWS-managed default key, with no customer control of key policy, rotation, or usage auditing.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses nodejs12.x, a deprecated Lambda runtime that no longer receives security patches, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security-group control, providing an unmonitored data exfiltration path.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code signing validation",
+      "description": "No code_signing_config_arn is attached, so the deployment package is not signature-validated and tampering between build and deployment would not be detected.",
+      "severity": "low",
+      "cwe": "CWE-345",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing permissions boundary",
+      "description": "The execution role is created without a permissions_boundary, so there is no guardrail capping the privileges that can later be attached to the role used by an internet-facing function holding static credentials.",
+      "severity": "low",
+      "cwe": "CWE-269",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "unscoped service assume-role trust",
+      "description": "The trust policy allows the entire lambda.amazonaws.com service principal to assume the role with no aws:SourceAccount or aws:SourceArn condition, which permits cross-account confused-deputy assumption paths.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3453,
+  "output_tokens": 972,
+  "latency_s": 11.1,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"Static AWS access key ID and secret access key are embedded in plain text in the Lambda function's environment variables, making them readable by anyone with lambda:GetFunctionConfiguration and committing them to version control.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"No kms_key_arn is specified, so Lambda environment variables (which here hold credentials) are protected only by the AWS-managed default key, with no customer control of key policy, rotation, or usage auditing.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses nodejs12.x, a deprecated Lambda runtime that no longer receives security patches, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no security-group control, providing an unmonitored data exfiltration path.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code signing validation\", \"description\": \"No code_signing_config_arn is attached, so the deployment package is not signature-validated and tampering between build and deployment would not be detected.\", \"severity\": \"low\", \"cwe\": \"CWE-345\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The execution role is created without a permissions_boundary, so there is no guardrail capping the privileges that can later be attached to the role used by an internet-facing function holding static credentials.\", \"severity\": \"low\", \"cwe\": \"CWE-269\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"unscoped service assume-role trust\", \"description\": \"The trust policy allows the entire lambda.amazonaws.com service principal to assume the role with no aws:SourceAccount or aws:SourceArn condition, which permits cross-account confused-deputy assumption paths.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3453,
+      "output_tokens": 972,
+      "latency_s": 11.1,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.041565
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.041565
+}

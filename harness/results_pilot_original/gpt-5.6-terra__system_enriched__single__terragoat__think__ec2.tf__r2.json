@@ -1,0 +1,89 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__think__ec2.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:41:09Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded cloud credentials",
+      "description": "The EC2 user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with instance metadata or EC2 access and is commonly retained in Terraform state and source control, allowing credential compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true or a KMS key. Its data can therefore be created without encryption at rest unless an external account-level default happens to override this configuration.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted storage snapshot",
+      "description": "This snapshot is created from aws_ebs_volume.web_host_storage, which is not configured for encryption. EBS snapshots inherit the source volume's encryption state, so this configuration can retain the volume data unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unencrypted public HTTP ingress",
+      "description": "TCP/80 is open to 0.0.0.0/0, while the instance user data deploys Apache HTTP without configuring TLS. Traffic to the public web service, including any submitted data or session material, can be intercepted or modified in transit.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "TCP/22 is open to 0.0.0.0/0, exposing the instance's SSH authentication service to arbitrary Internet hosts. This enables broad password/key-guessing and exploitation attempts rather than limiting administrative access to trusted networks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "The subnet automatically assigns public IPv4 addresses to launched instances. It is associated with a route table that has a default route through an Internet gateway, so workloads launched here can become Internet reachable when their security groups permit it.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "The subnet automatically assigns public IPv4 addresses to launched instances and is associated with the Internet-gateway default route. This makes future workloads Internet reachable by default rather than requiring an explicit public-exposure decision.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing explicit bucket encryption",
+      "description": "The flow-log bucket has no bucket encryption configuration or KMS key. Sensitive network metadata stored in the bucket is not protected by an explicitly enforced encryption-at-rest policy and depends on provider/account defaults.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3779,
+  "output_tokens": 1173,
+  "latency_s": 12.85,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.web_host\",\"issue_category\":\"hard-coded cloud credentials\",\"description\":\"The EC2 user-data script embeds an AWS access key ID and secret access key in plaintext. User data is retrievable by principals with instance metadata or EC2 access and is commonly retained in Terraform state and source control, allowing credential compromise.\",\"severity\":\"critical\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_volume.web_host_storage\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The EBS volume does not set encrypted = true or a KMS key. Its data can therefore be created without encryption at rest unless an external account-level default happens to override this configuration.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_ebs_snapshot.example_snapshot\",\"issue_category\":\"unencrypted storage snapshot\",\"description\":\"This snapshot is created from aws_ebs_volume.web_host_storage, which is not configured for encryption. EBS snapshots inherit the source volume's encryption state, so this configuration can retain the volume data unencrypted.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unencrypted public HTTP ingress\",\"description\":\"TCP/80 is open to 0.0.0.0/0, while the instance user data deploys Apache HTTP without configuring TLS. Traffic to the public web service, including any submitted data or session material, can be intercepted or modified in transit.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group.web-node\",\"issue_category\":\"unrestricted SSH ingress\",\"description\":\"TCP/22 is open to 0.0.0.0/0, exposing the instance's SSH authentication service to arbitrary Internet hosts. This enables broad password/key-guessing and exploitation attempts rather than limiting administrative access to trusted networks.\",\"severity\":\"high\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"The subnet automatically assigns public IPv4 addresses to launched instances. It is associated with a route table that has a default route through an Internet gateway, so workloads launched here can become Internet reachable when their security groups permit it.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_subnet.web_subnet2\",\"issue_category\":\"automatic public IP assignment\",\"description\":\"The subnet automatically assigns public IPv4 addresses to launched instances and is associated with the Internet-gateway default route. This makes future workloads Internet reachable by default rather than requiring an explicit public-exposure decision.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_s3_bucket.flowbucket\",\"issue_category\":\"missing explicit bucket encryption\",\"description\":\"The flow-log bucket has no bucket encryption configuration or KMS key. Sensitive network metadata stored in the bucket is not protected by an explicitly enforced encryption-at-rest policy and depends on provider/account defaults.\",\"severity\":\"medium\",\"cwe\":\"CWE-311\",\"confidence\":\"medium\"}]}",
+  "cost_usd": 0.021634
+}

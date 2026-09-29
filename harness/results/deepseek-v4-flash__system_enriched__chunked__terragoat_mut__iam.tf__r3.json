@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__chunked__terragoat_mut__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:43Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy attached to svc_deploy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving this long-lived deployment user full control over compute, storage, and serverless services across the account, including the ability to read all S3 data and modify or delete any EC2/Lambda resource.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "privilege escalation via policy modification",
+      "description": "Because the policy Resource is \"*\", the user can call iam:PassRole-adjacent service actions and create or modify resources (e.g. Lambda functions or EC2 instances) with arbitrary high-privilege roles, and combine ec2:* with lambda:* to escalate to account administrator. There is no boundary restricting which roles can be passed.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "An IAM access key pair is created for the service user, producing long-lived AWS credentials that never expire and must be manually rotated. Combined with the wildcard policy above, compromise of this key grants broad account access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1384,
+  "output_tokens": 387,
+  "latency_s": 2.685,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy attached to svc_deploy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving this long-lived deployment user full control over compute, storage, and serverless services across the account, including the ability to read all S3 data and modify or delete any EC2/Lambda resource.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"privilege escalation via policy modification\", \"description\": \"Because the policy Resource is \\\"*\\\", the user can call iam:PassRole-adjacent service actions and create or modify resources (e.g. Lambda functions or EC2 instances) with arbitrary high-privilege roles, and combine ec2:* with lambda:* to escalate to account administrator. There is no boundary restricting which roles can be passed.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"An IAM access key pair is created for the service user, producing long-lived AWS credentials that never expire and must be manually rotated. Combined with the wildcard policy above, compromise of this key grants broad account access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1384,
+      "output_tokens": 387,
+      "latency_s": 2.685,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000302
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 1,
+  "cost_usd": 0.000302
+}

@@ -1,0 +1,81 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__iam.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:45:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege. A compromised credential for this user would allow full control over EC2, S3, Lambda, and CloudWatch resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived credential creation",
+      "description": "Creating a static IAM access key for a service user introduces a long-lived credential that can be leaked or misused; combined with the wildcard policy, exposure of this key leads to full account compromise. Preferable approaches use short-lived roles (e.g., via STS or instance/task roles) instead of static keys.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "credential leakage via output",
+      "description": "The output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which will be stored in Terraform state and potentially displayed in CLI/CI output or logs, risking exposure of a sensitive secret access key without the output being marked sensitive.",
+      "severity": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "svc_deploy_username",
+      "issue_category": "unnecessary information disclosure",
+      "description": "Exposing the IAM username as an output increases attack surface by disclosing internal identity naming conventions, which combined with the leaked credential output could aid an attacker in targeting this account.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "force_destroy enabled on IAM user",
+      "description": "Setting force_destroy = true allows deletion of the IAM user along with all attached access keys, MFA devices, and inline/attached policies without manual review, which can facilitate silent removal of security controls or evidence during an incident.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 2291,
+  "output_tokens": 807,
+  "latency_s": 8.303,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[2] resource 'svc_deploy_key_material' is not type.name",
+    "review: finding[3] resource 'svc_deploy_username' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources ('*'), violating least privilege. A compromised credential for this user would allow full control over EC2, S3, Lambda, and CloudWatch resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived credential creation\", \"description\": \"Creating a static IAM access key for a service user introduces a long-lived credential that can be leaked or misused; combined with the wildcard policy, exposure of this key leads to full account compromise. Preferable approaches use short-lived roles (e.g., via STS or instance/task roles) instead of static keys.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"credential leakage via output\", \"description\": \"The output exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, which will be stored in Terraform state and potentially displayed in CLI/CI output or logs, risking exposure of a sensitive secret access key without the output being marked sensitive.\", \"severity\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"svc_deploy_username\", \"issue_category\": \"unnecessary information disclosure\", \"description\": \"Exposing the IAM username as an output increases attack surface by disclosing internal identity naming conventions, which combined with the leaked credential output could aid an attacker in targeting this account.\", \"severity\": \"low\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"force_destroy enabled on IAM user\", \"description\": \"Setting force_destroy = true allows deletion of the IAM user along with all attached access keys, MFA devices, and inline/attached policies without manual review, which can facilitate silent removal of security controls or evidence during an incident.\", \"severity\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2291,
+      "output_tokens": 807,
+      "latency_s": 8.303,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.012652
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.012652
+}

@@ -1,0 +1,71 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__ec2.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:26Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data startup script embeds an AWS access key ID and secret access key in plaintext. These credentials are stored in cleartext in the instance metadata, CloudFormation/user-data logs, and the Terraform state, and will be exposed to any user with read access to the instance or logs.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The ingress rule allows SSH (port 22) from 0.0.0.0/0, exposing the host's SSH service to the entire internet and enabling brute-force and unauthorized access attempts.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without encryption enabled (the 'encrypted' argument is omitted and left commented out), so data at rest is stored unencrypted on the underlying disks.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created without encryption, propagating the unencrypted data from the unencrypted source volume. Encrypted snapshots should be used for any data containing sensitive information.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "public IP on launch",
+      "description": "map_public_ip_on_launch is set to true, meaning instances in this subnet receive a public IP address, expanding the attack surface by making the host directly reachable from the internet (combined with unrestricted SSH/HTTP ingress).",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "public IP on launch",
+      "description": "map_public_ip_on_launch is set to true, meaning instances deployed into this subnet are assigned public IP addresses and become directly reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4401,
+  "output_tokens": 598,
+  "latency_s": 5.697,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data startup script embeds an AWS access key ID and secret access key in plaintext. These credentials are stored in cleartext in the instance metadata, CloudFormation/user-data logs, and the Terraform state, and will be exposed to any user with read access to the instance or logs.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The ingress rule allows SSH (port 22) from 0.0.0.0/0, exposing the host's SSH service to the entire internet and enabling brute-force and unauthorized access attempts.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without encryption enabled (the 'encrypted' argument is omitted and left commented out), so data at rest is stored unencrypted on the underlying disks.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is created without encryption, propagating the unencrypted data from the unencrypted source volume. Encrypted snapshots should be used for any data containing sensitive information.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"public IP on launch\", \"description\": \"map_public_ip_on_launch is set to true, meaning instances in this subnet receive a public IP address, expanding the attack surface by making the host directly reachable from the internet (combined with unrestricted SSH/HTTP ingress).\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"public IP on launch\", \"description\": \"map_public_ip_on_launch is set to true, meaning instances deployed into this subnet are assigned public IP addresses and become directly reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000784
+}

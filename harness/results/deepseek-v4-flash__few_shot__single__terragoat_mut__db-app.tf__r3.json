@@ -1,0 +1,125 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:04Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The database password is interpolated from var.password directly into the EC2 instance's user_data script and written to /var/www/inc/dbinfo.inc on the web server's filesystem. Since publicly_accessible = true and user_data is retrievable via the instance metadata service, the plaintext DB admin credential is exposed to anything that can reach the instance or its metadata endpoint.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true places the RDS instance on a public network path with a publicly resolvable endpoint, so the MySQL port is exposed to the internet rather than restricted to the VPC. Combined with the weak admin username and password auth this dramatically widens the attack surface.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database storage, automated snapshots, and read replicas are stored unencrypted, so anyone with access to the underlying volumes or snapshots can read the data directly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded privileged username",
+      "description": "The RDS master account is the default 'admin' user with a single shared password (var.password) referenced with ignore_changes, providing full administrative control of the database with no rotation. A leaked credential grants complete database takeover.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance profile grants s3:*, ec2:*, and rds:* on Resource '*' \u2014 effectively full control of storage, compute, and databases account-wide. An attacker who compromises the application server (which runs a public-facing PHP app) can use the instance profile to destroy or exfiltrate all data in the account.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "An egress rule allowing all protocols, all ports, to 0.0.0.0/0 permits the database security group to reach any host on the internet, enabling data exfiltration and command-and-control callbacks if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "unrestricted ingress to database",
+      "description": "The only restriction on MySQL (3306) inbound is that it comes from the entire VPC CIDR block, so every host in the VPC \u2014 including the publicly exposed web server and any future workload \u2014 can reach the database. Combined with a publicly accessible RDS instance this exposes the DB to a broad set of sources rather than only the application security group.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext secret in user_data",
+      "description": "The DB password is embedded verbatim in the instance's user_data and materialized on disk in /var/www/inc/dbinfo.inc. The script also leaves a copy in /tmp/dbinfo.inc, and the web server serves PHP files under /var/www, so the credential is at rest in plaintext on the host.",
+      "severity": "critical",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "XSS via unescaped output",
+      "description": "The user_data script writes an application that selects all EMPLOYEES rows and echoes them straight into HTML without escaping, so stored values containing script tags execute in any visitor's browser. Note that AddEmployee uses mysqli_real_escape_string for SQL but no output encoding, allowing stored cross-site scripting.",
+      "severity": "high",
+      "cwe": "CWE-79",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "missing output escaping",
+      "description": "The generated index.php renders user-supplied NAME and ADDRESS fields into the results table using raw echo statements, so a stored value containing HTML/JavaScript is rendered and executes in the browser (stored XSS).",
+      "severity": "high",
+      "cwe": "CWE-79",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3701,
+  "output_tokens": 1134,
+  "latency_s": 5.54,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The database password is interpolated from var.password directly into the EC2 instance's user_data script and written to /var/www/inc/dbinfo.inc on the web server's filesystem. Since publicly_accessible = true and user_data is retrievable via the instance metadata service, the plaintext DB admin credential is exposed to anything that can reach the instance or its metadata endpoint.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true places the RDS instance on a public network path with a publicly resolvable endpoint, so the MySQL port is exposed to the internet rather than restricted to the VPC. Combined with the weak admin username and password auth this dramatically widens the attack surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database storage, automated snapshots, and read replicas are stored unencrypted, so anyone with access to the underlying volumes or snapshots can read the data directly.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded privileged username\", \"description\": \"The RDS master account is the default 'admin' user with a single shared password (var.password) referenced with ignore_changes, providing full administrative control of the database with no rotation. A leaked credential grants complete database takeover.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance profile grants s3:*, ec2:*, and rds:* on Resource '*' \u2014 effectively full control of storage, compute, and databases account-wide. An attacker who compromises the application server (which runs a public-facing PHP app) can use the instance profile to destroy or exfiltrate all data in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"An egress rule allowing all protocols, all ports, to 0.0.0.0/0 permits the database security group to reach any host on the internet, enabling data exfiltration and command-and-control callbacks if the instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"unrestricted ingress to database\", \"description\": \"The only restriction on MySQL (3306) inbound is that it comes from the entire VPC CIDR block, so every host in the VPC \u2014 including the publicly exposed web server and any future workload \u2014 can reach the database. Combined with a publicly accessible RDS instance this exposes the DB to a broad set of sources rather than only the application security group.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext secret in user_data\", \"description\": \"The DB password is embedded verbatim in the instance's user_data and materialized on disk in /var/www/inc/dbinfo.inc. The script also leaves a copy in /tmp/dbinfo.inc, and the web server serves PHP files under /var/www, so the credential is at rest in plaintext on the host.\", \"severity\": \"critical\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"XSS via unescaped output\", \"description\": \"The user_data script writes an application that selects all EMPLOYEES rows and echoes them straight into HTML without esca",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3701,
+      "output_tokens": 1134,
+      "latency_s": 5.54,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000836
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000836
+}

@@ -1,0 +1,95 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full control of compute, storage, serverless, and monitoring across the whole account. Combined with the static access key created for this user, compromise of the credential yields account-wide data exfiltration, destruction, and privilege escalation (e.g., via Lambda execution and IAM-adjacent service actions).",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "Creates a permanent, non-rotating IAM access key pair for a user that holds wildcard administrative permissions. The secret never expires, cannot be scoped, and is high-value: its disclosure grants the full wildcard permissions above.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposure in outputs",
+      "description": "The output exports aws_iam_access_key.svc_deploy_key.encrypted_secret, writing credential material into Terraform state and plan/apply logs. Anyone with state or log access obtains the secret key, and the output lacks the sensitive = true marking required to suppress CLI display.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "missing sensitive flag on output",
+      "description": "The output exports the IAM user name without sensitive = true. This is identifier metadata rather than credential material, so the exposure is minor, but it is written to state and shown unsuppressed in CLI output.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4760,
+  "output_tokens": 1329,
+  "latency_s": 7.831,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full control of compute, storage, serverless, and monitoring across the whole account. Combined with the static access key created for this user, compromise of the credential yields account-wide data exfiltration, destruction, and privilege escalation (e.g., via Lambda execution and IAM-adjacent service actions).\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creates a permanent, non-rotating IAM access key pair for a user that holds wildcard administrative permissions. The secret never expires, cannot be scoped, and is high-value: its disclosure grants the full wildcard permissions above.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposure in outputs\", \"description\": \"The output exports aws_iam_access_key.svc_deploy_key.encrypted_secret, writing credential material into Terraform state and plan/apply logs. Anyone with state or log access obtains the secret key, and the output lacks the sensitive = true marking required to suppress CLI display.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"missing sensitive flag on output\", \"description\": \"The output exports the IAM user name without sensitive = true. This is identifier metadata rather than credential material, so the exposure is minor, but it is written to state and shown unsuppressed in CLI output.\", \"severity\": \"low\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1271,
+      "output_tokens": 451,
+      "latency_s": 2.682,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000304
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1271,
+      "output_tokens": 390,
+      "latency_s": 2.648,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000287
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2218,
+      "output_tokens": 488,
+      "latency_s": 2.501,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000447
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.001039
+}

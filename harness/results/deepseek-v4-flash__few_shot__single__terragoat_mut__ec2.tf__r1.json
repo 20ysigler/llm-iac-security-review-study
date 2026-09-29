@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hardcoded credentials in user_data",
+      "description": "The EC2 instance's user_data script embeds a long-lived AWS access key ID and secret access key (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) in plaintext. User data is readable via the instance metadata service and stored unencrypted in Terraform state, so anyone with access to the instance, the metadata endpoint, or the state file obtains valid AWS credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted ingress",
+      "description": "The security group opens SSH (port 22) to 0.0.0.0/0, exposing the instance's remote shell to brute-force and exploitation from the entire internet. Because the instance also has baked-in AWS credentials, internet-wide SSH makes credential theft far more likely; the source should be restricted to known administrative CIDRs.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS volume is created without the encrypted attribute (and without a KMS key), so data written to the portal disk is stored unencrypted and can be read by anyone with access to the underlying storage or snapshots.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS snapshot is not configured with encryption, so the backup of the portal disk is captured in plaintext. Snapshots shared or compromised expose the same sensitive data as the unencrypted source volume.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption at rest",
+      "description": "The S3 bucket used for VPC flow logs has no server-side encryption configuration, so log data is stored unencrypted at rest. A lack of SSE also prevents enforcing encrypted transport and KMS-based access policies on the archive.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted ingress",
+      "description": "Port 80 is exposed to 0.0.0.0/0, allowing any internet host to reach the web server. While HTTP is often intentionally public, this combined with the instance's public IP and open SSH broadens the attack surface; the exposure should be confirmed as intended and fronted by a controlled load balancer if possible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "Public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so every instance launched into this subnet automatically receives a routable public IP. This directly exposes hosts to the internet, and combined with the open security group it removes any network-layer protection for the portal server.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "Public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and become directly reachable from the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2646,
+  "output_tokens": 883,
+  "latency_s": 4.366,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Hardcoded credentials in user_data\", \"description\": \"The EC2 instance's user_data script embeds a long-lived AWS access key ID and secret access key (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY) in plaintext. User data is readable via the instance metadata service and stored unencrypted in Terraform state, so anyone with access to the instance, the metadata endpoint, or the state file obtains valid AWS credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted ingress\", \"description\": \"The security group opens SSH (port 22) to 0.0.0.0/0, exposing the instance's remote shell to brute-force and exploitation from the entire internet. Because the instance also has baked-in AWS credentials, internet-wide SSH makes credential theft far more likely; the source should be restricted to known administrative CIDRs.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS volume is created without the encrypted attribute (and without a KMS key), so data written to the portal disk is stored unencrypted and can be read by anyone with access to the underlying storage or snapshots.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS snapshot is not configured with encryption, so the backup of the portal disk is captured in plaintext. Snapshots shared or compromised expose the same sensitive data as the unencrypted source volume.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The S3 bucket used for VPC flow logs has no server-side encryption configuration, so log data is stored unencrypted at rest. A lack of SSE also prevents enforcing encrypted transport and KMS-based access policies on the archive.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted ingress\", \"description\": \"Port 80 is exposed to 0.0.0.0/0, allowing any internet host to reach the web server. While HTTP is often intentionally public, this combined with the instance's public IP and open SSH broadens the attack surface; the exposure should be confirmed as intended and fronted by a controlled load balancer if possible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"Public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so every instance launched into this subnet automatically receives a routable public IP. This directly exposes hosts to the internet, and combined with the open security group it removes any network-layer protection for the portal server.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"Public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so instances launched into this subnet are automatically assigned public IPs and become directly reachable from the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2646,
+      "output_tokens": 883,
+      "latency_s": 4.366,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000618
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000618
+}

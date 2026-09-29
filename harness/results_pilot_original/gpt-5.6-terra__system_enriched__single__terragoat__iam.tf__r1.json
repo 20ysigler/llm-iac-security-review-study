@@ -1,0 +1,47 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__iam.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:40:02Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732",
+      "description": "The inline policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* actions against every resource. Compromise of this IAM user's access key would allow broad control of compute, storage, serverless, and monitoring resources, including potential data access and privilege-escalation paths."
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "A programmatic IAM access key is created for a user that receives broad administrative-style permissions. This creates a long-lived credential attack surface; compromise of its secret would grant the excessive permissions assigned by aws_iam_user_policy.userpolicy."
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential disclosure",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The access-key secret is exported as a Terraform output without sensitive = true. Although the value is encrypted before storage in this expression, Terraform will expose the ciphertext output and the state retains the underlying credential material; no encryption key configuration is shown, making this an unsafe secret-handling pattern."
+    }
+  ],
+  "input_tokens": 1091,
+  "output_tokens": 289,
+  "latency_s": 3.474,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-732\",\"description\":\"The inline policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* actions against every resource. Compromise of this IAM user's access key would allow broad control of compute, storage, serverless, and monitoring resources, including potential data access and privilege-escalation paths.\"},{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"A programmatic IAM access key is created for a user that receives broad administrative-style permissions. This creates a long-lived credential attack surface; compromise of its secret would grant the excessive permissions assigned by aws_iam_user_policy.userpolicy.\"},{\"resource\":\"output.secret\",\"issue_category\":\"sensitive credential disclosure\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The access-key secret is exported as a Terraform output without sensitive = true. Although the value is encrypted before storage in this expression, Terraform will expose the ciphertext output and the state retains the underlying credential material; no encryption key configuration is shown, making this an unsafe secret-handling pattern.\"}]}",
+  "cost_usd": 0.00565
+}

@@ -1,0 +1,151 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__ec2.tf__r8",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 8,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:48:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "AWS access key ID and secret access key are embedded in plaintext in the EC2 user_data script, which is stored in instance metadata and Terraform state, exposing long-lived credentials to anyone with access to the instance metadata service, console, or state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "publicly accessible instance",
+      "description": "The instance is deployed into a subnet with map_public_ip_on_launch=true and is attached to a security group open to the world on both SSH and HTTP, meaning the instance itself is directly reachable from the internet with credentials embedded on it.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing management access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "Inbound HTTP (port 80) is open to 0.0.0.0/0 with no TLS, meaning all traffic to the web server is both publicly reachable and unencrypted, maximizing attack surface when combined with the public subnet placement.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, removing network-level containment in the event of instance compromise and facilitating data exfiltration.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (and this setting is explicitly commented out), leaving data at rest on the volume unencrypted and recoverable if the underlying storage or a snapshot is exposed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created from an unencrypted source volume and does not specify encryption itself, resulting in an unencrypted snapshot that could expose sensitive data if shared or accessed improperly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, causing instances launched in this subnet to automatically receive public IP addresses, increasing exposure to the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, causing instances launched in this subnet to automatically receive public IP addresses, increasing exposure to the internet.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket storing VPC flow logs has no server-side encryption configuration defined, leaving potentially sensitive network traffic logs stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing bucket access controls",
+      "description": "No public access block, ACL, or bucket policy is defined for the bucket, leaving it potentially exposed to public access depending on account-level defaults.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 22436,
+  "output_tokens": 4474,
+  "latency_s": 34.783,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"AWS access key ID and secret access key are embedded in plaintext in the EC2 user_data script, which is stored in instance metadata and Terraform state, exposing long-lived credentials to anyone with access to the instance metadata service, console, or state file.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"publicly accessible instance\", \"description\": \"The instance is deployed into a subnet with map_public_ip_on_launch=true and is attached to a security group open to the world on both SSH and HTTP, meaning the instance itself is directly reachable from the internet with credentials embedded on it.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing management access to the entire internet and enabling brute-force or credential-stuffing attacks against the instance.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"Inbound HTTP (port 80) is open to 0.0.0.0/0 with no TLS, meaning all traffic to the web server is both publicly reachable and unencrypted, maximizing attack surface when combined with the public subnet placement.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all outbound traffic to 0.0.0.0/0 on all ports and protocols, removing network-level containment in the event of instance compromise and facilitating data exfiltration.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true (and this setting is explicitly commented out), leaving data at rest on the volume unencrypted and recoverable if the underlying storage or a snapshot is exposed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is created from an unencrypted source volume and does not specify encryption itself, resulting in an unencrypted snapshot that could expose sensitive data if shared or accessed improperly.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, causing instances launched in this subnet to automatically receive public IP addresses, increasing exposure to the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, causing instances launched in this subnet to automatically receive public IP addresses, increasing exposure to the internet.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket storing VPC flow logs has no server-side encryption configuration defined, leaving potentially sensitive network traffic logs stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing bucket access controls\", \"description\": \"No public access block, ACL, or bucket policy is defined for the bucket, leaving it potentially exposed to public access depending on account-level def",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 6510,
+      "output_tokens": 1504,
+      "latency_s": 12.074,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.02806
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 6510,
+      "output_tokens": 1289,
+      "latency_s": 10.903,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02591
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9416,
+      "output_tokens": 1681,
+      "latency_s": 11.806,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.035642
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.089612
+}

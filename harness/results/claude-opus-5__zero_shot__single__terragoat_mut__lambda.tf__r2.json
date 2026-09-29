@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:28Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded cloud credentials in source",
+      "description": "AWS access key ID and secret access key are hardcoded as plaintext Lambda environment variables in the Terraform configuration. Anyone with read access to the repo, the Terraform state, or lambda:GetFunctionConfiguration can retrieve these long-lived credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables",
+      "description": "The function's environment variables hold secrets but no kms_key_arn is specified, so they are protected only by the default AWS-managed key and are readable in plaintext by any principal with lambda:GetFunction permissions.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing code signing validation",
+      "description": "No code_signing_config_arn is attached, so unsigned or tampered deployment packages can be deployed to the function without integrity verification.",
+      "severity": "low",
+      "cwe": "CWE-345",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "end-of-life runtime version",
+      "description": "The function uses nodejs12.x, a deprecated runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the runtime unaddressed.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, enabling potential data exfiltration if the code is compromised.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1657,
+  "output_tokens": 720,
+  "latency_s": 8.012,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded cloud credentials in source\", \"description\": \"AWS access key ID and secret access key are hardcoded as plaintext Lambda environment variables in the Terraform configuration. Anyone with read access to the repo, the Terraform state, or lambda:GetFunctionConfiguration can retrieve these long-lived credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables\", \"description\": \"The function's environment variables hold secrets but no kms_key_arn is specified, so they are protected only by the default AWS-managed key and are readable in plaintext by any principal with lambda:GetFunction permissions.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing code signing validation\", \"description\": \"No code_signing_config_arn is attached, so unsigned or tampered deployment packages can be deployed to the function without integrity verification.\", \"severity\": \"low\", \"cwe\": \"CWE-345\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"end-of-life runtime version\", \"description\": \"The function uses nodejs12.x, a deprecated runtime that no longer receives security patches from AWS, leaving known vulnerabilities in the runtime unaddressed.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group controls, enabling potential data exfiltration if the code is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1657,
+      "output_tokens": 720,
+      "latency_s": 8.012,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.026285
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026285
+}

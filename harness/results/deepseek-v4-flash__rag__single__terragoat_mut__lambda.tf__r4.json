@@ -1,0 +1,68 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__lambda.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in plaintext",
+      "description": "The Lambda function's environment block contains literal AWS access key and secret key values (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI...), which are stored in plaintext in source control and readable by anyone with lambda:GetFunctionConfiguration. These credentials must be treated as compromised and rotated, and replaced with Secrets Manager or SSM Parameter Store references or an execution role.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function is configured with runtime \"nodejs12.x\", a runtime that is end-of-life and no longer receives security patches, so known vulnerabilities in the Node.js runtime and its dependencies remain exploitable.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "role lacks least-privilege policy",
+      "description": "The execution role has only an assume-role trust policy and no attached permissions policy or permissions boundary, so the function's effective permissions are undefined and, where a broad managed policy is attached out of band, unbounded; least-privilege access for the workload is not defined in code.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2078,
+  "output_tokens": 368,
+  "latency_s": 2.812,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in plaintext\", \"description\": \"The Lambda function's environment block contains literal AWS access key and secret key values (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI...), which are stored in plaintext in source control and readable by anyone with lambda:GetFunctionConfiguration. These credentials must be treated as compromised and rotated, and replaced with Secrets Manager or SSM Parameter Store references or an execution role.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function is configured with runtime \\\"nodejs12.x\\\", a runtime that is end-of-life and no longer receives security patches, so known vulnerabilities in the Node.js runtime and its dependencies remain exploitable.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"role lacks least-privilege policy\", \"description\": \"The execution role has only an assume-role trust policy and no attached permissions policy or permissions boundary, so the function's effective permissions are undefined and, where a broad managed policy is attached out of band, unbounded; least-privilege access for the workload is not defined in code.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2078,
+      "output_tokens": 368,
+      "latency_s": 2.812,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000394
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000394
+}

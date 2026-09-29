@@ -1,0 +1,70 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:44:08Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is set to false, meaning the RDS database's underlying storage is not encrypted at rest, exposing data if the underlying disk or snapshots are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "public database exposure",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet and dramatically increasing attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/weak credentials",
+      "description": "The database uses the well-known default username 'admin' and a password sourced from a variable that is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which can facilitate data exfiltration if the instance is compromised.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources to the EC2 instance role, violating least privilege and allowing a compromised EC2 instance to take extensive actions across S3, EC2, and RDS.",
+      "severity": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and connection details in plaintext, which is visible via the EC2 instance metadata service and in Terraform state, risking credential exposure.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing backup protection",
+      "description": "skip_final_snapshot is true and backup_retention_period is 0, combined with publicly_accessible and unencrypted storage, removes safety nets and increases risk of unrecoverable/exposed data but is primarily a data protection/security posture issue when combined with public access.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 7543,
+  "output_tokens": 928,
+  "latency_s": 8.641,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is set to false, meaning the RDS database's underlying storage is not encrypted at rest, exposing data if the underlying disk or snapshots are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"public database exposure\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet and dramatically increasing attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/weak credentials\", \"description\": \"The database uses the well-known default username 'admin' and a password sourced from a variable that is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which can facilitate data exfiltration if the instance is compromised.\", \"severity\": \"low\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources to the EC2 instance role, violating least privilege and allowing a compromised EC2 instance to take extensive actions across S3, EC2, and RDS.\", \"severity\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and connection details in plaintext, which is visible via the EC2 instance metadata service and in Terraform state, risking credential exposure.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing backup protection\", \"description\": \"skip_final_snapshot is true and backup_retention_period is 0, combined with publicly_accessible and unencrypted storage, removes safety nets and increases risk of unrecoverable/exposed data but is primarily a data protection/security posture issue when combined with public access.\", \"severity\": \"low\"}]}",
+  "cost_usd": 0.024366
+}

@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:50:58Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest if the storage or snapshots are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, making the RDS instance reachable from the public internet rather than being restricted to the VPC, significantly increasing attack surface for a database holding credentials/application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The master username is hardcoded to 'admin' and the password is passed via a variable without any indication of secrets-manager integration; combined with it being embedded later in EC2 user data in plaintext, credentials are exposed.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and password (var.password) in plaintext within a PHP config file, and user_data is generally accessible via the EC2 metadata service/API to anyone with sufficient instance or console access, leaking DB credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols), which is overly permissive and could facilitate data exfiltration if the instance or DB is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy attached to the EC2 role grants wildcard 's3:*', 'ec2:*', and 'rds:*' actions on all resources ('*'), violating least privilege and allowing the EC2 instance to perform virtually any action against S3, EC2, and RDS if compromised.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled backup retention enabling data loss risk",
+      "description": "backup_retention_period is set to 0, disabling automated backups, which combined with skip_final_snapshot=true means no recovery point exists in case of compromise or accidental deletion (relevant to data protection posture, not just reliability).",
+      "severity": "medium",
+      "cwe": "CWE-19",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7134,
+  "output_tokens": 1083,
+  "latency_s": 10.687,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest if the storage or snapshots are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, making the RDS instance reachable from the public internet rather than being restricted to the VPC, significantly increasing attack surface for a database holding credentials/application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The master username is hardcoded to 'admin' and the password is passed via a variable without any indication of secrets-manager integration; combined with it being embedded later in EC2 user data in plaintext, credentials are exposed.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and password (var.password) in plaintext within a PHP config file, and user_data is generally accessible via the EC2 metadata service/API to anyone with sufficient instance or console access, leaking DB credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols), which is overly permissive and could facilitate data exfiltration if the instance or DB is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy attached to the EC2 role grants wildcard 's3:*', 'ec2:*', and 'rds:*' actions on all resources ('*'), violating least privilege and allowing the EC2 instance to perform virtually any action against S3, EC2, and RDS if compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled backup retention enabling data loss risk\", \"description\": \"backup_retention_period is set to 0, disabling automated backups, which combined with skip_final_snapshot=true means no recovery point exists in case of compromise or accidental deletion (relevant to data protection posture, not just reliability).\", \"severity\": \"medium\", \"cwe\": \"CWE-19\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.025098
+}

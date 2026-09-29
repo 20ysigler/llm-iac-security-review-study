@@ -1,0 +1,92 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r11",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 11,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:19:56Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS database's data at rest (including any sensitive employee data) is not encrypted, violating encryption-at-rest requirements.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The database master username is hard-coded to 'admin' and the password is sourced from a variable then embedded in plaintext into EC2 user data, making credential compromise easier and password rotation harder to enforce.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group.default",
+      "issue_category": "unrestricted egress",
+      "description": "Combined with aws_security_group_rule.egress below, the security group attached to the RDS instance allows all outbound traffic to any destination, which is unnecessary for a database and increases risk of data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all protocols and all ports to 0.0.0.0/0, providing no network segmentation or containment should the RDS instance or associated network path be compromised.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*', giving the EC2 instance role far broader privileges than needed to serve a web app connecting to RDS, violating least privilege and enabling lateral movement/privilege escalation if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds the database username and plaintext password directly into a script and writes them to a file on disk, exposing credentials to anyone with access to instance metadata, console logs, or the filesystem.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "public network exposure of application instance",
+      "description": "The instance is deployed with an association that yields a public DNS name (per the output) and connects to a database over what appears to be an unencrypted MySQL connection, exposing the web application tier directly to untrusted networks.",
+      "severity": "medium",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "cleartext database transport",
+      "description": "No SSL/TLS enforcement (e.g., via parameter group requiring encrypted connections) is configured, and the application connects to MySQL using mysqli_connect without TLS, resulting in credentials and data transmitted in cleartext over the network.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1353,
+  "latency_s": 12.391,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS database's data at rest (including any sensitive employee data) is not encrypted, violating encryption-at-rest requirements.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet and significantly increasing the attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The database master username is hard-coded to 'admin' and the password is sourced from a variable then embedded in plaintext into EC2 user data, making credential compromise easier and password rotation harder to enforce.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group.default\", \"issue_category\": \"unrestricted egress\", \"description\": \"Combined with aws_security_group_rule.egress below, the security group attached to the RDS instance allows all outbound traffic to any destination, which is unnecessary for a database and increases risk of data exfiltration if the instance is compromised.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all protocols and all ports to 0.0.0.0/0, providing no network segmentation or containment should the RDS instance or associated network path be compromised.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*', giving the EC2 instance role far broader privileges than needed to serve a web app connecting to RDS, violating least privilege and enabling lateral movement/privilege escalation if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 user_data script embeds the database username and plaintext password directly into a script and writes them to a file on disk, exposing credentials to anyone with access to instance metadata, console logs, or the filesystem.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"public network exposure of application instance\", \"description\": \"The instance is deployed with an association that yields a public DNS name (per the output) and connects to a database over what appears to be an unencrypted MySQL connection, exposing the web application tier directly to untrusted networks.\", \"severity\": \"medium\", \"confidence\": \"low\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"cleartext database transport\", \"description\": \"No SSL/TLS enforcement (e.g., via parameter group requiring encrypted connections) is configured, and the application connects to MySQL using mysqli_connect without TLS, resulting in credentials and data transmitted in cleartext over the network.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.02829
+}

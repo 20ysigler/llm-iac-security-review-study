@@ -1,0 +1,87 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__lambda.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:18:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "Literal AWS access key ID (AKIAIOSFODNN7EXAMPLE) and secret access key are embedded in the function's environment variables. These long-lived credentials are stored in cleartext in Lambda function configuration, readable by anyone with lambda:GetFunctionConfiguration, and persisted in Terraform state and plan output.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "static long-lived credentials used",
+      "description": "The function is passed static, non-rotating IAM credentials via environment variables instead of using its execution role's temporary credentials, so the function holds standing privileges outside any role scoping and with no rotation.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches, leaving known vulnerabilities in the runtime and bundled dependencies exploitable within the function's execution role context.",
+      "severity": "high",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4624,
+  "output_tokens": 1075,
+  "latency_s": 6.516,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in configuration\", \"description\": \"Literal AWS access key ID (AKIAIOSFODNN7EXAMPLE) and secret access key are embedded in the function's environment variables. These long-lived credentials are stored in cleartext in Lambda function configuration, readable by anyone with lambda:GetFunctionConfiguration, and persisted in Terraform state and plan output.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"static long-lived credentials used\", \"description\": \"The function is passed static, non-rotating IAM credentials via environment variables instead of using its execution role's temporary credentials, so the function holds standing privileges outside any role scoping and with no rotation.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches, leaving known vulnerabilities in the runtime and bundled dependencies exploitable within the function's execution role context.\", \"severity\": \"high\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1263,
+      "output_tokens": 357,
+      "latency_s": 2.21,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000277
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1263,
+      "output_tokens": 382,
+      "latency_s": 2.319,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000284
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 2098,
+      "output_tokens": 336,
+      "latency_s": 1.987,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000388
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.000948
+}

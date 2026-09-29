@@ -1,0 +1,141 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__ec2.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The instance's user_data script exports a static AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / ...EXAMAAAKEY) in plaintext. User data is readable by anyone with describe permissions on the instance (and is stored in the instance metadata service), so this long-lived credential pair must be treated as compromised and replaced with an IAM role and temporary credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "The instance does not set metadata_options with http_tokens = \"required\", so the legacy IMDSv1 endpoint remains available and any SSRF in the hosted Apache application can retrieve instance credentials unauthenticated.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-918"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "SSH (port 22) is open to 0.0.0.0/0, exposing remote administration of the instance to the entire internet and enabling brute-force or credential-based attacks.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted ingress",
+      "description": "HTTP (port 80) is open to 0.0.0.0/0; while web traffic may be intended, the rule admits the whole internet without restriction to known source ranges and applies to a host that also holds static credentials.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule permits all protocols and all ports to 0.0.0.0/0, providing an unrestricted data-exfiltration and command-and-control channel for a compromised instance.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume has no encrypted = true setting, so data written to the portal disk is stored unencrypted and is readable from the underlying storage layer or from snapshots.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created without encryption, so the backup of the portal disk is stored unencrypted and inherits none of the protections a customer-managed KMS key would provide.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket that receives VPC flow logs has no server-side encryption configuration, so network metadata is stored unencrypted. There is also no bucket policy or public access block defined for it.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "no public access block",
+      "description": "The bucket does not attach an aws_s3_bucket_public_access_block, so account- or bucket-level ACLs and policies could make flow-log data publicly accessible; explicit public access blocking should be enforced.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true on a subnet hosting the application server, exposing the instance directly to the internet rather than keeping compute in a private subnet without public addressing.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is true, so every instance launched into this subnet receives a public IP by default, increasing exposure beyond what the workload requires.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_route.portal_default_route",
+      "issue_category": "public network exposure",
+      "description": "A default route to the internet gateway is attached to the portal route table associated with both subnets, making the workload subnets publicly routable and placing the portal host on the internet.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 3334,
+  "output_tokens": 1163,
+  "latency_s": 5.252,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The instance's user_data script exports a static AWS access key ID and secret access key (AKIAIOSFODNN7EXAMAAA / ...EXAMAAAKEY) in plaintext. User data is readable by anyone with describe permissions on the instance (and is stored in the instance metadata service), so this long-lived credential pair must be treated as compromised and replaced with an IAM role and temporary credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"The instance does not set metadata_options with http_tokens = \\\"required\\\", so the legacy IMDSv1 endpoint remains available and any SSRF in the hosted Apache application can retrieve instance credentials unauthenticated.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-918\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"SSH (port 22) is open to 0.0.0.0/0, exposing remote administration of the instance to the entire internet and enabling brute-force or credential-based attacks.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted ingress\", \"description\": \"HTTP (port 80) is open to 0.0.0.0/0; while web traffic may be intended, the rule admits the whole internet without restriction to known source ranges and applies to a host that also holds static credentials.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule permits all protocols and all ports to 0.0.0.0/0, providing an unrestricted data-exfiltration and command-and-control channel for a compromised instance.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume has no encrypted = true setting, so data written to the portal disk is stored unencrypted and is readable from the underlying storage layer or from snapshots.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot is created without encryption, so the backup of the portal disk is stored unencrypted and inherits none of the protections a customer-managed KMS key would provide.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket that receives VPC flow logs has no server-side encryption configuration, so network metadata is stored unencrypted. There is also no bucket policy or public access block defined for it.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"no public access block\", \"description\": \"The bucket does not attach an aws_s3_bucket_public_access_block, so account- or bucket-level ACLs and policies could make flow-log data publicly accessible; explicit public access blocking should be enforced.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true on a subnet hosting the application server, exposing the instance directly to the internet rather than keeping compute in a private subnet without public addressing.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is true, so every",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3334,
+      "output_tokens": 1163,
+      "latency_s": 5.252,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.000792
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000792
+}

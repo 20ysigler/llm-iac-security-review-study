@@ -1,0 +1,79 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__debate__terragoat_mut__kms.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:17:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing KMS key rotation",
+      "description": "The customer-managed KMS key that protects the audit bucket has no `enable_key_rotation = true`, and the AWS provider default is false. The same key material therefore protects audit data indefinitely, so an undetected compromise of the key remains exploitable for the lifetime of the key.",
+      "severity": "medium",
+      "cwe": "CWE-320",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "no key policy defined",
+      "description": "No `policy` argument is set on this KMS key, so AWS applies the default key policy granting the account's root principal full control. Access control for encrypting, decrypting and re-keying audit data is left entirely to IAM policy, so any principal able to obtain kms:* (directly or by modifying IAM) can use this key.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3937,
+  "output_tokens": 829,
+  "latency_s": 6.323,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing KMS key rotation\", \"description\": \"The customer-managed KMS key that protects the audit bucket has no `enable_key_rotation = true`, and the AWS provider default is false. The same key material therefore protects audit data indefinitely, so an undetected compromise of the key remains exploitable for the lifetime of the key.\", \"severity\": \"medium\", \"cwe\": \"CWE-320\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"no key policy defined\", \"description\": \"No `policy` argument is set on this KMS key, so AWS applies the default key policy granting the account's root principal full control. Access control for encrypting, decrypting and re-keying audit data is left entirely to IAM policy, so any principal able to obtain kms:* (directly or by modifying IAM) can use this key.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 1100,
+      "output_tokens": 247,
+      "latency_s": 2.152,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000223
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 1100,
+      "output_tokens": 308,
+      "latency_s": 2.16,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00024
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 1737,
+      "output_tokens": 274,
+      "latency_s": 2.011,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00032
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.000783
+}

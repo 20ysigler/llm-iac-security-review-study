@@ -1,0 +1,71 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat__think__ec2.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:34:54Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The user_data script embeds a plain-text AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key directly in the instance configuration. Anyone with read/describe access to the instance or the Terraform state/source can extract working credentials, and per the secrets guidance any secret committed to source must be treated as compromised.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "legacy IMDSv1 enabled",
+      "description": "The instance does not set metadata_options to require IMDSv2 (http_tokens = \"required\"), leaving the legacy instance metadata service enabled. A server-side request forgery in the web application can then retrieve instance credentials/IMDS data unauthenticated, turning SSRF into credential theft.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume has no encrypted attribute set, so it is provisioned unencrypted (the inline comment confirms this is intentional). Any data written to the volume is stored in plaintext, violating the default-encryption-at-rest requirement for stored data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot",
+      "description": "This snapshot is taken from the unencrypted EBS volume web_host_storage and has no encryption configured, so the backup copy of the data is also stored in plaintext and exposes the data at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The ingress rule allows SSH (port 22) from 0.0.0.0/0, granting the entire internet the ability to attempt administrative access to the host. Combined with the public subnet, this exposes a brute-force/unauthorized-login attack surface and should be restricted to trusted source ranges.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule permits all traffic to 0.0.0.0/0 on all protocols, providing an unrestricted outbound path that enables data exfiltration and communication with command-and-control infrastructure once the host is compromised.",
+      "severity": "medium",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5288,
+  "output_tokens": 3586,
+  "latency_s": 30.366,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The user_data script embeds a plain-text AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key directly in the instance configuration. Anyone with read/describe access to the instance or the Terraform state/source can extract working credentials, and per the secrets guidance any secret committed to source must be treated as compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"legacy IMDSv1 enabled\", \"description\": \"The instance does not set metadata_options to require IMDSv2 (http_tokens = \\\"required\\\"), leaving the legacy instance metadata service enabled. A server-side request forgery in the web application can then retrieve instance credentials/IMDS data unauthenticated, turning SSRF into credential theft.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume has no encrypted attribute set, so it is provisioned unencrypted (the inline comment confirms this is intentional). Any data written to the volume is stored in plaintext, violating the default-encryption-at-rest requirement for stored data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"This snapshot is taken from the unencrypted EBS volume web_host_storage and has no encryption configured, so the backup copy of the data is also stored in plaintext and exposes the data at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The ingress rule allows SSH (port 22) from 0.0.0.0/0, granting the entire internet the ability to attempt administrative access to the host. Combined with the public subnet, this exposes a brute-force/unauthorized-login attack surface and should be restricted to trusted source ranges.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule permits all traffic to 0.0.0.0/0 on all protocols, providing an unrestricted outbound path that enables data exfiltration and communication with command-and-control infrastructure once the host is compromised.\", \"severity\": \"medium\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001744
+}

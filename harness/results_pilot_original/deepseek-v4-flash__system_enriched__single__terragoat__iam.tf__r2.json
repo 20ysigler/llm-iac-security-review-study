@@ -1,0 +1,46 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:50Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard access (Action '*' across ec2, s3, lambda, cloudwatch with Resource '*') to the user, far exceeding least privilege and enabling broad data exfiltration and lateral movement if credentials are compromised.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "description": "A static access key is created for the IAM user and never rotated; combined with the overly permissive policy, a leaked key provides persistent, unrevoked broad access.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure in output",
+      "description": "The encrypted secret is emitted as a Terraform root output, exposing the credential to anyone with read access to state and output logs rather than storing it solely in a secrets manager.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1391,
+  "output_tokens": 296,
+  "latency_s": 3.928,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard access (Action '*' across ec2, s3, lambda, cloudwatch with Resource '*') to the user, far exceeding least privilege and enabling broad data exfiltration and lateral movement if credentials are compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived access key\", \"description\": \"A static access key is created for the IAM user and never rotated; combined with the overly permissive policy, a leaked key provides persistent, unrevoked broad access.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure in output\", \"description\": \"The encrypted secret is emitted as a Terraform root output, exposing the credential to anyone with read access to state and output logs rather than storing it solely in a secrets manager.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000278
+}

@@ -1,0 +1,73 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__db-app.tf__r1",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:43:21Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "RDS storage encryption is explicitly disabled (`storage_encrypted = false`), leaving database data and snapshots unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly reachable database endpoint",
+      "description": "`publicly_accessible = true` assigns the RDS instance a public network endpoint. Although the current security group limits inbound traffic to the VPC CIDR, exposing the database publicly increases attack surface and makes future security-group mistakes externally exploitable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound network access",
+      "description": "This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. A compromised database workload could use this unrestricted path for command-and-control communication or data exfiltration.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive instance role",
+      "description": "The EC2 instance role grants every S3, EC2, and RDS action against every resource (`s3:*`, `ec2:*`, `rds:*`, `Resource: \"*\"`). Compromise of the instance would provide broad control over these services and access to their data.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "database credential in user data",
+      "description": "The database password is interpolated into EC2 `user_data`. Instance user data can be retrieved by principals with EC2 describe access and may persist on the instance, exposing the database credential outside an appropriate secrets manager.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No `metadata_options` configuration requires IMDSv2, so the instance permits the legacy IMDSv1 behavior by default. An SSRF flaw in the hosted application could then be used to retrieve the instance role's temporary credentials.",
+      "severity": "medium",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4935,
+  "output_tokens": 805,
+  "latency_s": 10.175,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unencrypted database storage\",\"description\":\"RDS storage encryption is explicitly disabled (`storage_encrypted = false`), leaving database data and snapshots unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly reachable database endpoint\",\"description\":\"`publicly_accessible = true` assigns the RDS instance a public network endpoint. Although the current security group limits inbound traffic to the VPC CIDR, exposing the database publicly increases attack surface and makes future security-group mistakes externally exploitable.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound network access\",\"description\":\"This rule permits all protocols and ports to `0.0.0.0/0` from the database security group. A compromised database workload could use this unrestricted path for command-and-control communication or data exfiltration.\",\"severity\":\"medium\",\"cwe\":\"CWE-200\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"The EC2 instance role grants every S3, EC2, and RDS action against every resource (`s3:*`, `ec2:*`, `rds:*`, `Resource: \\\"*\\\"`). Compromise of the instance would provide broad control over these services and access to their data.\",\"severity\":\"high\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"database credential in user data\",\"description\":\"The database password is interpolated into EC2 `user_data`. Instance user data can be retrieved by principals with EC2 describe access and may persist on the instance, exposing the database credential outside an appropriate secrets manager.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No `metadata_options` configuration requires IMDSv2, so the instance permits the legacy IMDSv1 behavior by default. An SSRF flaw in the hosted application could then be used to retrieve the instance role's temporary credentials.\",\"severity\":\"medium\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.01953
+}

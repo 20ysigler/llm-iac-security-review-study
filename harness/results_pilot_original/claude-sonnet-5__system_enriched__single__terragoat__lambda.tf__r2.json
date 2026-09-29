@@ -1,0 +1,44 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__lambda.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:49:25Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in plaintext",
+      "description": "AWS access key and secret key are hard-coded in plaintext as Lambda environment variables, exposing long-lived credentials to anyone with read access to the Terraform state, source code, or Lambda console/API, and no encryption (KMS) is configured for the environment variables.",
+      "severity": "critical",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption at rest",
+      "description": "The Lambda function does not specify a KMS key (kms_key_arn) to encrypt environment variables at rest, leaving sensitive data such as the embedded credentials protected only by default AWS-managed encryption rather than a customer-controlled key.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses nodejs12.x, a deprecated Node.js runtime that no longer receives security updates, increasing exposure to unpatched vulnerabilities.",
+      "severity": "low",
+      "cwe": "CWE-1104"
+    }
+  ],
+  "input_tokens": 2575,
+  "output_tokens": 476,
+  "latency_s": 4.549,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in plaintext\", \"description\": \"AWS access key and secret key are hard-coded in plaintext as Lambda environment variables, exposing long-lived credentials to anyone with read access to the Terraform state, source code, or Lambda console/API, and no encryption (KMS) is configured for the environment variables.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The Lambda function does not specify a KMS key (kms_key_arn) to encrypt environment variables at rest, leaving sensitive data such as the embedded credentials protected only by default AWS-managed encryption rather than a customer-controlled key.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses nodejs12.x, a deprecated Node.js runtime that no longer receives security updates, increasing exposure to unpatched vulnerabilities.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\"}]}",
+  "cost_usd": 0.00991
+}

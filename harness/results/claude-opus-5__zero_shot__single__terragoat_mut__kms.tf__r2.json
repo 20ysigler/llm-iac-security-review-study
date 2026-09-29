@@ -1,0 +1,61 @@
+{
+  "run_id": "claude-opus-5__zero_shot__single__terragoat_mut__kms.tf__r2",
+  "model": "claude-opus-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:57Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The KMS key used to encrypt the audit trail bucket does not set enable_key_rotation = true, so the key material is never automatically rotated. Long-lived key material increases the blast radius if the key is ever compromised and weakens cryptographic hygiene for audit log data.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-320"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key policy restriction",
+      "description": "No explicit policy is attached to the KMS key, so AWS applies the default policy granting the entire account root (and thus any IAM principal with KMS permissions) full control over the key. For a key protecting audit trail data this fails least-privilege and could allow an attacker with modest IAM access to decrypt or disable the key.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 1374,
+  "output_tokens": 368,
+  "latency_s": 5.079,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The KMS key used to encrypt the audit trail bucket does not set enable_key_rotation = true, so the key material is never automatically rotated. Long-lived key material increases the blast radius if the key is ever compromised and weakens cryptographic hygiene for audit log data.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-320\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key policy restriction\", \"description\": \"No explicit policy is attached to the KMS key, so AWS applies the default policy granting the entire account root (and thus any IAM principal with KMS permissions) full control over the key. For a key protecting audit trail data this fails least-privilege and could allow an attacker with modest IAM access to decrypt or disable the key.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1374,
+      "output_tokens": 368,
+      "latency_s": 5.079,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.01607
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.01607
+}

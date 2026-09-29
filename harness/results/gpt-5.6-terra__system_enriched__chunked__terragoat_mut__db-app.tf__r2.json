@@ -1,0 +1,128 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__chunked__terragoat_mut__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:02Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded database credential",
+      "description": "The database password is interpolated into EC2 user data and written in cleartext to `/var/www/inc/dbinfo.inc`. User data and the resulting file can be retrieved by principals with EC2/instance access, exposing the database credential.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The PHP application uses `mysqli_connect` without configuring TLS/SSL, so credentials and database traffic are not protected in transit by this client configuration. If the network path is observed or intercepted, the database password and application data may be exposed.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance is configured with publicly_accessible = true. Although the shown security group limits MySQL ingress to the VPC CIDR, assigning a public endpoint unnecessarily exposes the database to Internet-routable network paths and weakens network segmentation.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the database storage and associated automated backups unencrypted at rest, exposing catalog data if underlying storage or snapshots are accessed improperly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded database username",
+      "description": "The privileged database username is hard-coded as \"admin\". This creates a predictable administrative account name and weakens access-control hygiene; the password value itself is referenced from a variable and is not evidenced as hard-coded in this excerpt.",
+      "severity": "low",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0. This gives the database unrestricted egress, reducing containment if the instance is compromised and allowing unnecessary external communication.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The application role receives s3:*, ec2:*, and rds:* on every resource. Because this policy is attached to the application role used by the catalog application instance profile, compromise of that instance could grant broad control over EC2, RDS, and S3 resources, including actions that can expose data or modify access controls.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 5992,
+  "output_tokens": 652,
+  "latency_s": 10.37,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 1335,
+      "output_tokens": 18,
+      "latency_s": 0.974,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.002886
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2062,
+      "output_tokens": 183,
+      "latency_s": 2.88,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.00632
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 1528,
+      "output_tokens": 433,
+      "latency_s": 5.622,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.008252
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 1067,
+      "output_tokens": 18,
+      "latency_s": 0.894,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.00235
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.019808
+}

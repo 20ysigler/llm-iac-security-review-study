@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__ec2.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:41Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "Hard-coded credentials in user data",
+      "description": "The user_data script exports plaintext AWS access key (AKIAIOSFODNN7EXAMAAA) and secret key (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) directly into the EC2 instance user data. Anyone with read access to the instance metadata, the launch configuration, or this repository can extract live credentials, leading to account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS volume is created without encryption enabled (the encrypted attribute is commented out), leaving data at rest unencrypted. Sensitive data stored on the attached web host volume is exposed if the underlying storage is compromised or the volume is reused.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS snapshot is created without encryption, so it inherits the downstream unencrypted volume and stores data at rest in plaintext. Snapshots can be restored or exported, exposing sensitive data to anyone with access.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "Unrestricted SSH ingress",
+      "description": "The security group allows inbound SSH (port 22/tcp) from 0.0.0.0/0, exposing the web host's SSH service to the entire internet. This permits brute-force and credential-stuffing attacks against the instance from any source.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "Unrestricted web ingress",
+      "description": "The security group allows inbound HTTP (port 80/tcp) from 0.0.0.0/0 without any network boundary or WAF layer. While this is web traffic, the default configuration broadens the attack surface to all internet clients with no source restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "Public exposure of instance",
+      "description": "map_public_ip_on_launch = true assigns a public IP to instances launched in this subnet, and combined with the open security group and internet gateway, the web host is directly reachable from the internet.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "Public exposure of instance",
+      "description": "map_public_ip_on_launch = true assigns public IPs to instances launched in this second subnet, extending the internet-facing attack surface.",
+      "severity": "medium",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4401,
+  "output_tokens": 730,
+  "latency_s": 6.76,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"Hard-coded credentials in user data\", \"description\": \"The user_data script exports plaintext AWS access key (AKIAIOSFODNN7EXAMAAA) and secret key (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) directly into the EC2 instance user data. Anyone with read access to the instance metadata, the launch configuration, or this repository can extract live credentials, leading to account compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS volume is created without encryption enabled (the encrypted attribute is commented out), leaving data at rest unencrypted. Sensitive data stored on the attached web host volume is exposed if the underlying storage is compromised or the volume is reused.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS snapshot is created without encryption, so it inherits the downstream unencrypted volume and stores data at rest in plaintext. Snapshots can be restored or exported, exposing sensitive data to anyone with access.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"Unrestricted SSH ingress\", \"description\": \"The security group allows inbound SSH (port 22/tcp) from 0.0.0.0/0, exposing the web host's SSH service to the entire internet. This permits brute-force and credential-stuffing attacks against the instance from any source.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"Unrestricted web ingress\", \"description\": \"The security group allows inbound HTTP (port 80/tcp) from 0.0.0.0/0 without any network boundary or WAF layer. While this is web traffic, the default configuration broadens the attack surface to all internet clients with no source restriction.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"Public exposure of instance\", \"description\": \"map_public_ip_on_launch = true assigns a public IP to instances launched in this subnet, and combined with the open security group and internet gateway, the web host is directly reachable from the internet.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"Public exposure of instance\", \"description\": \"map_public_ip_on_launch = true assigns public IPs to instances launched in this second subnet, extending the internet-facing attack surface.\", \"severity\": \"medium\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000821
+}

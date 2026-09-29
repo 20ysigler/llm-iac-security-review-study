@@ -1,0 +1,71 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:07Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is set to false, so the database data and automated backups are stored unencrypted at rest in S3/EBS, exposing sensitive data if storage media is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "public database exposure",
+      "description": "publicly_accessible is set to true, exposing the MySQL port (3306) to the internet, dramatically increasing the attack surface for the database.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing transport encryption",
+      "description": "The MySQL engine configuration does not enforce TLS/SSL for client connections, and the EC2 app connects over plaintext without certificate verification controls, allowing traffic interception.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "unrestricted network ingress",
+      "description": "The ingress rule allows traffic to port 3306 from the entire VPC CIDR without restricting to the specific application hosts, combined with the publicly accessible database this expands the reachable surface.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The role policy grants s3:*, ec2:*, and rds:* on all resources to the EC2 instance role, far exceeding the least privilege needed and enabling credential theft to escalate to broad account manipulation.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "credentials in plaintext",
+      "description": "The user_data script embeds the RDS database password directly in plaintext (Define('DB_PASSWORD', '<var.password>')). This is exposed in the instance metadata and instance user-data, which can be read by any process with instance access, and leaks credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4765,
+  "output_tokens": 564,
+  "latency_s": 5.845,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is set to false, so the database data and automated backups are stored unencrypted at rest in S3/EBS, exposing sensitive data if storage media is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"public database exposure\", \"description\": \"publicly_accessible is set to true, exposing the MySQL port (3306) to the internet, dramatically increasing the attack surface for the database.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing transport encryption\", \"description\": \"The MySQL engine configuration does not enforce TLS/SSL for client connections, and the EC2 app connects over plaintext without certificate verification controls, allowing traffic interception.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.ingress\", \"issue_category\": \"unrestricted network ingress\", \"description\": \"The ingress rule allows traffic to port 3306 from the entire VPC CIDR without restricting to the specific application hosts, combined with the publicly accessible database this expands the reachable surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The role policy grants s3:*, ec2:*, and rds:* on all resources to the EC2 instance role, far exceeding the least privilege needed and enabling credential theft to escalate to broad account manipulation.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"credentials in plaintext\", \"description\": \"The user_data script embeds the RDS database password directly in plaintext (Define('DB_PASSWORD', '<var.password>')). This is exposed in the instance metadata and instance user-data, which can be read by any process with instance access, and leaks credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000825
+}

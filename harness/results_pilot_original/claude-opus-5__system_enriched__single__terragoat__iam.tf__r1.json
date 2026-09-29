@@ -1,0 +1,55 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:29:19Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "Overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against \"Resource\": \"*\", violating least privilege. Compromise of this user's credentials allows an attacker to read/delete all S3 data, launch or terminate any EC2 instance, and modify or backdoor any Lambda function, including privilege escalation via lambda:UpdateFunctionCode / ec2 instance profile abuse.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "Long-lived static credentials",
+      "description": "A permanent IAM access key is generated in Terraform without a PGP key, so the plaintext secret is stored unencrypted in the Terraform state file. Anyone with read access to state obtains long-lived credentials carrying the broad ec2/s3/lambda/cloudwatch permissions attached to this user.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "Credential exposure via output",
+      "description": "The access key secret is exposed through the 'secret' Terraform output without the sensitive = true flag, so the value is printed to the console and CI/CD logs on every apply.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user with inline policy",
+      "description": "Permissions are attached directly to a long-lived IAM user via an inline user policy rather than through a group or an assumable role with temporary credentials, which weakens centralised access control and auditability of the wildcard privileges granted.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 2197,
+  "output_tokens": 684,
+  "latency_s": 9.147,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"Overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions on ec2, s3, lambda and cloudwatch against \\\"Resource\\\": \\\"*\\\", violating least privilege. Compromise of this user's credentials allows an attacker to read/delete all S3 data, launch or terminate any EC2 instance, and modify or backdoor any Lambda function, including privilege escalation via lambda:UpdateFunctionCode / ec2 instance profile abuse.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"Long-lived static credentials\", \"description\": \"A permanent IAM access key is generated in Terraform without a PGP key, so the plaintext secret is stored unencrypted in the Terraform state file. Anyone with read access to state obtains long-lived credentials carrying the broad ec2/s3/lambda/cloudwatch permissions attached to this user.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"Credential exposure via output\", \"description\": \"The access key secret is exposed through the 'secret' Terraform output without the sensitive = true flag, so the value is printed to the console and CI/CD logs on every apply.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user with inline policy\", \"description\": \"Permissions are attached directly to a long-lived IAM user via an inline user policy rather than through a group or an assumable role with temporary credentials, which weakens centralised access control and auditability of the wildcard privileges granted.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "cost_usd": 0.028085
+}

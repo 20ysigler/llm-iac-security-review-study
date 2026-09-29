@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__lambda.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function's environment variables embed a long-lived AWS access key ID and secret access key in plaintext (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI...). Any principal with lambda:GetFunctionConfiguration can read these, and they are also stored in Terraform state, so the credentials should be supplied via AWS Secrets Manager or SSM Parameter Store with a KMS-encrypted key.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "missing KMS encryption for environment variables",
+      "description": "No kms_key_arn is set on the function, so the environment block holding the static AWS keys is encrypted only with the default AWS-managed key and is readable by any role permitted lambda:GetFunctionConfiguration. An explicit customer-managed KMS key would restrict decryption rights to the intended principals.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unsupported runtime version",
+      "description": "runtime = \"nodejs12.x\" is an EOL, unpatched runtime that no longer receives security fixes, leaving the function exposed to known Node.js vulnerabilities. This should be upgraded to a currently supported runtime.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing permissions boundary",
+      "description": "The Lambda execution role has no permissions_boundary and no explicit policy attached, so its effective privileges depend entirely on separately managed policies and are unconstrained by the stack. A permissions boundary should cap the maximum privileges the role can obtain.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 1002,
+  "output_tokens": 483,
+  "latency_s": 2.892,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function's environment variables embed a long-lived AWS access key ID and secret access key in plaintext (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI...). Any principal with lambda:GetFunctionConfiguration can read these, and they are also stored in Terraform state, so the credentials should be supplied via AWS Secrets Manager or SSM Parameter Store with a KMS-encrypted key.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"missing KMS encryption for environment variables\", \"description\": \"No kms_key_arn is set on the function, so the environment block holding the static AWS keys is encrypted only with the default AWS-managed key and is readable by any role permitted lambda:GetFunctionConfiguration. An explicit customer-managed KMS key would restrict decryption rights to the intended principals.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unsupported runtime version\", \"description\": \"runtime = \\\"nodejs12.x\\\" is an EOL, unpatched runtime that no longer receives security fixes, leaving the function exposed to known Node.js vulnerabilities. This should be upgraded to a currently supported runtime.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing permissions boundary\", \"description\": \"The Lambda execution role has no permissions_boundary and no explicit policy attached, so its effective privileges depend entirely on separately managed policies and are unconstrained by the stack. A permissions boundary should cap the maximum privileges the role can obtain.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1002,
+      "output_tokens": 483,
+      "latency_s": 2.892,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000276
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000276
+}

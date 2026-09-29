@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__ec2.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:31:45Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance's user_data script embeds a static AWS access key ID and secret access key in plaintext. This data is retrievable via the EC2 instance metadata service and is stored in Terraform state, leading to credential exposure and CWE-798.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing the management interface of the instance to the entire internet and enabling brute-force or credential-stuffing attacks.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true, so data stored on the volume (and any snapshots derived from it) is unencrypted at rest, violating defence-in-depth and compliance requirements for data protection.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption and public access controls",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration and no public access block / bucket policy restricting access, risking unauthorized access to and unencrypted storage of sensitive network traffic metadata.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IP addresses to any instance launched in this subnet, increasing the internet-facing attack surface for hosts that may not need direct exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "unrestricted public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, automatically assigning public IP addresses to any instance launched in this subnet, increasing the internet-facing attack surface for hosts that may not need direct exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3912,
+  "output_tokens": 1576,
+  "latency_s": 14.184,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The instance's user_data script embeds a static AWS access key ID and secret access key in plaintext. This data is retrievable via the EC2 instance metadata service and is stored in Terraform state, leading to credential exposure and CWE-798.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing the management interface of the instance to the entire internet and enabling brute-force or credential-stuffing attacks.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true, so data stored on the volume (and any snapshots derived from it) is unencrypted at rest, violating defence-in-depth and compliance requirements for data protection.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption and public access controls\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration and no public access block / bucket policy restricting access, risking unauthorized access to and unencrypted storage of sensitive network traffic metadata.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"unrestricted public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IP addresses to any instance launched in this subnet, increasing the internet-facing attack surface for hosts that may not need direct exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"unrestricted public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, automatically assigning public IP addresses to any instance launched in this subnet, increasing the internet-facing attack surface for hosts that may not need direct exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3912,
+      "output_tokens": 1576,
+      "latency_s": 14.184,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.023584
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.023584
+}

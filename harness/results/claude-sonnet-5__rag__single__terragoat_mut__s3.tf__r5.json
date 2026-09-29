@@ -1,0 +1,109 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__s3.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:28:14Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are stored without enforced encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block / no access control",
+      "description": "No ACL or bucket policy restricting access is defined, and there is no aws_s3_bucket_public_access_block resource to prevent the bucket from becoming publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined for a bucket storing ledger exports, leaving potentially sensitive financial data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so model artifacts are stored without enforced encryption at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined for a bucket holding operational runbooks, which could contain sensitive operational details, leaving it unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "overly permissive ACL",
+      "description": "The bucket uses the canned ACL 'log-delivery-write', which grants write and read-ACP permissions to the S3 log delivery group; combined with force_destroy this increases risk of unauthorized write access to the audit trail bucket if not tightly scoped.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive data upload",
+      "description": "This object is uploaded into aws_s3_bucket.reports_archive, which has no server-side encryption configured, so the vendor roster file (potentially containing sensitive vendor data) is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "destructive operation enabled",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted without recovery, removing a safeguard against accidental or malicious data loss on a bucket with no versioning enabled.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 3934,
+  "output_tokens": 1201,
+  "latency_s": 10.944,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are stored without enforced encryption at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block / no access control\", \"description\": \"No ACL or bucket policy restricting access is defined, and there is no aws_s3_bucket_public_access_block resource to prevent the bucket from becoming publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined for a bucket storing ledger exports, leaving potentially sensitive financial data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so model artifacts are stored without enforced encryption at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined for a bucket holding operational runbooks, which could contain sensitive operational details, leaving it unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"overly permissive ACL\", \"description\": \"The bucket uses the canned ACL 'log-delivery-write', which grants write and read-ACP permissions to the S3 log delivery group; combined with force_destroy this increases risk of unauthorized write access to the audit trail bucket if not tightly scoped.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive data upload\", \"description\": \"This object is uploaded into aws_s3_bucket.reports_archive, which has no server-side encryption configured, so the vendor roster file (potentially containing sensitive vendor data) is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"destructive operation enabled\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted without recovery, removing a safeguard against accidental or malicious data loss on a bucket with no versioning enabled.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3934,
+      "output_tokens": 1201,
+      "latency_s": 10.944,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.019878
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.019878
+}

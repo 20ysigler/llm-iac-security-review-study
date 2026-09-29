@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__iam.tf__r13",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 13,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:49:57Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", violating least privilege. An attacker who obtains this user's credentials can read/modify all S3 data, launch or terminate any EC2 instance, and create/modify Lambda functions \u2014 including privilege escalation via passing or invoking compute with attached roles.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for a human/service user rather than using temporary credentials via role assumption. The key material is stored in Terraform state in plaintext (no PGP key is supplied), so anyone with state file access obtains the secret access key bound to the wildcard policy above.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The access key secret is exposed through the \"secret\" Terraform output. Because no pgp_key is set on the access key, encrypted_secret is empty/unusable and the plaintext `secret` attribute is written to state; the output is also not marked sensitive, so credentials can be printed to CI logs and console output.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user with static credentials",
+      "description": "An IAM user with an attached inline administrative-scope policy and a static access key is created instead of a role with short-lived credentials; there is no MFA enforcement or permissions boundary constraining the identity.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2197,
+  "output_tokens": 695,
+  "latency_s": 10.966,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", violating least privilege. An attacker who obtains this user's credentials can read/modify all S3 data, launch or terminate any EC2 instance, and create/modify Lambda functions \\u2014 including privilege escalation via passing or invoking compute with attached roles.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for a human/service user rather than using temporary credentials via role assumption. The key material is stored in Terraform state in plaintext (no PGP key is supplied), so anyone with state file access obtains the secret access key bound to the wildcard policy above.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key secret is exposed through the \\\"secret\\\" Terraform output. Because no pgp_key is set on the access key, encrypted_secret is empty/unusable and the plaintext `secret` attribute is written to state; the output is also not marked sensitive, so credentials can be printed to CI logs and console output.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user with static credentials\", \"description\": \"An IAM user with an attached inline administrative-scope policy and a static access key is created instead of a role with short-lived credentials; there is no MFA enforcement or permissions boundary constraining the identity.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2197,
+      "output_tokens": 695,
+      "latency_s": 10.966,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.02836
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02836
+}

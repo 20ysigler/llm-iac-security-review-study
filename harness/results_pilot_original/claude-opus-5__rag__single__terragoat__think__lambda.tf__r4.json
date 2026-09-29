@@ -1,0 +1,65 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__think__lambda.tf__r4",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:06:02Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are committed in plain text as Lambda environment variables. Anyone with lambda:GetFunctionConfiguration or read access to the repository can retrieve these long-lived static credentials, and they persist in version control history even if removed.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing customer-managed key encryption",
+      "description": "No kms_key_arn is set, so the environment variables (which hold secrets here) are encrypted only with the default service-owned AWS key. A customer-managed CMK would allow explicit key policy, rotation and revocation control over who can decrypt the function configuration.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function pins runtime nodejs12.x, which is past end of life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unfixed.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing code signing validation",
+      "description": "No code_signing_config_arn is configured, so the deployment package uploaded from resources/lambda_function_payload.zip is not signature-verified before execution; tampering with the artefact between build and deployment would be undetectable.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-345"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing permissions boundary and confused-deputy guard",
+      "description": "The Lambda execution role's trust policy allows lambda.amazonaws.com to assume it with no aws:SourceAccount or aws:SourceArn condition and no permissions boundary attached, so nothing constrains the maximum privilege that can later be delegated to this role or scopes trust to this account's functions.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 3755,
+  "output_tokens": 1094,
+  "latency_s": 14.176,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are committed in plain text as Lambda environment variables. Anyone with lambda:GetFunctionConfiguration or read access to the repository can retrieve these long-lived static credentials, and they persist in version control history even if removed.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing customer-managed key encryption\", \"description\": \"No kms_key_arn is set, so the environment variables (which hold secrets here) are encrypted only with the default service-owned AWS key. A customer-managed CMK would allow explicit key policy, rotation and revocation control over who can decrypt the function configuration.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function pins runtime nodejs12.x, which is past end of life and no longer receives security patches from AWS, leaving known vulnerabilities in the execution environment unfixed.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing code signing validation\", \"description\": \"No code_signing_config_arn is configured, so the deployment package uploaded from resources/lambda_function_payload.zip is not signature-verified before execution; tampering with the artefact between build and deployment would be undetectable.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-345\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing permissions boundary and confused-deputy guard\", \"description\": \"The Lambda execution role's trust policy allows lambda.amazonaws.com to assume it with no aws:SourceAccount or aws:SourceArn condition and no permissions boundary attached, so nothing constrains the maximum privilege that can later be delegated to this role or scopes trust to this account's functions.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}]}",
+  "cost_usd": 0.046125
+}

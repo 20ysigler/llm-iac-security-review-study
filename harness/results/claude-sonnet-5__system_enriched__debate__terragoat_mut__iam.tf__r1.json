@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__iam.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:58:12Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and allowing broad data access, resource creation/deletion, and potential privilege escalation across multiple services.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "A standalone IAM user with static programmatic access keys is used for deployment instead of a role with temporary, automatically-rotated credentials, increasing the risk of long-term credential leakage, especially combined with the overly broad attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "hard-coded/exposed credentials",
+      "description": "An IAM access key (long-lived secret credential) is created for the service user; such static credentials are inherently riskier than temporary role-based credentials and can be leaked and abused if compromised, particularly given the attached wildcard policy.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The secret access key material for this highly privileged user is exposed via the svc_deploy_key_material output, which is persisted in Terraform state and can appear in CLI/CI logs; without a pgp_key configured, this material is effectively in plaintext and accessible to anyone with state or log access.",
+      "severity": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "credential exposure via output",
+      "description": "Declaring an output for the access key's encrypted_secret value causes the credential to be written into Terraform state and console/CI output, risking exposure of the secret to anyone with access to state files, logs, or pipeline output.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 7870,
+  "output_tokens": 2219,
+  "latency_s": 21.599,
+  "attempts": 1,
+  "schema_problems": [
+    "reviewer_a: finding[3] resource 'svc_deploy_key_material' is not type.name",
+    "reconciler: finding[4] resource 'svc_deploy_key_material' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and allowing broad data access, resource creation/deletion, and potential privilege escalation across multiple services.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"A standalone IAM user with static programmatic access keys is used for deployment instead of a role with temporary, automatically-rotated credentials, increasing the risk of long-term credential leakage, especially combined with the overly broad attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"hard-coded/exposed credentials\", \"description\": \"An IAM access key (long-lived secret credential) is created for the service user; such static credentials are inherently riskier than temporary role-based credentials and can be leaked and abused if compromised, particularly given the attached wildcard policy.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The secret access key material for this highly privileged user is exposed via the svc_deploy_key_material output, which is persisted in Terraform state and can appear in CLI/CI logs; without a pgp_key configured, this material is effectively in plaintext and accessible to anyone with state or log access.\", \"severity\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"credential exposure via output\", \"description\": \"Declaring an output for the access key's encrypted_secret value causes the credential to be written into Terraform state and console/CI output, risking exposure of the secret to anyone with access to state files, logs, or pipeline output.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2128,
+      "output_tokens": 670,
+      "latency_s": 6.784,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010956
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2128,
+      "output_tokens": 703,
+      "latency_s": 7.624,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011286
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3614,
+      "output_tokens": 846,
+      "latency_s": 7.191,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.015688
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.03793
+}

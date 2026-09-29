@@ -1,0 +1,86 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__s3.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T02:12:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "797c3134914792d3"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_side_encryption_configuration, so it relies on no default object encryption and objects (including the seeded vendor roster) are stored without an explicitly enforced SSE-KMS/SSE-S3 configuration. Data at rest in this bucket is not protected by a customer-managed encryption key as required for regulated report and vendor data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket, which holds financial ledger exports, defines no server_side_encryption_configuration and therefore has no enforced encryption at rest under a controlled KMS key. Sensitive financial records are stored unencrypted by default.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket configures versioning and access logging but omits server_side_encryption_configuration, leaving stored model artifacts and their data without enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket has no server_side_encryption_configuration block, so runbook contents are stored without an enforced encryption-at-rest configuration. Runbooks frequently contain operational detail useful to an attacker.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object storage",
+      "description": "The vendor roster object is uploaded without any server_side_encryption (or kms_key_id) argument, and its destination bucket (aws_s3_bucket.reports_archive) provides no default encryption, so this sensitive vendor/PII spreadsheet is written to S3 unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1558,
+  "output_tokens": 3133,
+  "latency_s": 15.625,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_side_encryption_configuration, so it relies on no default object encryption and objects (including the seeded vendor roster) are stored without an explicitly enforced SSE-KMS/SSE-S3 configuration. Data at rest in this bucket is not protected by a customer-managed encryption key as required for regulated report and vendor data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket, which holds financial ledger exports, defines no server_side_encryption_configuration and therefore has no enforced encryption at rest under a controlled KMS key. Sensitive financial records are stored unencrypted by default.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket configures versioning and access logging but omits server_side_encryption_configuration, leaving stored model artifacts and their data without enforced encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket has no server_side_encryption_configuration block, so runbook contents are stored without an enforced encryption-at-rest configuration. Runbooks frequently contain operational detail useful to an attacker.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object storage\", \"description\": \"The vendor roster object is uploaded without any server_side_encryption (or kms_key_id) argument, and its destination bucket (aws_s3_bucket.reports_archive) provides no default encryption, so this sensitive vendor/PII spreadsheet is written to S3 unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1558,
+      "output_tokens": 3133,
+      "latency_s": 15.625,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.001095
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001095
+}

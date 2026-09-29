@@ -1,0 +1,102 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:33:16Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, so it receives a routable public endpoint reachable from outside the VPC. Combined with a default-master username of \"admin\", this materially increases the attack surface for brute force and exploitation of the MySQL listener.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the MySQL database, its automated storage, snapshots, and logs unencrypted. Anyone obtaining the underlying storage or a snapshot can read the data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy attached to the EC2-assumable role grants s3:*, ec2:*, and rds:* on Resource \"*\". Any code running on the instance (or an attacker who compromises it) obtains full control of S3, EC2, and RDS account-wide, including the ability to escalate privileges, exfiltrate all buckets, and delete databases.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in user data",
+      "description": "The DB password (var.password), username, endpoint, and database name are embedded in cleartext into the instance user_data script and written to /var/www/inc/dbinfo.inc. user_data is readable via the instance metadata service and the console, and the resulting PHP include file exposes live database credentials on the web server.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR (${aws_vpc.portal_vpc.cidr_block}) rather than to the application security group. On a publicly accessible database this permits any host in the VPC \u2014 including non-application workloads \u2014 to reach the database listener on the standard port.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0. This allows a compromised or maliciously configured database host unrestricted outbound connectivity, enabling data exfiltration and callbacks to external command-and-control infrastructure.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "cleartext database transport allowed",
+      "description": "The MySQL parameter group does not set require_secure_transport = ON, so clients can connect to the database over unencrypted transport. Credentials and query results can be transmitted in cleartext across the network to the publicly reachable endpoint.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3594,
+  "output_tokens": 3061,
+  "latency_s": 13.921,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, so it receives a routable public endpoint reachable from outside the VPC. Combined with a default-master username of \\\"admin\\\", this materially increases the attack surface for brute force and exploitation of the MySQL listener.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the MySQL database, its automated storage, snapshots, and logs unencrypted. Anyone obtaining the underlying storage or a snapshot can read the data in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy attached to the EC2-assumable role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\". Any code running on the instance (or an attacker who compromises it) obtains full control of S3, EC2, and RDS account-wide, including the ability to escalate privileges, exfiltrate all buckets, and delete databases.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets in user data\", \"description\": \"The DB password (var.password), username, endpoint, and database name are embedded in cleartext into the instance user_data script and written to /var/www/inc/dbinfo.inc. user_data is readable via the instance metadata service and the console, and the resulting PHP include file exposes live database credentials on the web server.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR (${aws_vpc.portal_vpc.cidr_block}) rather than to the application security group. On a publicly accessible database this permits any host in the VPC \u2014 including non-application workloads \u2014 to reach the database listener on the standard port.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all protocols and ports to 0.0.0.0/0. This allows a compromised or maliciously configured database host unrestricted outbound connectivity, enabling data exfiltration and callbacks to external command-and-control infrastructure.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_parameter_group.catalog_db_params\", \"issue_category\": \"cleartext database transport allowed\", \"description\": \"The MySQL parameter group does not set require_secure_transport = ON, so clients can connect to the database over unencrypted transport. Credentials and query results can be transmitted in cleartext across the network to the publicly reachable endpoint.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3594,
+      "output_tokens": 3061,
+      "latency_s": 13.921,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.00136
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00136
+}

@@ -1,0 +1,44 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__iam.tf__r13",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 13,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:23:14Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (Resource: \"*\") to an IAM user, violating least privilege and allowing broad access to create, modify, or delete resources across multiple services.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Creating a static IAM access key for a human/service IAM user instead of using roles or short-lived credentials increases risk of credential leakage and long-term compromise, especially combined with the excessively permissive attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "sensitive credential exposure via output",
+      "description": "The 'secret' output exposes the encrypted_secret of the IAM access key, which can be printed to logs, state output, or CI/CD console, increasing the risk of credential leakage even though it is KMS-encrypted.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 2265,
+  "output_tokens": 472,
+  "latency_s": 4.894,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (Resource: \\\"*\\\") to an IAM user, violating least privilege and allowing broad access to create, modify, or delete resources across multiple services.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Creating a static IAM access key for a human/service IAM user instead of using roles or short-lived credentials increases risk of credential leakage and long-term compromise, especially combined with the excessively permissive attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"sensitive credential exposure via output\", \"description\": \"The 'secret' output exposes the encrypted_secret of the IAM access key, which can be printed to logs, state output, or CI/CD console, increasing the risk of credential leakage even though it is KMS-encrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}]}",
+  "cost_usd": 0.00925
+}

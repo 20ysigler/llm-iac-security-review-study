@@ -1,0 +1,49 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:11:32Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to the IAM user, violating least privilege and allowing broad account-wide access if the user's credentials are compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "An IAM access key (long-lived static credential) is created for a human/service IAM user rather than relying on temporary role-based credentials, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "sensitive credential material exposed via output",
+      "description": "The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, surfacing sensitive key material in Terraform state/output logs; combined with the overly permissive attached policy, exposure of this value would grant broad account access.",
+      "severity": "medium",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2139,
+  "output_tokens": 885,
+  "latency_s": 9.158,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to the IAM user, violating least privilege and allowing broad account-wide access if the user's credentials are compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"An IAM access key (long-lived static credential) is created for a human/service IAM user rather than relying on temporary role-based credentials, increasing the risk of credential leakage and misuse since these keys do not expire or rotate automatically.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"sensitive credential material exposed via output\", \"description\": \"The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, surfacing sensitive key material in Terraform state/output logs; combined with the overly permissive attached policy, exposure of this value would grant broad account access.\", \"severity\": \"medium\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.013128
+}

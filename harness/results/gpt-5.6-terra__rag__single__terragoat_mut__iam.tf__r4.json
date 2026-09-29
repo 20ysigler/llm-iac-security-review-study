@@ -1,0 +1,69 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat_mut__iam.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:33Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The deployment user is granted all EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and can allow broad data access, infrastructure modification, and escalation through service capabilities.",
+      "severity": "high",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived access credentials",
+      "description": "A static IAM access key is provisioned for the deployment user rather than using federated, temporary credentials. Long-lived keys increase the impact and persistence of credential compromise.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "exposed access key material",
+      "description": "The access key's encrypted secret is exported as a Terraform output. Terraform outputs can be exposed through state, CLI output, CI logs, or remote-state consumers; encryption of the value does not make its distribution safe, especially if the decryption key is accessible.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1782,
+  "output_tokens": 263,
+  "latency_s": 3.921,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.svc_deploy_policy\",\"issue_category\":\"overly permissive IAM policy\",\"description\":\"The deployment user is granted all EC2, S3, Lambda, and CloudWatch actions against every resource. This violates least privilege and can allow broad data access, infrastructure modification, and escalation through service capabilities.\",\"severity\":\"high\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_access_key.svc_deploy_key\",\"issue_category\":\"long-lived access credentials\",\"description\":\"A static IAM access key is provisioned for the deployment user rather than using federated, temporary credentials. Long-lived keys increase the impact and persistence of credential compromise.\",\"severity\":\"medium\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"output.svc_deploy_key_material\",\"issue_category\":\"exposed access key material\",\"description\":\"The access key's encrypted secret is exported as a Terraform output. Terraform outputs can be exposed through state, CLI output, CI logs, or remote-state consumers; encryption of the value does not make its distribution safe, especially if the decryption key is accessible.\",\"severity\":\"high\",\"cwe\":\"CWE-200\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1782,
+      "output_tokens": 263,
+      "latency_s": 3.921,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00672
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.00672
+}

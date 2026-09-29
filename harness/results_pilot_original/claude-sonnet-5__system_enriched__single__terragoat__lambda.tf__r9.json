@@ -1,0 +1,47 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__lambda.tf__r9",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 9,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:24:11Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "The Lambda function embeds AWS access key and secret key values in plaintext environment variables. These are stored unencrypted in the Terraform state and Lambda configuration, and can be exfiltrated by anyone with read access to the function or state file, leading to credential compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption of environment variables",
+      "description": "The Lambda function does not configure a KMS key (kms_key_arn) to encrypt its environment variables at rest, meaning sensitive data such as the embedded credentials are stored using only the default (weaker) encryption, and combined with plaintext secrets this increases exposure risk.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses nodejs12.x, a deprecated Node.js runtime no longer receiving security patches from AWS, increasing exposure to unpatched vulnerabilities in the runtime.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2575,
+  "output_tokens": 550,
+  "latency_s": 5.135,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"The Lambda function embeds AWS access key and secret key values in plaintext environment variables. These are stored unencrypted in the Terraform state and Lambda configuration, and can be exfiltrated by anyone with read access to the function or state file, leading to credential compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"The Lambda function does not configure a KMS key (kms_key_arn) to encrypt its environment variables at rest, meaning sensitive data such as the embedded credentials are stored using only the default (weaker) encryption, and combined with plaintext secrets this increases exposure risk.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses nodejs12.x, a deprecated Node.js runtime no longer receiving security patches from AWS, increasing exposure to unpatched vulnerabilities in the runtime.\", \"severity\": \"low\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.01065
+}

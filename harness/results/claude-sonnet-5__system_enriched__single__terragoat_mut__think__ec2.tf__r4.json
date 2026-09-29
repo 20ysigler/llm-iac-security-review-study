@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__ec2.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:31:31Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded cloud credentials",
+      "description": "The user_data script embeds a live-looking AWS access key ID and secret access key in plaintext. These are baked into the instance metadata/launch configuration and are recoverable by anyone with EC2:DescribeInstanceAttribute access or console/metadata access on the instance, leading to credential theft and account compromise.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing the management plane of the instance to the entire internet and enabling brute-force or credential-stuffing attacks against the host.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created without setting 'encrypted = true' (or a kms_key_id), so it defaults to unencrypted storage, exposing data at rest if the underlying disk or snapshots are exfiltrated.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving potentially sensitive network traffic metadata stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing public access restriction",
+      "description": "The bucket has no aws_s3_bucket_public_access_block resource associated with it, so there is no explicit guardrail preventing the bucket or its objects from being made public via bucket policy or ACL misconfiguration in the future.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true causes any instance launched in this subnet, including the portal_server hosting apache with an open SSH port, to automatically receive a public IP, increasing the exposed attack surface without explicit per-instance review.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true on this subnet means any future resource placed here is auto-assigned a public IP, expanding the internet-facing footprint of the VPC by default rather than requiring explicit opt-in.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3912,
+  "output_tokens": 2137,
+  "latency_s": 19.915,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded cloud credentials\", \"description\": \"The user_data script embeds a live-looking AWS access key ID and secret access key in plaintext. These are baked into the instance metadata/launch configuration and are recoverable by anyone with EC2:DescribeInstanceAttribute access or console/metadata access on the instance, leading to credential theft and account compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows inbound TCP port 22 (SSH) from 0.0.0.0/0, exposing the management plane of the instance to the entire internet and enabling brute-force or credential-stuffing attacks against the host.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created without setting 'encrypted = true' (or a kms_key_id), so it defaults to unencrypted storage, exposing data at rest if the underlying disk or snapshots are exfiltrated.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server-side encryption configuration (no aws_s3_bucket_server_side_encryption_configuration), leaving potentially sensitive network traffic metadata stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing public access restriction\", \"description\": \"The bucket has no aws_s3_bucket_public_access_block resource associated with it, so there is no explicit guardrail preventing the bucket or its objects from being made public via bucket policy or ACL misconfiguration in the future.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true causes any instance launched in this subnet, including the portal_server hosting apache with an open SSH port, to automatically receive a public IP, increasing the exposed attack surface without explicit per-instance review.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch = true on this subnet means any future resource placed here is auto-assigned a public IP, expanding the internet-facing footprint of the VPC by default rather than requiring explicit opt-in.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3912,
+      "output_tokens": 2137,
+      "latency_s": 19.915,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.029194
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.029194
+}

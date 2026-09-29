@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__iam.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:41:59Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing this service account to perform virtually any action across these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Using a standalone IAM user with long-lived credentials instead of a role increases the risk of credential leakage and misuse, especially combined with the overly broad permissions and force_destroy setting which permits easy re-creation/removal of the user and its access keys.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "programmatic access key exposure",
+      "description": "Creating a static IAM access key for this user creates long-lived credentials that can be leaked or misused; the secret is embedded in Terraform state and can be exposed via outputs, expanding the attack surface.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "sensitive credential in Terraform state",
+      "description": "The access key secret material is stored unencrypted in the Terraform state file by default, and the encrypted_secret is exposed via output, risking credential leakage if the state or outputs are exposed.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential leakage via output",
+      "description": "Exposing the IAM access key's encrypted_secret as a Terraform output risks leaking sensitive credential material into logs, CI/CD pipeline output, or state file consumers, and the output is not marked as sensitive.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1706,
+  "output_tokens": 865,
+  "latency_s": 7.716,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing this service account to perform virtually any action across these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Using a standalone IAM user with long-lived credentials instead of a role increases the risk of credential leakage and misuse, especially combined with the overly broad permissions and force_destroy setting which permits easy re-creation/removal of the user and its access keys.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"programmatic access key exposure\", \"description\": \"Creating a static IAM access key for this user creates long-lived credentials that can be leaked or misused; the secret is embedded in Terraform state and can be exposed via outputs, expanding the attack surface.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"sensitive credential in Terraform state\", \"description\": \"The access key secret material is stored unencrypted in the Terraform state file by default, and the encrypted_secret is exposed via output, risking credential leakage if the state or outputs are exposed.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential leakage via output\", \"description\": \"Exposing the IAM access key's encrypted_secret as a Terraform output risks leaking sensitive credential material into logs, CI/CD pipeline output, or state file consumers, and the output is not marked as sensitive.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1706,
+      "output_tokens": 865,
+      "latency_s": 7.716,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.012062
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.012062
+}

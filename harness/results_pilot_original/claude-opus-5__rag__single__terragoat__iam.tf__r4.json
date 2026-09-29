@@ -1,0 +1,55 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:36:22Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on Resource \"*\", which is effectively administrative access to compute, storage, and serverless resources and enables privilege escalation and data exfiltration.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for an IAM user instead of using federated/temporary credentials via roles; these keys persist until manually rotated and are a common source of credential compromise.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via state/output",
+      "description": "No PGP key is supplied, so the secret access key is stored in plaintext in Terraform state, and the key material is surfaced through an unsecured output, exposing credentials to anyone able to read state or plan output.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user with static credentials",
+      "description": "An IAM user with attached inline admin-like policy and access keys is created rather than a role assumed with temporary credentials, violating least-privilege and credential-hygiene guidance.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    }
+  ],
+  "input_tokens": 3571,
+  "output_tokens": 577,
+  "latency_s": 7.723,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on Resource \\\"*\\\", which is effectively administrative access to compute, storage, and serverless resources and enables privilege escalation and data exfiltration.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for an IAM user instead of using federated/temporary credentials via roles; these keys persist until manually rotated and are a common source of credential compromise.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via state/output\", \"description\": \"No PGP key is supplied, so the secret access key is stored in plaintext in Terraform state, and the key material is surfaced through an unsecured output, exposing credentials to anyone able to read state or plan output.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user with static credentials\", \"description\": \"An IAM user with attached inline admin-like policy and access keys is created rather than a role assumed with temporary credentials, violating least-privilege and credential-hygiene guidance.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}]}",
+  "cost_usd": 0.03228
+}

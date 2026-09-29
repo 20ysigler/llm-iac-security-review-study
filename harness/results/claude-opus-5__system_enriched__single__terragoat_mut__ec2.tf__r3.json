@@ -1,0 +1,173 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__ec2.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:02:42Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted SSH ingress from internet",
+      "description": "The security group allows inbound TCP/22 from 0.0.0.0/0, exposing SSH on a publicly addressable instance to the entire internet and enabling brute-force or exploit attempts against the management port.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted HTTP ingress and cleartext transport",
+      "description": "Inbound TCP/80 is open to 0.0.0.0/0 and the instance serves plain HTTP (Apache with no TLS), so all portal traffic is transmitted in cleartext over the public internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "Unrestricted egress to any destination",
+      "description": "The egress rule permits all protocols and ports to 0.0.0.0/0, providing no outbound segmentation and allowing a compromised instance unrestricted command-and-control or data-exfiltration paths.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Hard-coded credentials in user data",
+      "description": "The user_data script exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY literals. EC2 user data is retrievable from the instance metadata service by any process or SSRF on the host and is stored unencrypted in the instance description, leaking long-lived IAM credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "IMDSv1 not enforced",
+      "description": "No metadata_options block is set, so the instance defaults to allowing IMDSv1 (http_tokens optional). Combined with a publicly reachable web server, this makes credential theft via SSRF against 169.254.169.254 trivial.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Unencrypted root volume",
+      "description": "No root_block_device with encrypted = true is specified, so the instance root EBS volume may be created unencrypted, leaving data at rest unprotected.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "Public IP on internet-facing instance",
+      "description": "The instance is launched into a subnet with map_public_ip_on_launch enabled and a default route to an internet gateway, so it receives a public IP and is directly reachable from the internet with no load balancer, NAT, or bastion boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "Missing encryption at rest",
+      "description": "The EBS data volume attached to the portal server does not set encrypted = true or a kms_key_id, so its contents are stored unencrypted.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "Unencrypted snapshot of volume",
+      "description": "The snapshot is taken from an unencrypted EBS volume, so the backup copy of the data is also stored unencrypted and inherits no KMS protection.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Missing encryption at rest",
+      "description": "The VPC flow log destination bucket defines no server-side encryption configuration, so network telemetry that can reveal internal topology and traffic patterns is stored without enforced encryption.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "No public access block or ACL controls",
+      "description": "The bucket has no aws_s3_bucket_public_access_block, ownership controls, or private ACL declared, leaving it dependent on account defaults and vulnerable to accidental public exposure of flow log data.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "No TLS-only bucket policy",
+      "description": "No bucket policy enforces aws:SecureTransport, so flow log objects may be read or written over unencrypted HTTP connections.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "Audit log bucket lacks versioning/immutability",
+      "description": "The bucket storing VPC flow logs has force_destroy = true and no versioning or object lock, so security audit evidence can be deleted or overwritten by an attacker or an accidental terraform destroy.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "Automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true causes every instance in this subnet to receive a public IP address, removing network segmentation and exposing workloads directly to the internet by default.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "Automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true causes every instance in this subnet to receive a public IP address, removing network segmentation and exposing workloads directly to the internet by default.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_vpc.portal_vpc",
+      "issue_category": "Default security group not restricted",
+      "description": "The VPC does not manage its default security group (no aws_default_security_group restricting all rules), so any resource launched without an explicit group inherits the default group's permissive intra-group behaviour rather than an explicitly denied one.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 3970,
+  "output_tokens": 2265,
+  "latency_s": 25.275,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted SSH ingress from internet\", \"description\": \"The security group allows inbound TCP/22 from 0.0.0.0/0, exposing SSH on a publicly addressable instance to the entire internet and enabling brute-force or exploit attempts against the management port.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted HTTP ingress and cleartext transport\", \"description\": \"Inbound TCP/80 is open to 0.0.0.0/0 and the instance serves plain HTTP (Apache with no TLS), so all portal traffic is transmitted in cleartext over the public internet.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"Unrestricted egress to any destination\", \"description\": \"The egress rule permits all protocols and ports to 0.0.0.0/0, providing no outbound segmentation and allowing a compromised instance unrestricted command-and-control or data-exfiltration paths.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Hard-coded credentials in user data\", \"description\": \"The user_data script exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY literals. EC2 user data is retrievable from the instance metadata service by any process or SSRF on the host and is stored unencrypted in the instance description, leaking long-lived IAM credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"IMDSv1 not enforced\", \"description\": \"No metadata_options block is set, so the instance defaults to allowing IMDSv1 (http_tokens optional). Combined with a publicly reachable web server, this makes credential theft via SSRF against 169.254.169.254 trivial.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Unencrypted root volume\", \"description\": \"No root_block_device with encrypted = true is specified, so the instance root EBS volume may be created unencrypted, leaving data at rest unprotected.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"Public IP on internet-facing instance\", \"description\": \"The instance is launched into a subnet with map_public_ip_on_launch enabled and a default route to an internet gateway, so it receives a public IP and is directly reachable from the internet with no load balancer, NAT, or bastion boundary.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The EBS data volume attached to the portal server does not set encrypted = true or a kms_key_id, so its contents are stored unencrypted.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"Unencrypted snapshot of volume\", \"description\": \"The snapshot is taken from an unencrypted EBS volume, so the backup copy of the data is also stored unencrypted and inherits no KMS protection.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"Missing encryption at rest\", \"description\": \"The VPC flow log destination bucket defines no server-side encryption configuration, so network telemetry that can reveal internal topology and traffic patterns is stored without enforced encryption.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"No public access block or ACL controls\", \"description\": \"The bucket has no aws_s3_bucket_public_access_block, ownership controls, or private ACL declared, leaving it dependent on ac",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3970,
+      "output_tokens": 2265,
+      "latency_s": 25.275,
+      "n_findings": 16,
+      "error": "",
+      "cost_usd": 0.076475
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.076475
+}

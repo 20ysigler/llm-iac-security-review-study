@@ -1,0 +1,55 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:36:14Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on Resource \"*\", effectively granting near-administrative control over compute, storage, and serverless resources. This violates least privilege and enables privilege escalation (e.g., lambda:* plus ec2:* allows role passing and arbitrary code execution).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A permanent IAM access key is created for an IAM user instead of using federated/temporary credentials via IAM roles. The key never expires unless manually rotated and is a recurring source of credential compromise, especially combined with the attached wildcard policy.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "secret exposed in state/output",
+      "description": "The access key secret is exposed through the \"secret\" Terraform output and is stored in the Terraform state file in plaintext (no PGP key is set, so encrypted_secret is empty and the plaintext `secret` attribute is stored in state), making the credential readable to anyone with state or output access.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "IAM user without permission boundary",
+      "description": "The IAM user is created with no permissions boundary and receives a broad inline policy directly, rather than obtaining permissions through a group/role with guardrails. Without a boundary there is nothing limiting the maximum permissions this identity can hold.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-266"
+    }
+  ],
+  "input_tokens": 3571,
+  "output_tokens": 679,
+  "latency_s": 8.984,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on Resource \\\"*\\\", effectively granting near-administrative control over compute, storage, and serverless resources. This violates least privilege and enables privilege escalation (e.g., lambda:* plus ec2:* allows role passing and arbitrary code execution).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A permanent IAM access key is created for an IAM user instead of using federated/temporary credentials via IAM roles. The key never expires unless manually rotated and is a recurring source of credential compromise, especially combined with the attached wildcard policy.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"secret exposed in state/output\", \"description\": \"The access key secret is exposed through the \\\"secret\\\" Terraform output and is stored in the Terraform state file in plaintext (no PGP key is set, so encrypted_secret is empty and the plaintext `secret` attribute is stored in state), making the credential readable to anyone with state or output access.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-522\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"IAM user without permission boundary\", \"description\": \"The IAM user is created with no permissions boundary and receives a broad inline policy directly, rather than obtaining permissions through a group/role with guardrails. Without a boundary there is nothing limiting the maximum permissions this identity can hold.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-266\"}]}",
+  "cost_usd": 0.03483
+}

@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__db-app.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:21:26Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the RDS instance to the internet, combined with storage_encrypted = false and no encryption at rest, this significantly increases the attack surface for a database holding application data and credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage is not encrypted at rest, violating encryption-at-rest best practices for regulated data.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credential in variable",
+      "description": "The database password is passed via var.password with no indication of secrets-manager integration, and the lifecycle ignore_changes on password suggests the password is managed out-of-band as static plaintext, risking credential leakage through state files and version control.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the DB username and password in cleartext PHP files written to disk on the instance, and the credentials are also interpolated directly into the user_data attribute which is visible via the EC2 API/console and stored in Terraform state unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on all resources (Resource: \"*\"), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to any destination (0.0.0.0/0, all protocols/ports), which is overly permissive and could facilitate data exfiltration from a compromised database instance.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled backup retention affecting recovery, not in scope",
+      "description": "not applicable - excluded per instructions",
+      "severity": "informational"
+    }
+  ],
+  "input_tokens": 5867,
+  "output_tokens": 1003,
+  "latency_s": 9.127,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the RDS instance to the internet, combined with storage_encrypted = false and no encryption at rest, this significantly increases the attack surface for a database holding application data and credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database storage is not encrypted at rest, violating encryption-at-rest best practices for regulated data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credential in variable\", \"description\": \"The database password is passed via var.password with no indication of secrets-manager integration, and the lifecycle ignore_changes on password suggests the password is managed out-of-band as static plaintext, risking credential leakage through state files and version control.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script embeds the DB username and password in cleartext PHP files written to disk on the instance, and the credentials are also interpolated directly into the user_data attribute which is visible via the EC2 API/console and stored in Terraform state unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on all resources (Resource: \\\"*\\\"), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS, including privilege escalation and data exfiltration.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to any destination (0.0.0.0/0, all protocols/ports), which is overly permissive and could facilitate data exfiltration from a compromised database instance.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled backup retention affecting recovery, not in scope\", \"description\": \"not applicable - excluded per instructions\", \"severity\": \"informational\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5867,
+      "output_tokens": 1003,
+      "latency_s": 9.127,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.021764
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.021764
+}

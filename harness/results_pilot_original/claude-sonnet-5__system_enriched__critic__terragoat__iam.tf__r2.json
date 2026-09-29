@@ -1,0 +1,75 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat__iam.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:57:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "use of long-lived IAM user credentials",
+      "description": "Creating a standalone IAM user with programmatic access keys (via aws_iam_access_key) instead of using roles or federated identities increases the risk of long-lived credential leakage and makes credential rotation and revocation harder to manage.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The encrypted_secret attribute is exposed via a Terraform output; while it is PGP-encrypted (not plaintext), exposing it through outputs still increases the risk that the encrypted blob is captured in state files, logs, or CI/CD output and later decrypted, and this pattern of surfacing key material should be avoided.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    }
+  ],
+  "input_tokens": 5294,
+  "output_tokens": 1116,
+  "latency_s": 11.691,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the IAM user to perform virtually any action on these services, including privilege escalation and data exfiltration.\", \"severity\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"use of long-lived IAM user credentials\", \"description\": \"Creating a standalone IAM user with programmatic access keys (via aws_iam_access_key) instead of using roles or federated identities increases the risk of long-lived credential leakage and makes credential rotation and revocation harder to manage.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The encrypted_secret attribute is exposed via a Terraform output; while it is PGP-encrypted (not plaintext), exposing it through outputs still increases the risk that the encrypted blob is captured in state files, logs, or CI/CD output and later decrypted, and this pattern of surfacing key material should be avoided.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2265,
+      "output_tokens": 612,
+      "latency_s": 6.962,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.01065
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3029,
+      "output_tokens": 504,
+      "latency_s": 4.729,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011098
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.021748
+}

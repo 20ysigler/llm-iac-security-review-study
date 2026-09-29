@@ -1,0 +1,97 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__think__ec2.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:11:13Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "AWS access key ID and secret access key are embedded in plaintext in the EC2 user_data script, which is visible to anyone with instance metadata access or console/API describe permissions, leading to credential leakage.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "publicly exposed instance",
+      "description": "The instance is deployed into a subnet with map_public_ip_on_launch enabled and attached to a security group allowing inbound SSH and HTTP from 0.0.0.0/0, exposing it directly to the internet with an increased attack surface, compounded by the leaked credentials in user data.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true, meaning data at rest on the volume is stored unencrypted, risking exposure of sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot inherits the lack of encryption from its source volume, resulting in unencrypted snapshot data that could be shared or exposed without protection.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, permitting any host on the internet to attempt authentication against the instance, significantly increasing the risk of brute-force or credential-stuffing attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound HTTP (port 80) from 0.0.0.0/0 with no compensating controls such as a WAF or load balancer, exposing the web service directly to untrusted networks over an unencrypted protocol.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, causing any instance launched in this subnet to automatically receive a public IP address, expanding the internet-facing attack surface by default.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch is set to true, causing any instance launched in this subnet to automatically receive a public IP address, expanding the internet-facing attack surface by default.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption and public access controls",
+      "description": "The S3 bucket storing VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, risking exposure or tampering of sensitive network traffic logs.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 6384,
+  "output_tokens": 1426,
+  "latency_s": 11.685,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"AWS access key ID and secret access key are embedded in plaintext in the EC2 user_data script, which is visible to anyone with instance metadata access or console/API describe permissions, leading to credential leakage.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"publicly exposed instance\", \"description\": \"The instance is deployed into a subnet with map_public_ip_on_launch enabled and attached to a security group allowing inbound SSH and HTTP from 0.0.0.0/0, exposing it directly to the internet with an increased attack surface, compounded by the leaked credentials in user data.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true, meaning data at rest on the volume is stored unencrypted, risking exposure of sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS snapshot inherits the lack of encryption from its source volume, resulting in unencrypted snapshot data that could be shared or exposed without protection.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows inbound SSH (port 22) from 0.0.0.0/0, permitting any host on the internet to attempt authentication against the instance, significantly increasing the risk of brute-force or credential-stuffing attacks.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted ingress\", \"description\": \"The security group allows inbound HTTP (port 80) from 0.0.0.0/0 with no compensating controls such as a WAF or load balancer, exposing the web service directly to untrusted networks over an unencrypted protocol.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, causing any instance launched in this subnet to automatically receive a public IP address, expanding the internet-facing attack surface by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"unintended public IP assignment\", \"description\": \"map_public_ip_on_launch is set to true, causing any instance launched in this subnet to automatically receive a public IP address, expanding the internet-facing attack surface by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption and public access controls\", \"description\": \"The S3 bucket storing VPC flow logs has no server-side encryption configuration and no public access block or bucket policy restricting access, risking exposure or tampering of sensitive network traffic logs.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.027028
+}

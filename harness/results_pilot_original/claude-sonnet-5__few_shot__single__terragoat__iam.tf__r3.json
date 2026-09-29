@@ -1,0 +1,50 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:45:22Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to a single IAM user, violating least privilege. If this user's credentials are compromised, an attacker gains near-administrative control over EC2, S3, Lambda, and CloudWatch across the account.",
+      "severity": "critical",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "long-lived IAM user credentials",
+      "description": "Creating a standalone IAM user with programmatic access keys (via aws_iam_access_key) instead of using roles/temporary credentials increases the risk of credential leakage and long-term misuse, especially combined with the overly broad attached policy.",
+      "severity": "medium",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credential exposure via output",
+      "description": "The access key's encrypted secret is exposed through a Terraform output, and no PGP key or KMS encryption is configured for the access key, meaning the secret access key material may be stored in plaintext in state and output logs, risking credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "insecure destroy configuration",
+      "description": "force_destroy = true allows deletion of the IAM user along with all attached resources (including access keys) without manual review, which can facilitate covering tracks after credential misuse or unintended removal of security boundaries.",
+      "severity": "low"
+    }
+  ],
+  "input_tokens": 2428,
+  "output_tokens": 663,
+  "latency_s": 6.291,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full wildcard permissions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to a single IAM user, violating least privilege. If this user's credentials are compromised, an attacker gains near-administrative control over EC2, S3, Lambda, and CloudWatch across the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"long-lived IAM user credentials\", \"description\": \"Creating a standalone IAM user with programmatic access keys (via aws_iam_access_key) instead of using roles/temporary credentials increases the risk of credential leakage and long-term misuse, especially combined with the overly broad attached policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key's encrypted secret is exposed through a Terraform output, and no PGP key or KMS encryption is configured for the access key, meaning the secret access key material may be stored in plaintext in state and output logs, risking credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"insecure destroy configuration\", \"description\": \"force_destroy = true allows deletion of the IAM user along with all attached resources (including access keys) without manual review, which can facilitate covering tracks after credential misuse or unintended removal of security boundaries.\", \"severity\": \"low\"}]}",
+  "cost_usd": 0.011486
+}

@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__lambda.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:17:50Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, committed to source control and persisted in Terraform state. Any principal with lambda:GetFunctionConfiguration, console read access, or repository/state access can retrieve and reuse them directly against the account.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "unencrypted environment variables at rest",
+      "description": "No kms_key_arn is configured, so the environment variables - which hold static AWS credentials here - are protected only by the default AWS-managed key and are returned in cleartext to anyone who can read the function configuration. A customer-managed CMK with a restrictive key policy would add a separate access-control boundary around these secrets.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function targets the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the managed execution environment unremediated.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "no VPC network isolation",
+      "description": "No vpc_config block is defined, so the function executes outside any customer VPC with unrestricted outbound internet egress and no security group or subnet boundary. Combined with the embedded static credentials, this removes a control that would impede exfiltration if the function code is compromised.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    }
+  ],
+  "input_tokens": 7760,
+  "output_tokens": 1975,
+  "latency_s": 25.156,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext in the Lambda function's environment variables, committed to source control and persisted in Terraform state. Any principal with lambda:GetFunctionConfiguration, console read access, or repository/state access can retrieve and reuse them directly against the account.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"unencrypted environment variables at rest\", \"description\": \"No kms_key_arn is configured, so the environment variables - which hold static AWS credentials here - are protected only by the default AWS-managed key and are returned in cleartext to anyone who can read the function configuration. A customer-managed CMK with a restrictive key policy would add a separate access-control boundary around these secrets.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function targets the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving known vulnerabilities in the managed execution environment unremediated.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"no VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function executes outside any customer VPC with unrestricted outbound internet egress and no security group or subnet boundary. Combined with the embedded static credentials, this removes a control that would impede exfiltration if the function code is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2079,
+      "output_tokens": 618,
+      "latency_s": 8.343,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.025845
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2079,
+      "output_tokens": 668,
+      "latency_s": 9.141,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.027095
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3602,
+      "output_tokens": 689,
+      "latency_s": 7.672,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.035235
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.088175
+}

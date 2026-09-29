@@ -1,0 +1,105 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__s3.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:34:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket does not define a server_side_encryption_configuration block, so objects are stored without enforced encryption at rest, unlike audit_trail which does define one.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing bucket ACL / public access controls",
+      "description": "No acl attribute or aws_s3_bucket_public_access_block resource is defined for this bucket, leaving it subject to provider/account defaults and lacking explicit enforcement of private access, increasing risk of accidental public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores ledger export (financial) data but has no server_side_encryption_configuration, meaning sensitive financial data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive operational details or credentials) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption at rest for object",
+      "description": "The uploaded object does not specify server_side_encryption/kms_key_id, and it is placed in reports_archive, a bucket that itself lacks default encryption, so this file (vendor roster data, potentially containing PII) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 9809,
+  "output_tokens": 2885,
+  "latency_s": 22.915,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket does not define a server_side_encryption_configuration block, so objects are stored without enforced encryption at rest, unlike audit_trail which does define one.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing bucket ACL / public access controls\", \"description\": \"No acl attribute or aws_s3_bucket_public_access_block resource is defined for this bucket, leaving it subject to provider/account defaults and lacking explicit enforcement of private access, increasing risk of accidental public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores ledger export (financial) data but has no server_side_encryption_configuration, meaning sensitive financial data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data (which may contain sensitive operational details or credentials) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"missing encryption at rest for object\", \"description\": \"The uploaded object does not specify server_side_encryption/kms_key_id, and it is placed in reports_archive, a bucket that itself lacks default encryption, so this file (vendor roster data, potentially containing PII) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2560,
+      "output_tokens": 967,
+      "latency_s": 7.772,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.01479
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2560,
+      "output_tokens": 1049,
+      "latency_s": 8.737,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.01561
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4689,
+      "output_tokens": 869,
+      "latency_s": 6.406,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.018068
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.048468
+}

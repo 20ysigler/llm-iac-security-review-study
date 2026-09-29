@@ -1,0 +1,100 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:21:18Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet and significantly increasing the attack surface for a data store holding application data and credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database's underlying storage and snapshots are not encrypted, exposing data at rest to unauthorized access if the storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credential usage",
+      "description": "The database password is supplied via var.password and injected in plaintext into instance user_data (and used directly as the DB password), risking credential exposure through instance metadata, console output, and Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext secret in user data",
+      "description": "The user_data script embeds the database password and username in cleartext, which is stored in instance metadata and readable by anyone with access to the metadata service or EC2 describe-instance-attribute API, and also persisted in Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline IAM policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\") to the EC2 instance role, violating least privilege and allowing the compromised instance to manipulate or exfiltrate data across S3, EC2, and RDS services.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which combined with public accessibility increases risk of data exfiltration from a compromised database instance.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing IAM database authentication / weak auth",
+      "description": "The database relies solely on a static master password (username 'admin') with no IAM authentication enabled, and the password is ignored on lifecycle changes, making rotation and credential management weaker while the instance is also publicly exposed.",
+      "severity": "medium",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5445,
+  "output_tokens": 1143,
+  "latency_s": 10.726,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, exposing the MySQL database directly to the internet and significantly increasing the attack surface for a data store holding application data and credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database's underlying storage and snapshots are not encrypted, exposing data at rest to unauthorized access if the storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credential usage\", \"description\": \"The database password is supplied via var.password and injected in plaintext into instance user_data (and used directly as the DB password), risking credential exposure through instance metadata, console output, and Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext secret in user data\", \"description\": \"The user_data script embeds the database password and username in cleartext, which is stored in instance metadata and readable by anyone with access to the metadata service or EC2 describe-instance-attribute API, and also persisted in Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline IAM policy grants full wildcard access (s3:*, ec2:*, rds:*) on all resources (\\\"Resource\\\": \\\"*\\\") to the EC2 instance role, violating least privilege and allowing the compromised instance to manipulate or exfiltrate data across S3, EC2, and RDS services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which combined with public accessibility increases risk of data exfiltration from a compromised database instance.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing IAM database authentication / weak auth\", \"description\": \"The database relies solely on a static master password (username 'admin') with no IAM authentication enabled, and the password is ignored on lifecycle changes, making rotation and credential management weaker while the instance is also publicly exposed.\", \"severity\": \"medium\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5445,
+      "output_tokens": 1143,
+      "latency_s": 10.726,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02232
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02232
+}

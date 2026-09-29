@@ -1,0 +1,63 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat__lambda.tf__r4",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:37:32Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hardcoded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are stored in plaintext Lambda environment variables, visible to anyone with lambda:GetFunctionConfiguration/describe permissions and committed to version control.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing encryption of environment variables",
+      "description": "No kms_key_arn is specified, so environment variables (which contain secrets here) are encrypted only with the service-owned default key rather than a customer-managed CMK with controllable key policy and rotation.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated unsupported runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "no VPC network isolation",
+      "description": "The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no subnet/security-group controls, providing an unmonitored data exfiltration path.",
+      "severity": "low",
+      "cwe": "CWE-668",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "unsigned code artifact",
+      "description": "No code_signing_config_arn is attached, so the deployment package is not signature-validated and tampering between build and deployment would go undetected.",
+      "severity": "low",
+      "cwe": "CWE-345",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3881,
+  "output_tokens": 682,
+  "latency_s": 8.37,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hardcoded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are stored in plaintext Lambda environment variables, visible to anyone with lambda:GetFunctionConfiguration/describe permissions and committed to version control.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing encryption of environment variables\", \"description\": \"No kms_key_arn is specified, so environment variables (which contain secrets here) are encrypted only with the service-owned default key rather than a customer-managed CMK with controllable key policy and rotation.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated unsupported runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"no VPC network isolation\", \"description\": \"The function has no vpc_config, so it runs outside any VPC with unrestricted outbound internet access and no subnet/security-group controls, providing an unmonitored data exfiltration path.\", \"severity\": \"low\", \"cwe\": \"CWE-668\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"unsigned code artifact\", \"description\": \"No code_signing_config_arn is attached, so the deployment package is not signature-validated and tampering between build and deployment would go undetected.\", \"severity\": \"low\", \"cwe\": \"CWE-345\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.036455
+}

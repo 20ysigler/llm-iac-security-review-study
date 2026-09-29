@@ -1,0 +1,108 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:22:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet, significantly increasing attack surface for a database holding application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage and snapshots are not encrypted, risking exposure of sensitive data at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via var.password directly into the resource and also embedded into user_data in plaintext, risking credential leakage via instance metadata, state file, or logs.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The user_data script embeds the database password and other DB connection details in plaintext, which is retrievable via the EC2 instance metadata service by anyone with access to the instance or metadata endpoint.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\"), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (all protocols, all ports) to 0.0.0.0/0 from the database security group, which is broader than necessary and could facilitate data exfiltration if the database is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad network ingress",
+      "description": "The database allows inbound MySQL (3306) traffic from the entire VPC CIDR block rather than restricting access to only the specific application security group, combined with publicly_accessible=true this increases exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "insecure default engine version pinning",
+      "description": "engine_version is pinned to a broad major version string (\"8.0\") potentially allowing automatic minor version upgrades that are not vetted, though more importantly the instance uses default parameter/option groups without enforcing SSL/TLS enforcement for connections, risking unencrypted data in transit.",
+      "severity": "medium",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5445,
+  "output_tokens": 1204,
+  "latency_s": 10.674,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet, significantly increasing attack surface for a database holding application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database storage and snapshots are not encrypted, risking exposure of sensitive data at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via var.password directly into the resource and also embedded into user_data in plaintext, risking credential leakage via instance metadata, state file, or logs.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The user_data script embeds the database password and other DB connection details in plaintext, which is retrievable via the EC2 instance metadata service by anyone with access to the instance or metadata endpoint.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The IAM policy grants full wildcard permissions (s3:*, ec2:*, rds:*) on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the EC2 instance role to perform virtually any action against S3, EC2, and RDS.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (all protocols, all ports) to 0.0.0.0/0 from the database security group, which is broader than necessary and could facilitate data exfiltration if the database is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad network ingress\", \"description\": \"The database allows inbound MySQL (3306) traffic from the entire VPC CIDR block rather than restricting access to only the specific application security group, combined with publicly_accessible=true this increases exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"insecure default engine version pinning\", \"description\": \"engine_version is pinned to a broad major version string (\\\"8.0\\\") potentially allowing automatic minor version upgrades that are not vetted, though more importantly the instance uses default parameter/option groups without enforcing SSL/TLS enforcement for connections, risking unencrypted data in transit.\", \"severity\": \"medium\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5445,
+      "output_tokens": 1204,
+      "latency_s": 10.674,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02293
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02293
+}

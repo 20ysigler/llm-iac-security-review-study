@@ -1,0 +1,49 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__iam.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:26:26Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", giving the user near-admin control over data in all S3 buckets (including Get/Put/Delete and bucket-policy changes) and other services. This violates least privilege and greatly expands the blast radius if the associated access key is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-term IAM access key is created for the user with no rotation or expiry, so the credential remains valid indefinitely. Combined with the wildcard policy, a single leaked key grants broad persistent access; short-term credentials via roles would be the secure alternative.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposure in output",
+      "description": "The IAM access key secret is surfaced through a Terraform output, which is written to console output and stored in plaintext-adjacent state/logs. Secrets should never be emitted as outputs; moreover, since no pgp_key is set, the plaintext secret attribute is persisted in the Terraform state.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1463,
+  "output_tokens": 3936,
+  "latency_s": 32.94,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", giving the user near-admin control over data in all S3 buckets (including Get/Put/Delete and bucket-policy changes) and other services. This violates least privilege and greatly expands the blast radius if the associated access key is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-term IAM access key is created for the user with no rotation or expiry, so the credential remains valid indefinitely. Combined with the wildcard policy, a single leaked key grants broad persistent access; short-term credentials via roles would be the secure alternative.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposure in output\", \"description\": \"The IAM access key secret is surfaced through a Terraform output, which is written to console output and stored in plaintext-adjacent state/logs. Secrets should never be emitted as outputs; moreover, since no pgp_key is set, the plaintext secret attribute is persisted in the Terraform state.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.001307
+}

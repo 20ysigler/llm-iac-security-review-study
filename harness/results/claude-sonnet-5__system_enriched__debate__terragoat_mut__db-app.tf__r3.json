@@ -1,0 +1,127 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:32:38Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the RDS MySQL instance directly to the internet, and combined with a security group allowing inbound 3306 from the entire VPC CIDR, this significantly widens the attack surface for direct database compromise.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the database storage and any snapshots/backups are not encrypted at rest, exposing sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The master password is sourced from var.password and passed directly into the resource, with lifecycle.ignore_changes on password suggesting the value is managed as a static plaintext variable rather than via a secrets manager, risking exposure through state files or version control.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the database username and password in cleartext into a file on disk and within the script itself; user_data is retrievable via the EC2 instance metadata service and stored in Terraform state, creating a credential leakage risk.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*) to the role assumed by the EC2 instance, violating least privilege and allowing a compromised instance to access or modify unrelated S3, EC2, and RDS resources across the account, including potential privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive and could facilitate data exfiltration if the database or an attacker with access to it is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "The inbound rule allows MySQL access (port 3306) from the entire VPC CIDR block rather than being scoped to the specific application security group; combined with publicly_accessible = true on the DB instance, this widens exposure beyond the intended application tier.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext transmission risk",
+      "description": "No parameter enforcing SSL/TLS (e.g., require_secure_transport) is set in the associated parameter group, and combined with public accessibility this risks credentials and data being transmitted in cleartext over untrusted networks.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 20094,
+  "output_tokens": 3686,
+  "latency_s": 30.758,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the RDS MySQL instance directly to the internet, and combined with a security group allowing inbound 3306 from the entire VPC CIDR, this significantly widens the attack surface for direct database compromise.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the database storage and any snapshots/backups are not encrypted at rest, exposing sensitive data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The master password is sourced from var.password and passed directly into the resource, with lifecycle.ignore_changes on password suggesting the value is managed as a static plaintext variable rather than via a secrets manager, risking exposure through state files or version control.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script embeds the database username and password in cleartext into a file on disk and within the script itself; user_data is retrievable via the EC2 instance metadata service and stored in Terraform state, creating a credential leakage risk.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*) to the role assumed by the EC2 instance, violating least privilege and allowing a compromised instance to access or modify unrelated S3, EC2, and RDS resources across the account, including potential privilege escalation.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive and could facilitate data exfiltration if the database or an attacker with access to it is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network ingress\", \"description\": \"The inbound rule allows MySQL access (port 3306) from the entire VPC CIDR block rather than being scoped to the specific application security group; combined with publicly_accessible = true on the DB instance, this widens exposure beyond the intended application tier.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext transmission risk\", \"description\": \"No parameter enforcing SSL/TLS (e.g., require_secure_transport) is set in the associated parameter group, and combined with public accessibility this risks credentials and data being transmitted in cleartext over untrusted networks.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 5867,
+      "output_tokens": 1120,
+      "latency_s": 10.365,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.022934
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 5867,
+      "output_tokens": 1205,
+      "latency_s": 10.399,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.023784
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 8360,
+      "output_tokens": 1361,
+      "latency_s": 9.994,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.03033
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.077048
+}

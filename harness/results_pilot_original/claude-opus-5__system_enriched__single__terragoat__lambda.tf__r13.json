@@ -1,0 +1,85 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__lambda.tf__r13",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 13,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:52:16Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables in the Terraform source. Anyone with lambda:GetFunctionConfiguration, console read access, or access to the state file/repo can retrieve these long-lived credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "unencrypted environment variables at rest",
+      "description": "No kms_key_arn is specified, so the Lambda environment variables (which hold secrets here) are encrypted only with the default AWS-managed key and are readable by any principal with basic Lambda read permissions rather than being gated by a customer-managed CMK grant.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated runtime version",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS or the Node.js project, leaving known vulnerabilities in the execution environment unpatched.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "missing VPC network isolation",
+      "description": "No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group or network boundary controls, easing exfiltration of the embedded credentials if the function is compromised.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing confused-deputy protection",
+      "description": "The trust policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so it is not scoped to a specific function or account, weakening least privilege on role assumption.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 2507,
+  "output_tokens": 795,
+  "latency_s": 9.617,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables in the Terraform source. Anyone with lambda:GetFunctionConfiguration, console read access, or access to the state file/repo can retrieve these long-lived credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"unencrypted environment variables at rest\", \"description\": \"No kms_key_arn is specified, so the Lambda environment variables (which hold secrets here) are encrypted only with the default AWS-managed key and are readable by any principal with basic Lambda read permissions rather than being gated by a customer-managed CMK grant.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS or the Node.js project, leaving known vulnerabilities in the execution environment unpatched.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"missing VPC network isolation\", \"description\": \"No vpc_config block is defined, so the function runs outside any VPC with unrestricted outbound internet access and no security group or network boundary controls, easing exfiltration of the embedded credentials if the function is compromised.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing confused-deputy protection\", \"description\": \"The trust policy allows lambda.amazonaws.com to assume the role with no aws:SourceAccount or aws:SourceArn condition, so it is not scoped to a specific function or account, weakening least privilege on role assumption.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2507,
+      "output_tokens": 795,
+      "latency_s": 9.617,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.03241
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.03241
+}

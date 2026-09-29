@@ -1,0 +1,143 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:29:16Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "insecure default / weak transport configuration",
+      "description": "The parameter group does not enforce SSL/TLS for MySQL connections (e.g., no require_secure_transport parameter set to ON), allowing cleartext transmission of data between the application and the database.",
+      "severity": "medium",
+      "confidence": "low",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Hard-coded credentials in user data",
+      "description": "The instance user_data script embeds the database password (var.password) and other DB connection details in plaintext. EC2 user data is retrievable by anyone with API/console access to the instance (and often via the instance metadata service), so the DB credentials are exposed in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Public network exposure of application server",
+      "description": "No public IP suppression is configured and the instance is deployed referencing subnet_id/aws_subnet.portal_subnet_a without evidence of being private; combined with the referenced security group (portal_sg, not shown) this could expose the web server broadly. Additionally the output catalog_app_public_dns suggests the instance is assigned a public DNS/IP, increasing attack surface for the host that holds decrypted DB credentials in its user data and instance metadata.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "Outdated/deprecated software versions",
+      "description": "The user data script installs php and php-mysqlnd without pinning versions, and mysqli_connect is used without TLS enforcement, meaning the app-to-DB connection may transmit credentials and data in cleartext over the network.",
+      "severity": "low",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet (given a public subnet / route) and dramatically increasing attack surface for a database holding application data.",
+      "severity": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage, snapshots, and backups are not encrypted at rest, risking data exposure if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The master password is passed via var.password directly into the resource and username is hard-coded to 'admin', a well-known default; combined with lifecycle ignore_changes on password, this pattern often correlates with static or checked-in credentials rather than rotation via a secrets manager, and the value will be stored in Terraform state in plaintext.",
+      "severity": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, providing no network segmentation or egress filtering for the database's security group, which can facilitate data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\"), violating least privilege. Since this role is assumed by the catalog app server (likely internet-facing given the public DNS output), a compromise of the instance would grant broad control over S3, EC2, and RDS in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "Inbound MySQL (3306) access is allowed from the entire VPC CIDR block rather than being scoped to only the specific application security group/instances that need database access, increasing lateral movement risk within the VPC, and is especially risky combined with publicly_accessible=true on the DB instance.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 12306,
+  "output_tokens": 1784,
+  "latency_s": 18.801,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2787,
+      "output_tokens": 177,
+      "latency_s": 2.3,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.007344
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4152,
+      "output_tokens": 554,
+      "latency_s": 6.101,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.013844
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3071,
+      "output_tokens": 1019,
+      "latency_s": 9.217,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.016332
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2296,
+      "output_tokens": 34,
+      "latency_s": 1.183,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004932
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.042452
+}

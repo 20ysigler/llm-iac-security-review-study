@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__lambda.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:09Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function embeds a long-lived AWS access key ID and secret access key directly in the environment variables block. These plaintext credentials are stored in Lambda configuration, are readable by anyone with lambda:GetFunctionConfiguration, and are committed to version control in the Terraform state and source. They should be replaced with an execution role and temporary credentials (or Secrets Manager/SSM references).",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches from AWS. Running unsupported runtimes leaves known CVEs in the language interpreter unpatched and can block security updates.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1390,
+  "output_tokens": 262,
+  "latency_s": 2.072,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function embeds a long-lived AWS access key ID and secret access key directly in the environment variables block. These plaintext credentials are stored in Lambda configuration, are readable by anyone with lambda:GetFunctionConfiguration, and are committed to version control in the Terraform state and source. They should be replaced with an execution role and temporary credentials (or Secrets Manager/SSM references).\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is deprecated and no longer receives security patches from AWS. Running unsupported runtimes leaves known CVEs in the language interpreter unpatched and can block security updates.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1390,
+      "output_tokens": 262,
+      "latency_s": 2.072,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000268
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000268
+}

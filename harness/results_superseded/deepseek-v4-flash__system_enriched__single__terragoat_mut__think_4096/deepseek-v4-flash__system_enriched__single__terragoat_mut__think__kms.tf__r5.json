@@ -1,0 +1,61 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__kms.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "kms.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:32:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key rotation",
+      "description": "The key does not set enable_key_rotation = true, so AWS KMS defaults to false and never rotates the backing key material. The audit bucket key will protect all historical and future ciphertext with a single key version indefinitely, maximising the blast radius if that key material is ever compromised.",
+      "severity": "medium",
+      "cwe": "CWE-320",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_kms_key.audit_trail_key",
+      "issue_category": "missing key policy",
+      "description": "No key policy is defined, so the key inherits the AWS KMS default policy that grants the account root principal kms:* and delegates all access decisions to IAM. For an audit/logging key there is no resource-based least-privilege statement restricting which principals may use or administer the key, so effective access is limited only by the account's IAM permissions.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1120,
+  "output_tokens": 3508,
+  "latency_s": 16.494,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key rotation\", \"description\": \"The key does not set enable_key_rotation = true, so AWS KMS defaults to false and never rotates the backing key material. The audit bucket key will protect all historical and future ciphertext with a single key version indefinitely, maximising the blast radius if that key material is ever compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-320\", \"confidence\": \"high\"}, {\"resource\": \"aws_kms_key.audit_trail_key\", \"issue_category\": \"missing key policy\", \"description\": \"No key policy is defined, so the key inherits the AWS KMS default policy that grants the account root principal kms:* and delegates all access decisions to IAM. For an audit/logging key there is no resource-based least-privilege statement restricting which principals may use or administer the key, so effective access is limited only by the account's IAM permissions.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1120,
+      "output_tokens": 3508,
+      "latency_s": 16.494,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.001139
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001139
+}

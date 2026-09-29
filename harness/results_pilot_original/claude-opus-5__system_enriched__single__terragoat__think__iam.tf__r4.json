@@ -1,0 +1,49 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__iam.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:52:59Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants full administrative control over ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \"*\", violating least privilege. Compromise of this user's credentials would allow full data access in S3, arbitrary compute provisioning in EC2, and code execution/modification via Lambda across the entire account. The lambda:* and ec2:* grants also create a privilege escalation path (e.g. passing or attaching more privileged roles to Lambda functions or instances).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived credential in state",
+      "description": "A static IAM access key is generated for a highly privileged user with no pgp_key set, so the secret access key is stored unencrypted in the Terraform state file (the encrypted_secret attribute will be empty without a PGP key). Anyone with read access to state obtains permanent credentials with the wildcard EC2/S3/Lambda/CloudWatch permissions attached to this user; long-lived keys also lack the automatic rotation of IAM role credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposed via output",
+      "description": "The access key secret is exported as a root-level Terraform output without sensitive = true, so it is printed to the console and CI/CD logs on every apply and is readable via `terraform output`, leaking credential material for the over-privileged IAM user. The companion output.username further identifies the account to attack.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 2071,
+  "output_tokens": 1123,
+  "latency_s": 15.101,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants full administrative control over ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \\\"*\\\", violating least privilege. Compromise of this user's credentials would allow full data access in S3, arbitrary compute provisioning in EC2, and code execution/modification via Lambda across the entire account. The lambda:* and ec2:* grants also create a privilege escalation path (e.g. passing or attaching more privileged roles to Lambda functions or instances).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived credential in state\", \"description\": \"A static IAM access key is generated for a highly privileged user with no pgp_key set, so the secret access key is stored unencrypted in the Terraform state file (the encrypted_secret attribute will be empty without a PGP key). Anyone with read access to state obtains permanent credentials with the wildcard EC2/S3/Lambda/CloudWatch permissions attached to this user; long-lived keys also lack the automatic rotation of IAM role credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposed via output\", \"description\": \"The access key secret is exported as a root-level Terraform output without sensitive = true, so it is printed to the console and CI/CD logs on every apply and is readable via `terraform output`, leaking credential material for the over-privileged IAM user. The companion output.username further identifies the account to attack.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "cost_usd": 0.03843
+}

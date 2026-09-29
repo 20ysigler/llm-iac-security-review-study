@@ -1,0 +1,47 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat__iam.tf__r4",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:40:14Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732",
+      "description": "The inline policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* actions against every resource. Any principal using this access key can administer compute, storage, functions, and monitoring resources, violating least privilege and enabling broad data access and infrastructure modification."
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived access key",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "A programmatic IAM access key is created for a user that receives broad administrative permissions. Static credentials increase the attack surface because compromise of the key grants the attached policy's unrestricted cross-service access; the configuration does not show a mechanism to constrain its use."
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "secret exposed in output",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798",
+      "description": "The IAM access-key secret is exported as a Terraform output. Terraform outputs are retained in state and may be displayed or consumed by users and automation with state/output access, increasing the likelihood that this credential is exposed."
+    }
+  ],
+  "input_tokens": 1091,
+  "output_tokens": 273,
+  "latency_s": 4.067,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_iam_user_policy.userpolicy\",\"issue_category\":\"overly permissive IAM policy\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-732\",\"description\":\"The inline policy grants unrestricted ec2:*, s3:*, lambda:*, and cloudwatch:* actions against every resource. Any principal using this access key can administer compute, storage, functions, and monitoring resources, violating least privilege and enabling broad data access and infrastructure modification.\"},{\"resource\":\"aws_iam_access_key.user\",\"issue_category\":\"long-lived access key\",\"severity\":\"medium\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"A programmatic IAM access key is created for a user that receives broad administrative permissions. Static credentials increase the attack surface because compromise of the key grants the attached policy's unrestricted cross-service access; the configuration does not show a mechanism to constrain its use.\"},{\"resource\":\"output.secret\",\"issue_category\":\"secret exposed in output\",\"severity\":\"high\",\"confidence\":\"high\",\"cwe\":\"CWE-798\",\"description\":\"The IAM access-key secret is exported as a Terraform output. Terraform outputs are retained in state and may be displayed or consumed by users and automation with state/output access, increasing the likelihood that this credential is exposed.\"}]}",
+  "cost_usd": 0.005458
+}

@@ -1,0 +1,79 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat__db-app.tf__r6",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 6,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:19:00Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted, exposing sensitive data at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing the attack surface for a datastore that should only be reachable from application tiers.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The database master username is hard-coded to 'admin' and the password is passed via the var.password variable without any indication of use of a secrets manager, and this password is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database password (var.password) and username in plaintext inside a PHP config file, which is visible to anyone with access to the instance metadata or EC2 console/API, resulting in credential exposure.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege and allowing the instance (which is reachable via public IP through the internet-facing security group) to perform extensive actions across S3, EC2, and RDS if compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which combined with a database instance and an overly permissive IAM role increases the risk of data exfiltration if either resource is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "disabled encryption in transit not enforced",
+      "description": "No parameter group setting or configuration enforces SSL/TLS for MySQL client connections (e.g. require_secure_transport), and the application user_data connects via mysqli_connect without any TLS enforcement, risking cleartext transmission of credentials and data over the network.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7380,
+  "output_tokens": 1175,
+  "latency_s": 10.382,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted, exposing sensitive data at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet and significantly increasing the attack surface for a datastore that should only be reachable from application tiers.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The database master username is hard-coded to 'admin' and the password is passed via the var.password variable without any indication of use of a secrets manager, and this password is later embedded in plaintext in EC2 user data, increasing risk of credential leakage.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database password (var.password) and username in plaintext inside a PHP config file, which is visible to anyone with access to the instance metadata or EC2 console/API, resulting in credential exposure.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline IAM policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege and allowing the instance (which is reachable via public IP through the internet-facing security group) to perform extensive actions across S3, EC2, and RDS if compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which combined with a database instance and an overly permissive IAM role increases the risk of data exfiltration if either resource is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"disabled encryption in transit not enforced\", \"description\": \"No parameter group setting or configuration enforces SSL/TLS for MySQL client connections (e.g. require_secure_transport), and the application user_data connects via mysqli_connect without any TLS enforcement, risking cleartext transmission of credentials and data over the network.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.02651
+}

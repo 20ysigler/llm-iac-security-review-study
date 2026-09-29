@@ -1,0 +1,131 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:09:23Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, so the MySQL endpoint is assigned a public IP and can be reached from the internet (combined with the wide ingress rule on the DB security group).",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the catalog database's storage and snapshots unencrypted, exposing all stored data if the underlying volumes or backups are accessed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The DB password (var.password) and DB username are interpolated into the EC2 user_data script and written to /tmp/dbinfo.inc and /var/www/inc/dbinfo.inc, so the database credential is stored in plaintext on the instance, in the launch template/user-data record, and potentially world-readable on disk.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The instance role grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the application server full control of storage, compute, and databases including the ability to delete or exfiltrate all data.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "unrestricted database ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR, so every host in the VPC (not just the app server's security group) can reach the database.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols and ports, enabling data exfiltration or outbound C2 from a compromised DB host.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak database username",
+      "description": "The master username is the well-known default \"admin\", which simplifies credential-guessing and credential-stuffing attacks against the publicly accessible database.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-521"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "SQL injection in user data",
+      "description": "The deployed PHP builds SQL by string interpolation in the AddEmployee/VerifyEmployeesTable paths and reflects POST input (NAME, ADDRESS) without server-side validation, so the application is vulnerable to SQL injection even though mysqli_real_escape_string is applied inconsistently.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-89"
+    },
+    {
+      "resource": "data.aws_ami.base_image",
+      "issue_category": "unpinned AMI source",
+      "description": "The AMI is selected with most_recent = true and a wildcard name filter, so instances may be launched from an unintended or compromised image if a matching image appears; the filter is not pinned to a specific, verified AMI ID.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-494"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "deletion protection disabled",
+      "description": "skip_final_snapshot = true means the database can be destroyed without a final backup, and no deletion protection is enabled, risking unrecoverable data loss on accidental or malicious deletion.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "insecure connection charset",
+      "description": "character_set_client and character_set_server are set to utf8 (which is not the restrictive utf8mb4 and historically permits multi-byte bypass issues) applied immediately, which can weaken input handling for the attached database.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 3313,
+  "output_tokens": 1053,
+  "latency_s": 4.711,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, so the MySQL endpoint is assigned a public IP and can be reached from the internet (combined with the wide ingress rule on the DB security group).\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the catalog database's storage and snapshots unencrypted, exposing all stored data if the underlying volumes or backups are accessed.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The DB password (var.password) and DB username are interpolated into the EC2 user_data script and written to /tmp/dbinfo.inc and /var/www/inc/dbinfo.inc, so the database credential is stored in plaintext on the instance, in the launch template/user-data record, and potentially world-readable on disk.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The instance role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the application server full control of storage, compute, and databases including the ability to delete or exfiltrate all data.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"unrestricted database ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR, so every host in the VPC (not just the app server's security group) can reach the database.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols and ports, enabling data exfiltration or outbound C2 from a compromised DB host.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"weak database username\", \"description\": \"The master username is the well-known default \\\"admin\\\", which simplifies credential-guessing and credential-stuffing attacks against the publicly accessible database.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-521\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"SQL injection in user data\", \"description\": \"The deployed PHP builds SQL by string interpolation in the AddEmployee/VerifyEmployeesTable paths and reflects POST input (NAME, ADDRESS) without server-side validation, so the application is vulnerable to SQL injection even though mysqli_real_escape_string is applied inconsistently.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-89\"}, {\"resource\": \"data.aws_ami.base_image\", \"issue_category\": \"unpinned AMI source\", \"description\": \"The AMI is selected with most_recent = true and a wildcard name filter, so instances may be launched from an unintended or compromised image if a matching image appears; the filter is not pinned to a specific, verified AMI ID.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-494\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"deletion protection disabled\", \"description\": \"skip_final_snapshot = true means the database can be destroyed without a final backup, and no deletion protection is enabled, risking unrecoverable data loss on accidental or malicious deletion.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_parameter_group.catalog_db_params\", \"issue_category\": \"insecure connection charset\", \"description\": \"character_set_client and character_set_server are set to utf8 (",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3313,
+      "output_tokens": 1053,
+      "latency_s": 4.711,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.000759
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000759
+}

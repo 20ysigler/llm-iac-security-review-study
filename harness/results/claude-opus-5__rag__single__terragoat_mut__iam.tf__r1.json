@@ -1,0 +1,77 @@
+{
+  "run_id": "claude-opus-5__rag__single__terragoat_mut__iam.tf__r1",
+  "model": "claude-opus-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:32:13Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy wildcards",
+      "description": "The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \"*\", which is effectively administrative access over compute, storage, and serverless resources. Compromise of this user's credentials would allow full data access and resource manipulation across the account.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key is provisioned for a service user instead of using an IAM role with temporary credentials. The secret is stored in Terraform state in plaintext (no PGP key is supplied) and never rotates automatically, making it a persistent credential-compromise risk.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "IAM user without permissions boundary",
+      "description": "A static IAM user is created for deployment automation with no permissions boundary and no MFA, so the highly privileged inline policy has no guardrail limiting delegated privileges or privilege escalation.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "credential exposure via output",
+      "description": "The access key secret material is exposed through a Terraform output without marking it sensitive, so it is printed to console output, CI logs, and readable from state by anyone with state access.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 3434,
+  "output_tokens": 646,
+  "latency_s": 7.969,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy wildcards\", \"description\": \"The inline policy grants full wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on Resource \\\"*\\\", which is effectively administrative access over compute, storage, and serverless resources. Compromise of this user's credentials would allow full data access and resource manipulation across the account.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key is provisioned for a service user instead of using an IAM role with temporary credentials. The secret is stored in Terraform state in plaintext (no PGP key is supplied) and never rotates automatically, making it a persistent credential-compromise risk.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"IAM user without permissions boundary\", \"description\": \"A static IAM user is created for deployment automation with no permissions boundary and no MFA, so the highly privileged inline policy has no guardrail limiting delegated privileges or privilege escalation.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"credential exposure via output\", \"description\": \"The access key secret material is exposed through a Terraform output without marking it sensitive, so it is printed to console output, CI logs, and readable from state by anyone with state access.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3434,
+      "output_tokens": 646,
+      "latency_s": 7.969,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03332
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.03332
+}

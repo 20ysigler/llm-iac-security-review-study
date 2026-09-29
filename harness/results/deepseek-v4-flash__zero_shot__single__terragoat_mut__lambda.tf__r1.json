@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__zero_shot__single__terragoat_mut__lambda.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:10:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hardcoded credentials in environment",
+      "description": "The Lambda function has static AWS access key and secret key values hardcoded in its environment variables. These plaintext credentials are stored in Terraform state, readable by anyone with lambda:GetFunctionConfiguration, and cannot be rotated without redeploying; they should be replaced with an IAM execution role and runtime secret retrieval (e.g. Secrets Manager).",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "missing permissions boundary/least privilege",
+      "description": "The Lambda execution role has no attached policy, permissions boundary, or inline policy defined, meaning its effective permissions depend entirely on other configuration; if an overly broad policy is attached elsewhere the function inherits it. At minimum the role should scope permissions explicitly to what the function needs.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "outdated unsupported runtime",
+      "description": "The function uses runtime nodejs12.x, which is end-of-life and no longer receives security patches, leaving known vulnerabilities unpatched in the execution environment.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1002,
+  "output_tokens": 352,
+  "latency_s": 2.529,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hardcoded credentials in environment\", \"description\": \"The Lambda function has static AWS access key and secret key values hardcoded in its environment variables. These plaintext credentials are stored in Terraform state, readable by anyone with lambda:GetFunctionConfiguration, and cannot be rotated without redeploying; they should be replaced with an IAM execution role and runtime secret retrieval (e.g. Secrets Manager).\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"missing permissions boundary/least privilege\", \"description\": \"The Lambda execution role has no attached policy, permissions boundary, or inline policy defined, meaning its effective permissions depend entirely on other configuration; if an overly broad policy is attached elsewhere the function inherits it. At minimum the role should scope permissions explicitly to what the function needs.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"outdated unsupported runtime\", \"description\": \"The function uses runtime nodejs12.x, which is end-of-life and no longer receives security patches, leaving known vulnerabilities unpatched in the execution environment.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1002,
+      "output_tokens": 352,
+      "latency_s": 2.529,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000239
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000239
+}

@@ -1,0 +1,68 @@
+{
+  "run_id": "deepseek-v4-flash__rag__single__terragoat_mut__lambda.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:15:51Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Hardcoded secrets in configuration",
+      "description": "The Lambda function's environment block hardcodes a long-lived AWS access key ID and secret access key in plaintext Terraform source. Anyone with lambda:GetFunctionConfiguration, or anyone with read access to the repository/state file, obtains a working credential pair; these keys must be treated as compromised and rotated.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Unsupported deprecated runtime",
+      "description": "The function is configured with runtime nodejs12.x, which is end-of-life and no longer receives security patches, so known vulnerabilities in the runtime persist in production.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "Missing permissions boundary",
+      "description": "The execution role has no permissions boundary, so any policy attached to or created for this role can grant unbounded privileges, removing the guardrail that limits the maximum permissions the role can receive.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2078,
+  "output_tokens": 312,
+  "latency_s": 2.179,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Hardcoded secrets in configuration\", \"description\": \"The Lambda function's environment block hardcodes a long-lived AWS access key ID and secret access key in plaintext Terraform source. Anyone with lambda:GetFunctionConfiguration, or anyone with read access to the repository/state file, obtains a working credential pair; these keys must be treated as compromised and rotated.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Unsupported deprecated runtime\", \"description\": \"The function is configured with runtime nodejs12.x, which is end-of-life and no longer receives security patches, so known vulnerabilities in the runtime persist in production.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"Missing permissions boundary\", \"description\": \"The execution role has no permissions boundary, so any policy attached to or created for this role can grant unbounded privileges, removing the guardrail that limits the maximum permissions the role can receive.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2078,
+      "output_tokens": 312,
+      "latency_s": 2.179,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.000378
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000378
+}

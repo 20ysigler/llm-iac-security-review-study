@@ -1,0 +1,76 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__lambda.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:01Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Hardcoded credentials in environment",
+      "description": "The Lambda function's environment block embeds a plaintext AWS access key ID and secret access key (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY). These are stored in Terraform state and visible in the function configuration to anyone with lambda:GetFunctionConfiguration, and they never rotate.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Unencrypted environment variables",
+      "description": "No KMS key is set for the function environment, so the embedded secret values are only protected by the default AWS-managed encryption and can be read in cleartext by any principal permitted to call lambda:GetFunctionConfiguration rather than requiring kms:Decrypt on a customer-managed key.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "Outdated unsupported runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches, leaving known Node.js vulnerabilities unpatched in the execution environment.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role.analytics_fn_role",
+      "issue_category": "Missing Lambda logging permissions",
+      "description": "The role grants only sts:AssumeRole via its trust policy and has no attached permissions policy, so the function cannot write CloudWatch logs; failed or malicious invocations will not be auditable. Note the trust policy itself is correctly scoped to lambda.amazonaws.com.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1118,
+  "output_tokens": 461,
+  "latency_s": 2.574,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Hardcoded credentials in environment\", \"description\": \"The Lambda function's environment block embeds a plaintext AWS access key ID and secret access key (AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY). These are stored in Terraform state and visible in the function configuration to anyone with lambda:GetFunctionConfiguration, and they never rotate.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Unencrypted environment variables\", \"description\": \"No KMS key is set for the function environment, so the embedded secret values are only protected by the default AWS-managed encryption and can be read in cleartext by any principal permitted to call lambda:GetFunctionConfiguration rather than requiring kms:Decrypt on a customer-managed key.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"Outdated unsupported runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches, leaving known Node.js vulnerabilities unpatched in the execution environment.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_iam_role.analytics_fn_role\", \"issue_category\": \"Missing Lambda logging permissions\", \"description\": \"The role grants only sts:AssumeRole via its trust policy and has no attached permissions policy, so the function cannot write CloudWatch logs; failed or malicious invocations will not be auditable. Note the trust policy itself is correctly scoped to lambda.amazonaws.com.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1118,
+      "output_tokens": 461,
+      "latency_s": 2.574,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000286
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000286
+}

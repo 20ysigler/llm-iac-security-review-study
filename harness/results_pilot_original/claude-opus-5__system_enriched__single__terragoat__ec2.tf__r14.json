@@ -1,0 +1,149 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__ec2.tf__r14",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 14,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:48:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The instance user_data exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as plaintext. EC2 user data is retrievable by anyone with instance metadata access (including via SSRF from the public web server), leaking long-lived AWS credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "unencrypted root/EBS storage",
+      "description": "No root_block_device or ebs_block_device encryption is configured, so the instance's attached storage is created without encryption at rest.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "instance metadata service v1 allowed",
+      "description": "No metadata_options block enforcing http_tokens = \"required\", so IMDSv1 remains enabled; combined with the credentials placed in user data and the internet-exposed HTTP service, an SSRF flaw could trivially extract them.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "instance exposed to public internet",
+      "description": "The instance is launched in a public subnet with map_public_ip_on_launch enabled and attached to a security group allowing 0.0.0.0/0 on SSH and HTTP, giving it a directly reachable public address with no bastion or load balancer boundary.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume is created with encryption explicitly commented out, so data written to the attached volume is stored unencrypted.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot",
+      "description": "The snapshot is taken from an unencrypted EBS volume and is therefore itself unencrypted, allowing data disclosure if the snapshot is copied or shared.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress on TCP port 22 is open to 0.0.0.0/0, exposing SSH to the entire internet for brute-force and exploitation attempts.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "cleartext HTTP exposed to world",
+      "description": "Port 80 is open to 0.0.0.0/0 with no HTTPS listener configured, so all traffic to the web host is transmitted in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress to internet",
+      "description": "Egress allows all protocols and ports to 0.0.0.0/0, permitting data exfiltration and command-and-control traffic from a compromised host.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true, so every instance launched in this subnet receives a public IP and is directly internet-reachable, removing the network segmentation boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch is true, so instances in this subnet are automatically assigned public IPs and exposed to the internet.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-668"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The VPC flow log destination bucket has no server-side encryption configuration, so network flow records (sensitive reconnaissance data) are stored unencrypted.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "no public access block or ACL controls",
+      "description": "The bucket defines no aws_s3_bucket_public_access_block, ACL, versioning, or bucket policy restricting access, leaving flow log data at risk of accidental public exposure and undetectable tampering/deletion (force_destroy is also enabled).",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    }
+  ],
+  "input_tokens": 6442,
+  "output_tokens": 1668,
+  "latency_s": 18.453,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The instance user_data exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as plaintext. EC2 user data is retrievable by anyone with instance metadata access (including via SSRF from the public web server), leaking long-lived AWS credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"unencrypted root/EBS storage\", \"description\": \"No root_block_device or ebs_block_device encryption is configured, so the instance's attached storage is created without encryption at rest.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"instance metadata service v1 allowed\", \"description\": \"No metadata_options block enforcing http_tokens = \\\"required\\\", so IMDSv1 remains enabled; combined with the credentials placed in user data and the internet-exposed HTTP service, an SSRF flaw could trivially extract them.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"instance exposed to public internet\", \"description\": \"The instance is launched in a public subnet with map_public_ip_on_launch enabled and attached to a security group allowing 0.0.0.0/0 on SSH and HTTP, giving it a directly reachable public address with no bastion or load balancer boundary.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume is created with encryption explicitly commented out, so data written to the attached volume is stored unencrypted.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"The snapshot is taken from an unencrypted EBS volume and is therefore itself unencrypted, allowing data disclosure if the snapshot is copied or shared.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress on TCP port 22 is open to 0.0.0.0/0, exposing SSH to the entire internet for brute-force and exploitation attempts.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"cleartext HTTP exposed to world\", \"description\": \"Port 80 is open to 0.0.0.0/0 with no HTTPS listener configured, so all traffic to the web host is transmitted in cleartext.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress to internet\", \"description\": \"Egress allows all protocols and ports to 0.0.0.0/0, permitting data exfiltration and command-and-control traffic from a compromised host.\", \"severity\": \"low\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_subnet.web_subnet\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true, so every instance launched in this subnet receives a public IP and is directly internet-reachable, removing the network segmentation boundary.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_subnet.web_subnet2\", \"issue_category\": \"automatic public IP assignment\", \"description\": \"map_public_ip_on_launch is true, so instances in this subnet are automatically assigned public IPs and exposed to the internet.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-668\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The VPC flow log destination bucket has no server-side encryption configuration, so network flow records (sensitive reconnaissance data) are ",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 6442,
+      "output_tokens": 1668,
+      "latency_s": 18.453,
+      "n_findings": 13,
+      "error": "",
+      "cost_usd": 0.07391
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.07391
+}

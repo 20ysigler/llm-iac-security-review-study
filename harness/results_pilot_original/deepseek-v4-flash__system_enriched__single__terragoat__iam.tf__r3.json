@@ -1,0 +1,46 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:43:54Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on all resources (Resource: \"*\"). This violates least privilege and gives the user broad administrative control over the account's core services, significantly increasing blast radius if the access key is compromised.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "hard-coded long-lived credential",
+      "description": "A long-lived IAM access key is created for an IAM user whose policy grants broad wildcard permissions. The key provides standing, unrotated credentials that expand the attack surface versus short-lived credentials, and represents a static secret embedded in the infrastructure.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "force_destroy enables premature deletion",
+      "description": "force_destroy = true allows the user to be deleted along with their credentials and resources without confirmation, which can silently remove accounts and their access during state changes or drift remediation, potentially leaving dependent workloads broken.",
+      "severity": "informational",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1391,
+  "output_tokens": 331,
+  "latency_s": 4.266,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions across ec2, s3, lambda, and cloudwatch on all resources (Resource: \\\"*\\\"). This violates least privilege and gives the user broad administrative control over the account's core services, significantly increasing blast radius if the access key is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"hard-coded long-lived credential\", \"description\": \"A long-lived IAM access key is created for an IAM user whose policy grants broad wildcard permissions. The key provides standing, unrotated credentials that expand the attack surface versus short-lived credentials, and represents a static secret embedded in the infrastructure.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"force_destroy enables premature deletion\", \"description\": \"force_destroy = true allows the user to be deleted along with their credentials and resources without confirmation, which can silently remove accounts and their access during state changes or drift remediation, potentially leaving dependent workloads broken.\", \"severity\": \"informational\", \"confidence\": \"low\"}]}",
+  "cost_usd": 0.000287
+}

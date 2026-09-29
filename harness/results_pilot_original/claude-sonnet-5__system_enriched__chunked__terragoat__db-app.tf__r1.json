@@ -1,0 +1,169 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:11:37Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is set to false, meaning the RDS database volume is not encrypted at rest, exposing sensitive data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the database instance to the public internet and greatly increasing attack surface for a data store that should only be reachable from trusted application tiers.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/weak credential handling",
+      "description": "The database uses a hard-coded default admin username 'admin' and a password sourced from a variable without enforced complexity or secrets-manager integration; combined with public accessibility this significantly raises the risk of credential compromise.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "plaintext credentials in state/config",
+      "description": "The password variable is passed directly into the resource and ignored in lifecycle changes, but there is no indication of encryption in transit enforcement or secure secret storage, risking cleartext exposure of the master password in state files.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all traffic (protocol -1, all ports) to 0.0.0.0/0, permitting the instance to communicate with any host on the internet, which increases risk of data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline IAM policy grants full wildcard actions (s3:*, ec2:*, rds:*) on all resources (\"Resource\": \"*\") to the EC2 instance role, violating least privilege and allowing the instance (if compromised) to read/modify/delete any S3, EC2, or RDS resource in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "broad network ingress to database port",
+      "description": "Ingress allows MySQL port 3306 from the entire VPC CIDR block rather than restricting access to specific application security groups or hosts, increasing the attack surface within the network for lateral movement to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 user_data script embeds the database password (var.password) and username in plaintext within the instance metadata/user data. This is visible to anyone with access to the instance metadata service or EC2 API describe-instance-attribute calls, and it also gets persisted in the Terraform state file, exposing the DB credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext transmission of sensitive data",
+      "description": "The PHP application connects to MySQL using mysqli_connect without TLS/SSL enforcement, transmitting credentials and data in cleartext over the network between the EC2 instance and the RDS database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "no public IP restriction / exposed web app",
+      "description": "The instance runs a public-facing web application (httpd on default subnet with an associated public DNS output) that includes an unauthenticated PHP form vulnerable to SQL injection-adjacent patterns and lacks any input validation beyond htmlentities, increasing attack surface for a publicly reachable host.",
+      "severity": "medium",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 17543,
+  "output_tokens": 1716,
+  "latency_s": 23.232,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2928,
+      "output_tokens": 556,
+      "latency_s": 6.458,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.011416
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3066,
+      "output_tokens": 34,
+      "latency_s": 1.502,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.006472
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3084,
+      "output_tokens": 520,
+      "latency_s": 5.546,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011368
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2098,
+      "output_tokens": 34,
+      "latency_s": 2.091,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004536
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 4296,
+      "output_tokens": 538,
+      "latency_s": 6.113,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.013972
+    },
+    {
+      "step": "chunk_6",
+      "input_tokens": 2071,
+      "output_tokens": 34,
+      "latency_s": 1.522,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004482
+    }
+  ],
+  "n_calls": 6,
+  "chunks": 6,
+  "cost_usd": 0.052246
+}

@@ -1,0 +1,127 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:02:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, so the RDS instance's data at rest is not encrypted, exposing sensitive data if underlying storage or snapshots are compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS instance directly to the internet rather than restricting it to the internal VPC, significantly increasing the attack surface for a database holding credentials and application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded credentials",
+      "description": "The database uses a hard-coded master username ('admin') and a password sourced from a variable that is subsequently echoed into plaintext EC2 user data, with no evidence of a secrets manager; combined with public accessibility this raises the risk of credential compromise.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on all resources (Resource: \"*\") to the EC2 instance role, far exceeding least privilege and allowing broad account-wide access, including data exfiltration or privilege escalation, if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext credentials in user data",
+      "description": "The EC2 user_data script embeds the database password and username in plaintext (written into dbinfo.inc), which is stored in instance metadata and on-disk, readable by anyone with access to describe the instance, its console output, or the deployed file.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "publicly exposed compute instance with excessive privilege",
+      "description": "The instance is deployed in a web-facing subnet with its public DNS exported as an output; combined with the overly permissive IAM role and embedded database credentials, a compromised, internet-reachable instance would grant broad access to S3, EC2, RDS APIs and direct database access.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, which is overly permissive and violates network segmentation and least privilege principles for a database tier.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "broad network ingress to database",
+      "description": "The ingress rule opens port 3306 to the entire VPC CIDR range rather than scoping access to only the specific application security group/instances that need database connectivity, weakening network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 24891,
+  "output_tokens": 3867,
+  "latency_s": 37.453,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, so the RDS instance's data at rest is not encrypted, exposing sensitive data if underlying storage or snapshots are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS instance directly to the internet rather than restricting it to the internal VPC, significantly increasing the attack surface for a database holding credentials and application data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The database uses a hard-coded master username ('admin') and a password sourced from a variable that is subsequently echoed into plaintext EC2 user data, with no evidence of a secrets manager; combined with public accessibility this raises the risk of credential compromise.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on all resources (Resource: \\\"*\\\") to the EC2 instance role, far exceeding least privilege and allowing broad account-wide access, including data exfiltration or privilege escalation, if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"cleartext credentials in user data\", \"description\": \"The EC2 user_data script embeds the database password and username in plaintext (written into dbinfo.inc), which is stored in instance metadata and on-disk, readable by anyone with access to describe the instance, its console output, or the deployed file.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"publicly exposed compute instance with excessive privilege\", \"description\": \"The instance is deployed in a web-facing subnet with its public DNS exported as an output; combined with the overly permissive IAM role and embedded database credentials, a compromised, internet-reachable instance would grant broad access to S3, EC2, RDS APIs and direct database access.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all outbound traffic (0.0.0.0/0, all ports/protocols) from the RDS security group, which is overly permissive and violates network segmentation and least privilege principles for a database tier.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.ingress\", \"issue_category\": \"broad network ingress to database\", \"description\": \"The ingress rule opens port 3306 to the entire VPC CIDR range rather than scoping access to only the specific application security group/instances that need database connectivity, weakening network segmentation.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1202,
+      "latency_s": 12.241,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02678
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1356,
+      "latency_s": 13.392,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.02832
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 10131,
+      "output_tokens": 1309,
+      "latency_s": 11.82,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.033352
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.088452
+}

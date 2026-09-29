@@ -1,0 +1,92 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:32Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \"*\", giving the deploying identity full administrative control over compute, storage, and functions, including the ability to exfiltrate any S3 object, disable logging, or pivot via new Lambda/EC2 resources.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "no MFA or condition constraints",
+      "description": "The policy statements have no Condition block (no aws:MultiFactorAuthPresent, no source restriction), so the long-lived static access key attached to the user can be used from anywhere without MFA to exercise the wildcard administrative permissions.",
+      "severity": "high",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A long-lived IAM access key is created for a human-named deploy user and flows into an output; these permanent credentials never rotate and a leak grants the wildcard permissions above with no expiration.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "secret exposed in Terraform output",
+      "description": "The output named svc_deploy_key_material exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, making the secret (and potentially the plaintext via secret_id) readable in Terraform state, plan output, and CI logs; the resource also lacks an explicit sensitive = true marker.",
+      "severity": "high",
+      "cwe": "CWE-532",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_username",
+      "issue_category": "account reconnaissance exposure",
+      "description": "The output publishes the IAM user name of the deployment account, giving anyone with access to the Terraform state ecosystem a valid principal name to target for credential attacks against the over-permissioned user.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "long-lived IAM user for deployment",
+      "description": "Deployment access is modeled as a persistent standalone IAM user with a static key rather than a role or federated identity, and force_destroy = true allows the account to be deleted with its policies and keys in a single apply, weakening lifecycle control over a privileged identity.",
+      "severity": "medium",
+      "cwe": "CWE-250",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1126,
+  "output_tokens": 655,
+  "latency_s": 3.676,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \\\"*\\\", giving the deploying identity full administrative control over compute, storage, and functions, including the ability to exfiltrate any S3 object, disable logging, or pivot via new Lambda/EC2 resources.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"no MFA or condition constraints\", \"description\": \"The policy statements have no Condition block (no aws:MultiFactorAuthPresent, no source restriction), so the long-lived static access key attached to the user can be used from anywhere without MFA to exercise the wildcard administrative permissions.\", \"severity\": \"high\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A long-lived IAM access key is created for a human-named deploy user and flows into an output; these permanent credentials never rotate and a leak grants the wildcard permissions above with no expiration.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"secret exposed in Terraform output\", \"description\": \"The output named svc_deploy_key_material exposes aws_iam_access_key.svc_deploy_key.encrypted_secret, making the secret (and potentially the plaintext via secret_id) readable in Terraform state, plan output, and CI logs; the resource also lacks an explicit sensitive = true marker.\", \"severity\": \"high\", \"cwe\": \"CWE-532\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_username\", \"issue_category\": \"account reconnaissance exposure\", \"description\": \"The output publishes the IAM user name of the deployment account, giving anyone with access to the Terraform state ecosystem a valid principal name to target for credential attacks against the over-permissioned user.\", \"severity\": \"low\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"long-lived IAM user for deployment\", \"description\": \"Deployment access is modeled as a persistent standalone IAM user with a static key rather than a role or federated identity, and force_destroy = true allows the account to be deleted with its policies and keys in a single apply, weakening lifecycle control over a privileged identity.\", \"severity\": \"medium\", \"cwe\": \"CWE-250\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1126,
+      "output_tokens": 655,
+      "latency_s": 3.676,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000341
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000341
+}

@@ -1,0 +1,168 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat__ec2.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:14:17Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script contains a plaintext AWS access key ID and secret access key. These are embedded in the instance metadata (retrievable via the EC2 metadata service and in the Terraform state), exposing long-lived AWS credentials to anyone with access to the instance, its metadata, or the state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "cleartext transmission / plaintext secrets",
+      "description": "Because the credentials are exported as environment variables in a plaintext user-data script executed over an unauthenticated bootstrap channel, they can be exposed via console logs, process listings, or instance metadata queries, resulting in cleartext secret exposure.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true (the setting is commented out), meaning data stored on this volume, potentially including application data or artifacts from the attached instance, is not encrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS snapshot is created without encryption specified, and if the source volume is unencrypted, the snapshot will store data in cleartext, exposing it if the snapshot is shared or accessed improperly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted ingress",
+      "description": "The security group allows inbound SSH (port 22) from 0.0.0.0/0, exposing management access to the entire internet and greatly increasing the risk of brute-force or credential-stuffing attacks.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress",
+      "description": "The security group's egress rule allows all outbound traffic to any destination (0.0.0.0/0) on all ports/protocols, which violates least privilege and could facilitate data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to any instance launched in this subnet, increasing the attack surface by exposing instances directly to the internet unless explicitly overridden.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "unintended public IP assignment",
+      "description": "map_public_ip_on_launch = true automatically assigns public IPs to any instance launched in this subnet, increasing the attack surface by exposing instances directly to the internet unless explicitly overridden.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket used to store VPC flow logs has no server_side_encryption_configuration block, meaning flow log data (which can contain sensitive network metadata) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing bucket access controls",
+      "description": "The bucket has no versioning, public access block, or bucket policy defined, leaving it reliant on default ACLs and providing no defense-in-depth against accidental or malicious public exposure of flow logs.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true allows the bucket and all its log contents to be deleted even when non-empty, which can facilitate destruction of audit evidence (flow logs) by anyone with delete permissions.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 15185,
+  "output_tokens": 1972,
+  "latency_s": 22.148,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket used to store VPC flow logs has no server_side_encryption_configuration block, meaning flow log data (which can contain sensitive network metadata) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing bucket access controls\", \"description\": \"The bucket has no versioning, public access block, or bucket policy defined, leaving it reliant on default ACLs and providing no defense-in-depth against accidental or malicious public exposure of flow logs.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true allows the bucket and all its log contents to be deleted even when non-empty, which can facilitate destruction of audit evidence (flow logs) by anyone with delete permissions.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2987,
+      "output_tokens": 535,
+      "latency_s": 5.599,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.011324
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 3022,
+      "output_tokens": 618,
+      "latency_s": 6.571,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.012224
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3031,
+      "output_tokens": 306,
+      "latency_s": 3.675,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.009122
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 3208,
+      "output_tokens": 34,
+      "latency_s": 1.363,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.006756
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 2937,
+      "output_tokens": 479,
+      "latency_s": 4.94,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.010664
+    }
+  ],
+  "n_calls": 5,
+  "chunks": 5,
+  "cost_usd": 0.05009
+}

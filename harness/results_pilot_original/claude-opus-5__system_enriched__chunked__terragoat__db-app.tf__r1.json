@@ -1,0 +1,210 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat__db-app.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:28:54Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the RDS MySQL instance's underlying EBS volumes, snapshots and backups store data in cleartext. Any compromise of the storage layer or snapshot sharing exposes the database contents.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the RDS instance a public endpoint reachable from the internet, and the endpoint is additionally exposed via an output. Combined with the attached security group rules, this places a credentialed MySQL service directly on the public internet.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "default privileged database username",
+      "description": "The master user is set to the predictable default 'admin', which removes a factor of uncertainty for credential brute-force or spraying attacks against an internet-facing database endpoint.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "password supplied via plaintext variable",
+      "description": "The master password is taken from a Terraform variable rather than a secrets manager, so it is stored in cleartext in the Terraform state file and is likely passed on the command line or in tfvars. Rotation is also suppressed by the lifecycle ignore_changes on password.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing audit logging",
+      "description": "No enabled_cloudwatch_logs_exports (audit, error, general, slowquery) is configured, so authentication and query activity against this internet-exposed database is not retained for detection or forensics.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-778"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing IAM database authentication",
+      "description": "iam_database_authentication_enabled is not set, so access relies solely on a static master password with no centrally managed, short-lived IAM credentials.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1392"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "automatic minor version patching disabled context",
+      "description": "auto_minor_version_upgrade is not specified alongside apply_immediately = true; combined with public accessibility, unpatched MySQL minor versions remain exploitable from the internet. Verify patching is managed explicitly.",
+      "severity": "informational",
+      "confidence": "low",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline role policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving any workload using this role (the EC2 instance via aws_iam_instance_profile.ec2profile) full control over all S3 buckets, EC2 resources and RDS databases in the account. Compromise of the instance yields near-administrative access and privilege escalation paths (e.g. ec2:RunInstances with existing profiles, rds snapshot exfiltration).",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound access",
+      "description": "Egress allows all protocols and ports to 0.0.0.0/0 from the database/app security group, permitting unrestricted outbound connections that facilitate data exfiltration and command-and-control traffic after a compromise.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overly broad network ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR rather than to the specific application security group or subnet, so any instance anywhere in the VPC (including public-subnet hosts) can reach the database, violating least-privilege network segmentation.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded secrets in user data",
+      "description": "The database password (var.password) and username are interpolated directly into the EC2 user_data script, which is stored unencrypted in instance metadata and retrievable by anyone with access to the instance metadata service (including via SSRF) or with ec2:DescribeInstanceAttribute permissions.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "instance metadata service v1 enabled",
+      "description": "No metadata_options block is specified, so IMDSv1 remains enabled. Combined with the credentials in user_data and the attached instance profile (aws_iam_instance_profile.ec2profile), a server-side request forgery in the hosted PHP application could retrieve both the DB password and IAM role credentials.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device or ebs_block_device configuration with encrypted = true is defined, so the instance storage \u2014 which will contain the dbinfo.inc file holding cleartext DB credentials \u2014 may be written to an unencrypted EBS volume.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "cleartext transmission of data",
+      "description": "The bootstrap script installs and starts httpd serving the application over plain HTTP only with no TLS configuration, so form submissions containing employee name and address data and the rendered database contents traverse the network in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "public exposure of instance",
+      "description": "The instance is placed in a subnet and, per the file's output.db_app_public_dns, receives a public DNS name, making the PHP application that holds database credentials directly reachable from the Internet without a load balancer or WAF in front of it.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 17135,
+  "output_tokens": 2442,
+  "latency_s": 37.055,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2860,
+      "output_tokens": 991,
+      "latency_s": 12.685,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.039075
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 2998,
+      "output_tokens": 34,
+      "latency_s": 1.782,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.01584
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3016,
+      "output_tokens": 556,
+      "latency_s": 8.64,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.02898
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2030,
+      "output_tokens": 34,
+      "latency_s": 1.774,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.011
+    },
+    {
+      "step": "chunk_5",
+      "input_tokens": 4228,
+      "output_tokens": 793,
+      "latency_s": 10.466,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.040965
+    },
+    {
+      "step": "chunk_6",
+      "input_tokens": 2003,
+      "output_tokens": 34,
+      "latency_s": 1.708,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.010865
+    }
+  ],
+  "n_calls": 6,
+  "chunks": 6,
+  "cost_usd": 0.146725
+}

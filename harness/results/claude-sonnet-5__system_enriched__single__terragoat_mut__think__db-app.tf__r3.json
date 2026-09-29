@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-22T02:23:44Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns a public IP to the RDS instance, exposing the database directly to the internet rather than restricting it to private subnets only reachable from the application tier.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false explicitly disables encryption at rest for the RDS instance, leaving data on disk and in snapshots unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource \"*\", far exceeding what the application needs (e.g., reading DB connection info) and violating least privilege. Because this role is attached to an internet-facing EC2 instance, compromise of the instance grants near full account-wide S3, EC2, and RDS control.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script writes the RDS master username and password (var.password) in cleartext into /var/www/inc/dbinfo.inc, and the same secret is embedded in the EC2 launch configuration/user data which is retrievable via the instance metadata service and stored in the Terraform state, creating a credential exposure path.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "plaintext credential exposure",
+      "description": "The database password is passed via var.password and referenced directly in the instance's user_data/config file in plaintext, meaning the master credential is not managed through a secrets manager and is exposed to anyone with access to instance metadata or the Terraform state file.",
+      "severity": "medium",
+      "cwe": "CWE-312",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols/ports, which combined with the publicly accessible, over-privileged instance profile increases the risk of data exfiltration if the database or app tier is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5741,
+  "output_tokens": 2100,
+  "latency_s": 21.363,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true assigns a public IP to the RDS instance, exposing the database directly to the internet rather than restricting it to private subnets only reachable from the application tier.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false explicitly disables encryption at rest for the RDS instance, leaving data on disk and in snapshots unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", far exceeding what the application needs (e.g., reading DB connection info) and violating least privilege. Because this role is attached to an internet-facing EC2 instance, compromise of the instance grants near full account-wide S3, EC2, and RDS control.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script writes the RDS master username and password (var.password) in cleartext into /var/www/inc/dbinfo.inc, and the same secret is embedded in the EC2 launch configuration/user data which is retrievable via the instance metadata service and stored in the Terraform state, creating a credential exposure path.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"plaintext credential exposure\", \"description\": \"The database password is passed via var.password and referenced directly in the instance's user_data/config file in plaintext, meaning the master credential is not managed through a secrets manager and is exposed to anyone with access to instance metadata or the Terraform state file.\", \"severity\": \"medium\", \"cwe\": \"CWE-312\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to 0.0.0.0/0 on all protocols/ports, which combined with the publicly accessible, over-privileged instance profile increases the risk of data exfiltration if the database or app tier is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5741,
+      "output_tokens": 2100,
+      "latency_s": 21.363,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.032482
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.032482
+}

@@ -1,0 +1,57 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__iam.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:52:44Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline user policy grants full wildcard actions on four powerful services (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \"*\", violating least privilege. Compromise of this user's access key yields the ability to read/delete all S3 data, launch or terminate any EC2 instance, and create/modify Lambda functions \u2014 a direct privilege-escalation and data-exfiltration path (e.g. lambda:CreateFunction plus ec2 access can be chained to broaden access).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credentials stored in plaintext state",
+      "description": "No pgp_key is supplied, so AWS returns the secret access key in cleartext and Terraform persists it (attribute `secret`) unencrypted in the state file; `encrypted_secret` will be empty. Anyone with read access to the state backend obtains long-lived credentials for a user holding near-administrative permissions.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-312"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static access key",
+      "description": "A permanent programmatic access key is created for an IAM user rather than using short-lived STS role credentials, and there is no rotation mechanism or MFA requirement. Static keys attached to a wildcard policy are a high-value, non-expiring credential for an attacker.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "output.secret",
+      "issue_category": "credential exposed via output",
+      "description": "The access key secret is exported as a module output without `sensitive = true`, so it is printed to the console and stored in plaintext in the state/plan artefacts, leaking the credential to CI logs and anyone reading Terraform output.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-532"
+    }
+  ],
+  "input_tokens": 2071,
+  "output_tokens": 1139,
+  "latency_s": 16.274,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline user policy grants full wildcard actions on four powerful services (ec2:*, s3:*, lambda:*, cloudwatch:*) against Resource \\\"*\\\", violating least privilege. Compromise of this user's access key yields the ability to read/delete all S3 data, launch or terminate any EC2 instance, and create/modify Lambda functions \\u2014 a direct privilege-escalation and data-exfiltration path (e.g. lambda:CreateFunction plus ec2 access can be chained to broaden access).\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credentials stored in plaintext state\", \"description\": \"No pgp_key is supplied, so AWS returns the secret access key in cleartext and Terraform persists it (attribute `secret`) unencrypted in the state file; `encrypted_secret` will be empty. Anyone with read access to the state backend obtains long-lived credentials for a user holding near-administrative permissions.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-312\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static access key\", \"description\": \"A permanent programmatic access key is created for an IAM user rather than using short-lived STS role credentials, and there is no rotation mechanism or MFA requirement. Static keys attached to a wildcard policy are a high-value, non-expiring credential for an attacker.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"output.secret\", \"issue_category\": \"credential exposed via output\", \"description\": \"The access key secret is exported as a module output without `sensitive = true`, so it is printed to the console and stored in plaintext in the state/plan artefacts, leaking the credential to CI logs and anyone reading Terraform output.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-532\"}]}",
+  "cost_usd": 0.03883
+}

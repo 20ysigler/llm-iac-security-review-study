@@ -1,0 +1,105 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r7",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 7,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:43:20Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet and drastically increasing attack surface for a data store holding credentials and application data that should only be reachable from within the VPC.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage and any automated backups/snapshots are not encrypted at rest, violating data protection requirements.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The master username is hard-coded to 'admin' and the password is sourced from a variable with no secrets-manager integration or rotation; this password is also propagated in plaintext into the EC2 instance's user_data, and combined with publicly_accessible=true this makes credential-based compromise significantly more likely.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database username and password in cleartext, both in the launch configuration (retrievable via the EC2 metadata service/API) and written out to a PHP file on disk, risking credential disclosure to anyone with instance or API access.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the EC2 instance role, violating least privilege; because this role is attached to a network-facing, publicly reachable instance, compromise of the instance would enable broad lateral movement and control over S3, EC2, and RDS resources.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols and ports to 0.0.0.0/0 from the database security group, providing no network egress restriction and enabling data exfiltration or command-and-control communication if the database or an associated instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 24422,
+  "output_tokens": 3085,
+  "latency_s": 27.575,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the RDS MySQL instance directly to the internet and drastically increasing attack surface for a data store holding credentials and application data that should only be reachable from within the VPC.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database storage and any automated backups/snapshots are not encrypted at rest, violating data protection requirements.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The master username is hard-coded to 'admin' and the password is sourced from a variable with no secrets-manager integration or rotation; this password is also propagated in plaintext into the EC2 instance's user_data, and combined with publicly_accessible=true this makes credential-based compromise significantly more likely.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database username and password in cleartext, both in the launch configuration (retrievable via the EC2 metadata service/API) and written out to a PHP file on disk, risking credential disclosure to anyone with instance or API access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\") to the EC2 instance role, violating least privilege; because this role is attached to a network-facing, publicly reachable instance, compromise of the instance would enable broad lateral movement and control over S3, EC2, and RDS resources.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols and ports to 0.0.0.0/0 from the database security group, providing no network egress restriction and enabling data exfiltration or command-and-control communication if the database or an associated instance is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1015,
+      "latency_s": 9.913,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02491
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1099,
+      "latency_s": 9.986,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02575
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9662,
+      "output_tokens": 971,
+      "latency_s": 7.676,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.029034
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.079694
+}

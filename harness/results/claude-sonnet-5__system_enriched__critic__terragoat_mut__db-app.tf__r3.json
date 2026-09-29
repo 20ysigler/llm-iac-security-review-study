@@ -1,0 +1,96 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-22T02:27:12Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, exposing the MySQL database to the internet (subject to security group rules) and significantly increasing attack surface for a data store holding application data and credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage, snapshots, and backups are not encrypted at rest, risking exposure of sensitive data if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the database username and password in cleartext (var.password interpolated directly) which is stored in the EC2 instance launch configuration/metadata and is retrievable by anyone with API/console access to the instance, and also written to disk in /var/www/inc/dbinfo.inc.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource: \"*\", violating least privilege. Since this role is assumed by an EC2 instance that also runs a public-facing web application, compromise of the app could lead to full control over S3, EC2, and RDS resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext transmission of data",
+      "description": "No TLS/SSL enforcement (e.g., via parameter group rds.force_ssl or require_secure_transport) is configured for the MySQL instance, and the app connects via mysqli_connect without SSL options, allowing database credentials and data to be transmitted in cleartext across the network.",
+      "severity": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "The database security group allows inbound MySQL (3306) from the entire VPC CIDR block rather than scoping access to only the specific application security group or instances that need it, combined with publicly_accessible=true on the DB this increases exposure since any host within the VPC (including any future public-facing resource) can reach the database directly.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 13003,
+  "output_tokens": 2152,
+  "latency_s": 17.909,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, exposing the MySQL database to the internet (subject to security group rules) and significantly increasing attack surface for a data store holding application data and credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database storage, snapshots, and backups are not encrypted at rest, risking exposure of sensitive data if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script embeds the database username and password in cleartext (var.password interpolated directly) which is stored in the EC2 instance launch configuration/metadata and is retrievable by anyone with API/console access to the instance, and also written to disk in /var/www/inc/dbinfo.inc.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource: \\\"*\\\", violating least privilege. Since this role is assumed by an EC2 instance that also runs a public-facing web application, compromise of the app could lead to full control over S3, EC2, and RDS resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext transmission of data\", \"description\": \"No TLS/SSL enforcement (e.g., via parameter group rds.force_ssl or require_secure_transport) is configured for the MySQL instance, and the app connects via mysqli_connect without SSL options, allowing database credentials and data to be transmitted in cleartext across the network.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad database ingress\", \"description\": \"The database security group allows inbound MySQL (3306) from the entire VPC CIDR block rather than scoping access to only the specific application security group or instances that need it, combined with publicly_accessible=true on the DB this increases exposure since any host within the VPC (including any future public-facing resource) can reach the database directly.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5867,
+      "output_tokens": 1144,
+      "latency_s": 10.274,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.023174
+    },
+    {
+      "step": "critique",
+      "input_tokens": 7136,
+      "output_tokens": 1008,
+      "latency_s": 7.635,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.024352
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.047526
+}

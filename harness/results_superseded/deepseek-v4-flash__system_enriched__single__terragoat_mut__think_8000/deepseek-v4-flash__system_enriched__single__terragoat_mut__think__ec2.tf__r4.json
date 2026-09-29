@@ -1,0 +1,110 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__ec2.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "ec2.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:34:56Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_instance.portal_server",
+      "issue_category": "hardcoded credentials in user_data",
+      "description": "The instance's user_data script embeds a plaintext AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key (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). These long-lived credentials are stored in Terraform state and in EC2 instance metadata, where they are readable by anyone with access to the instance or state file and persist as leaked secrets.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "The security group allows TCP port 22 from 0.0.0.0/0, exposing SSH management access to the entire internet and enabling brute-force and credential-stuffing attacks against the public instance. Combined with the instance's hardcoded credentials, this is a direct path to compromise.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_a",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, so every instance launched in this subnet (including aws_instance.portal_server) receives a publicly routable IP address by default. This exposes the workload to the internet beyond what is explicitly intended and weakens network segmentation.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_subnet.portal_subnet_b",
+      "issue_category": "public IP auto-assignment",
+      "description": "map_public_ip_on_launch is set to true, causing any instance launched into this subnet to automatically receive a public IP address and be reachable from the internet, weakening the intended network boundary.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.portal_sg",
+      "issue_category": "unrestricted web ingress",
+      "description": "The security group allows TCP port 80 from 0.0.0.0/0. While an internet-facing web port may be intended, the broad ingress combined with the open SSH rule and public IP assignment means the host has an unnecessarily wide externally reachable attack surface.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_ebs_volume.portal_server_disk",
+      "issue_category": "missing encryption at rest",
+      "description": "The EBS volume does not set encrypted = true, so the disk attached to the public instance is stored unencrypted. If the underlying storage or snapshots are exposed, the data is readable without any key protection.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_ebs_snapshot.portal_disk_backup",
+      "issue_category": "unencrypted snapshot",
+      "description": "The snapshot is created from an unencrypted volume and does not request encryption, so the backup image of the disk is stored in cleartext, exposing its contents to anyone who can access the snapshot.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.netflow_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The S3 bucket that receives VPC flow logs has no server-side encryption configuration, so network traffic metadata is stored unencrypted at rest. This data can reveal internal addressing, connectivity, and traffic patterns if the bucket storage is exposed.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2539,
+  "output_tokens": 2228,
+  "latency_s": 9.847,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.portal_server\", \"issue_category\": \"hardcoded credentials in user_data\", \"description\": \"The instance's user_data script embeds a plaintext AWS access key ID (AKIAIOSFODNN7EXAMAAA) and secret access key (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). These long-lived credentials are stored in Terraform state and in EC2 instance metadata, where they are readable by anyone with access to the instance or state file and persist as leaked secrets.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"The security group allows TCP port 22 from 0.0.0.0/0, exposing SSH management access to the entire internet and enabling brute-force and credential-stuffing attacks against the public instance. Combined with the instance's hardcoded credentials, this is a direct path to compromise.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_a\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, so every instance launched in this subnet (including aws_instance.portal_server) receives a publicly routable IP address by default. This exposes the workload to the internet beyond what is explicitly intended and weakens network segmentation.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_subnet.portal_subnet_b\", \"issue_category\": \"public IP auto-assignment\", \"description\": \"map_public_ip_on_launch is set to true, causing any instance launched into this subnet to automatically receive a public IP address and be reachable from the internet, weakening the intended network boundary.\", \"severity\": \"medium\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.portal_sg\", \"issue_category\": \"unrestricted web ingress\", \"description\": \"The security group allows TCP port 80 from 0.0.0.0/0. While an internet-facing web port may be intended, the broad ingress combined with the open SSH rule and public IP assignment means the host has an unnecessarily wide externally reachable attack surface.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_ebs_volume.portal_server_disk\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The EBS volume does not set encrypted = true, so the disk attached to the public instance is stored unencrypted. If the underlying storage or snapshots are exposed, the data is readable without any key protection.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_ebs_snapshot.portal_disk_backup\", \"issue_category\": \"unencrypted snapshot\", \"description\": \"The snapshot is created from an unencrypted volume and does not request encryption, so the backup image of the disk is stored in cleartext, exposing its contents to anyone who can access the snapshot.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.netflow_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The S3 bucket that receives VPC flow logs has no server-side encryption configuration, so network traffic metadata is stored unencrypted at rest. This data can reveal internal addressing, connectivity, and traffic patterns if the bucket storage is exposed.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2539,
+      "output_tokens": 2228,
+      "latency_s": 9.847,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000979
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000979
+}

@@ -1,0 +1,71 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__db-app.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "timestamp": "2026-08-17T00:42:43Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "storage unencrypted",
+      "description": "storage_encrypted = false disables encryption at rest for the RDS database, exposing all stored data including credentials and application data to anyone who gains raw disk access.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the MySQL database endpoint to the internet, allowing direct connection from any network and greatly expanding the attack surface.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "database endpoint exposed",
+      "description": "The aws_instance.db_app user_data makes the RDS endpoint, username, and password publicly visible in the EC2 user-data and in the final published index.php, leaking the database credentials.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The ec2role is granted s3:*, ec2:*, and rds:* on all resources (*), violating least privilege and allowing the attached EC2 instance to perform any S3/EC2/RDS action including data exfiltration and destroying resources.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all traffic to 0.0.0.0/0 (protocol -1, all ports), permitting outbound data exfiltration to any destination from the RDS security group.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "credentials in configuration",
+      "description": "The database password is stored in plaintext via var.password in user_data and the terraform state, and lifecycle.ignore_changes means the actual password is never audited by Terraform, weakening secret management.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 4765,
+  "output_tokens": 567,
+  "latency_s": 6.437,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"storage unencrypted\", \"description\": \"storage_encrypted = false disables encryption at rest for the RDS database, exposing all stored data including credentials and application data to anyone who gains raw disk access.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the MySQL database endpoint to the internet, allowing direct connection from any network and greatly expanding the attack surface.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"database endpoint exposed\", \"description\": \"The aws_instance.db_app user_data makes the RDS endpoint, username, and password publicly visible in the EC2 user-data and in the final published index.php, leaking the database credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The ec2role is granted s3:*, ec2:*, and rds:* on all resources (*), violating least privilege and allowing the attached EC2 instance to perform any S3/EC2/RDS action including data exfiltration and destroying resources.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress rule allows all traffic to 0.0.0.0/0 (protocol -1, all ports), permitting outbound data exfiltration to any destination from the RDS security group.\", \"severity\": \"medium\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"credentials in configuration\", \"description\": \"The database password is stored in plaintext via var.password in user_data and the terraform state, and lifecycle.ignore_changes means the actual password is never audited by Terraform, weakening secret management.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "cost_usd": 0.000826
+}

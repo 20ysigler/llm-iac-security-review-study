@@ -1,0 +1,105 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__db-app.tf__r11",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 11,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-06T20:45:14Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unencrypted storage at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing data to compromise if underlying storage or backups are accessed.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private network, significantly increasing attack surface for a database holding sensitive data.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "hard-coded/plaintext credential exposure",
+      "description": "The master username is hard-coded to 'admin' (a well-known default) and the password is supplied via var.password with no evidence of secrets manager integration; this password is later interpolated in plaintext into the EC2 user data, and combined with publicly_accessible = true this materially increases the risk of credential compromise and guessing attacks.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database username and password (var.password) in plaintext inside a PHP file written to disk, exposing credentials to anyone with access to instance metadata, console logs, Terraform state, or the deployed file, violating secure secret handling practices.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource: \"*\", giving the EC2 instance role near-administrative privileges over these services, violating least privilege and enabling privilege escalation or lateral movement if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted egress",
+      "description": "The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which can facilitate data exfiltration if the database or associated resources are compromised.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 24377,
+  "output_tokens": 3095,
+  "latency_s": 27.116,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"unencrypted storage at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage, snapshots, and backups are not encrypted at rest, exposing data to compromise if underlying storage or backups are accessed.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private network, significantly increasing attack surface for a database holding sensitive data.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"hard-coded/plaintext credential exposure\", \"description\": \"The master username is hard-coded to 'admin' (a well-known default) and the password is supplied via var.password with no evidence of secrets manager integration; this password is later interpolated in plaintext into the EC2 user data, and combined with publicly_accessible = true this materially increases the risk of credential compromise and guessing attacks.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database username and password (var.password) in plaintext inside a PHP file written to disk, exposing credentials to anyone with access to instance metadata, console logs, Terraform state, or the deployed file, violating secure secret handling practices.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource: \\\"*\\\", giving the EC2 instance role near-administrative privileges over these services, violating least privilege and enabling privilege escalation or lateral movement if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.egress\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group egress rule allows all protocols and ports to 0.0.0.0/0, permitting unrestricted outbound traffic from the RDS security group, which can facilitate data exfiltration if the database or associated resources are compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 7380,
+      "output_tokens": 1095,
+      "latency_s": 10.285,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02571
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 7380,
+      "output_tokens": 1029,
+      "latency_s": 9.239,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02505
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9617,
+      "output_tokens": 971,
+      "latency_s": 7.592,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.028944
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.079704
+}

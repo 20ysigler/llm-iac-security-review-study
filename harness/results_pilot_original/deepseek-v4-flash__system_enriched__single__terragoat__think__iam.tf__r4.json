@@ -1,0 +1,41 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:27:08Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the user unrestricted administrative access across compute, storage, serverless, and logging services. This violates least privilege and, combined with the associated access key, means compromise of this user yields broad control of the account and enables further privilege escalation (e.g., creating or modifying Lambda functions and EC2 resources).",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "credentials stored in plaintext",
+      "description": "The access key is created without a pgp_key, so the secret is written in plaintext to the Terraform state file, and the 'secret' output is configured to surface the credential to console and log output. Anyone with access to the state file or CI logs obtains a live credential bound to the overly permissive user policy.",
+      "severity": "medium",
+      "cwe": "CWE-256",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1463,
+  "output_tokens": 2647,
+  "latency_s": 21.411,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the user unrestricted administrative access across compute, storage, serverless, and logging services. This violates least privilege and, combined with the associated access key, means compromise of this user yields broad control of the account and enables further privilege escalation (e.g., creating or modifying Lambda functions and EC2 resources).\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"credentials stored in plaintext\", \"description\": \"The access key is created without a pgp_key, so the secret is written in plaintext to the Terraform state file, and the 'secret' output is configured to surface the credential to console and log output. Anyone with access to the state file or CI logs obtains a live credential bound to the overly permissive user policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-256\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.000946
+}

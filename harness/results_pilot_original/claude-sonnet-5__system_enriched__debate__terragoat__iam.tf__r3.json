@@ -1,0 +1,95 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat__iam.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:07:10Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.userpolicy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\"Resource\": \"*\") to an IAM user, violating least privilege and enabling broad access and potential privilege escalation if the user's credentials are compromised.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "long-lived static credentials",
+      "description": "Creating a static IAM access key/secret for an IAM user instead of using temporary or role-based credentials creates a long-lived credential that can be leaked or misused; combined with the overly broad policy attached to the same user this significantly increases blast radius if compromised.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.user",
+      "issue_category": "standing IAM user with broad access",
+      "description": "An IAM user (rather than a role) is created and paired with a long-lived access key and an excessively permissive policy, creating a persistent, highly privileged identity that increases attack surface if credentials are exposed.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.user",
+      "issue_category": "sensitive credential exposed via output",
+      "description": "The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, which is the PGP-encrypted secret access key; surfacing this value as a plain Terraform output risks it being persisted in state files, logs, or CI output where it could be retrieved and decrypted by unauthorized parties.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7954,
+  "output_tokens": 1751,
+  "latency_s": 18.006,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.userpolicy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants wildcard actions (ec2:*, s3:*, lambda:*, cloudwatch:*) on all resources (\\\"Resource\\\": \\\"*\\\") to an IAM user, violating least privilege and enabling broad access and potential privilege escalation if the user's credentials are compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"long-lived static credentials\", \"description\": \"Creating a static IAM access key/secret for an IAM user instead of using temporary or role-based credentials creates a long-lived credential that can be leaked or misused; combined with the overly broad policy attached to the same user this significantly increases blast radius if compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.user\", \"issue_category\": \"standing IAM user with broad access\", \"description\": \"An IAM user (rather than a role) is created and paired with a long-lived access key and an excessively permissive policy, creating a persistent, highly privileged identity that increases attack surface if credentials are exposed.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.user\", \"issue_category\": \"sensitive credential exposed via output\", \"description\": \"The 'secret' output exposes aws_iam_access_key.user.encrypted_secret, which is the PGP-encrypted secret access key; surfacing this value as a plain Terraform output risks it being persisted in state files, logs, or CI output where it could be retrieved and decrypted by unauthorized parties.\", \"severity\": \"medium\", \"cwe\": \"CWE-798\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2265,
+      "output_tokens": 485,
+      "latency_s": 5.343,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.00938
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2265,
+      "output_tokens": 537,
+      "latency_s": 5.821,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.0099
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 3424,
+      "output_tokens": 729,
+      "latency_s": 6.842,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.014138
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.033418
+}

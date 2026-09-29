@@ -1,0 +1,69 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:31:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the user unrestricted control over data and compute across the whole account. This permits mass data exfiltration from S3, destruction or unauthorized launch of EC2 instances (including privilege escalation by launching an instance with an existing high-privilege instance profile), and modification of Lambda functions. Actions and resources should be scoped to the specific deployment resources required.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed in output",
+      "description": "This output publishes the access key material for aws_iam_access_key.svc_deploy_key, and the secret is also retained in Terraform state. Anyone who can read the output or the state backend obtains deploy credentials that carry the wildcard policy above, turning a review artifact into a direct path to credential compromise. Secret values should not be emitted as Terraform outputs.",
+      "severity": "high",
+      "cwe": "CWE-538",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "This creates a permanent IAM user access key with no rotation or expiry mechanism. Because it is a long-lived static credential paired with the wildcard policy, any leak yields durable, account-wide access; workload access should be mediated through short-lived assumed roles rather than a static user key.",
+      "severity": "medium",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 3284,
+  "latency_s": 14.793,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the user unrestricted control over data and compute across the whole account. This permits mass data exfiltration from S3, destruction or unauthorized launch of EC2 instances (including privilege escalation by launching an instance with an existing high-privilege instance profile), and modification of Lambda functions. Actions and resources should be scoped to the specific deployment resources required.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential material exposed in output\", \"description\": \"This output publishes the access key material for aws_iam_access_key.svc_deploy_key, and the secret is also retained in Terraform state. Anyone who can read the output or the state backend obtains deploy credentials that carry the wildcard policy above, turning a review artifact into a direct path to credential compromise. Secret values should not be emitted as Terraform outputs.\", \"severity\": \"high\", \"cwe\": \"CWE-538\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"This creates a permanent IAM user access key with no rotation or expiry mechanism. Because it is a long-lived static credential paired with the wildcard policy, any leak yields durable, account-wide access; workload access should be mediated through short-lived assumed roles rather than a static user key.\", \"severity\": \"medium\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 3284,
+      "latency_s": 14.793,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.0011
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.0011
+}

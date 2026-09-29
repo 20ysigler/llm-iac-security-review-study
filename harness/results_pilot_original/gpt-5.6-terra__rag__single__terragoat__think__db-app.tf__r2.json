@@ -1,0 +1,89 @@
+{
+  "run_id": "gpt-5.6-terra__rag__single__terragoat__think__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:43:30Z",
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "storage encryption disabled",
+      "description": "The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage and snapshots unencrypted at rest. An unauthorized party obtaining access to the underlying storage or snapshots could read database contents.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets `publicly_accessible = true`, assigning it a public endpoint/address. Although the shown security-group ingress is VPC-scoped, public addressing unnecessarily expands exposure and makes future security-group mistakes internet-reachable.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "unenforced database transport encryption",
+      "description": "The associated MySQL parameter group does not set `require_secure_transport=ON`, so clients can connect without TLS. Database credentials and application data may therefore traverse the network in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.ingress",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL port 3306 is allowed from the entire VPC CIDR rather than only the application security group or required hosts. Any compromised or unauthorized workload in the VPC can attempt to access the database service.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.egress",
+      "issue_category": "unrestricted outbound traffic",
+      "description": "The database security group permits all protocols and ports to `0.0.0.0/0`. This provides a broad path for data exfiltration or command-and-control if the database host or an attached component is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overprivileged instance role",
+      "description": "The EC2 role grants all S3, EC2, and RDS actions against every resource. Compromise of the instance or its role credentials would permit broad account-level data access and infrastructure modification.",
+      "severity": "critical",
+      "cwe": "CWE-250",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "plaintext database credentials in userdata",
+      "description": "The database password is interpolated into EC2 user data and written into a PHP configuration file. User data is retrievable by principals with instance-describe access and may also be exposed through instance access, making the database credential available beyond a secret-management boundary.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No `metadata_options` configuration requires IMDSv2, so the instance can use IMDSv1. A server-side request forgery flaw in the web application could retrieve the attached role's temporary credentials from instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-918",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4935,
+  "output_tokens": 966,
+  "latency_s": 9.67,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"storage encryption disabled\",\"description\":\"The RDS instance explicitly sets `storage_encrypted = false`, leaving database storage and snapshots unencrypted at rest. An unauthorized party obtaining access to the underlying storage or snapshots could read database contents.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"publicly accessible database instance\",\"description\":\"The RDS instance sets `publicly_accessible = true`, assigning it a public endpoint/address. Although the shown security-group ingress is VPC-scoped, public addressing unnecessarily expands exposure and makes future security-group mistakes internet-reachable.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.default\",\"issue_category\":\"unenforced database transport encryption\",\"description\":\"The associated MySQL parameter group does not set `require_secure_transport=ON`, so clients can connect without TLS. Database credentials and application data may therefore traverse the network in cleartext.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.ingress\",\"issue_category\":\"overly broad database ingress\",\"description\":\"MySQL port 3306 is allowed from the entire VPC CIDR rather than only the application security group or required hosts. Any compromised or unauthorized workload in the VPC can attempt to access the database service.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.egress\",\"issue_category\":\"unrestricted outbound traffic\",\"description\":\"The database security group permits all protocols and ports to `0.0.0.0/0`. This provides a broad path for data exfiltration or command-and-control if the database host or an attached component is compromised.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.ec2policy\",\"issue_category\":\"overprivileged instance role\",\"description\":\"The EC2 role grants all S3, EC2, and RDS actions against every resource. Compromise of the instance or its role credentials would permit broad account-level data access and infrastructure modification.\",\"severity\":\"critical\",\"cwe\":\"CWE-250\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"plaintext database credentials in userdata\",\"description\":\"The database password is interpolated into EC2 user data and written into a PHP configuration file. User data is retrievable by principals with instance-describe access and may also be exposed through instance access, making the database credential available beyond a secret-management boundary.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.db_app\",\"issue_category\":\"IMDSv1 not disabled\",\"description\":\"No `metadata_options` configuration requires IMDSv2, so the instance can use IMDSv1. A server-side request forgery flaw in the web application could retrieve the attached role's temporary credentials from instance metadata.\",\"severity\":\"high\",\"cwe\":\"CWE-918\",\"confidence\":\"high\"}]}",
+  "cost_usd": 0.021462
+}

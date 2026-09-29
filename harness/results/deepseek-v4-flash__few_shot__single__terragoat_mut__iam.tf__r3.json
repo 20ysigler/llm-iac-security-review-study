@@ -1,0 +1,77 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__iam.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:46Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving the svc_deploy user full control over compute, storage, and serverless resources across the entire account. A compromised deploy credential would allow data exfiltration, resource destruction, and privilege escalation.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static credentials",
+      "description": "A static IAM access key is created for the svc_deploy user with no rotation mechanism, producing permanent credentials that grant full ec2/s3/lambda/cloudwatch access. If leaked, the key remains valid indefinitely; IAM roles or short-lived STS credentials should be used instead.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "secret exposed as output",
+      "description": "The access key's encrypted_secret is exposed via the svc_deploy_key_material output, and the accompanying output svc_deploy_username contributes to making these credentials retrievable from state/outputs. This places secret material in Terraform state and any output consumer, widening the credential's exposure.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "no MFA requirement",
+      "description": "The svc_deploy IAM user has no MFA enforcement (no aws_iam_user_login_profile or MFA policy), so access is protected only by the static access key and any console password, weakening access control for an account holding broad permissions.",
+      "severity": "low",
+      "cwe": "CWE-308",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1398,
+  "output_tokens": 483,
+  "latency_s": 2.873,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving the svc_deploy user full control over compute, storage, and serverless resources across the entire account. A compromised deploy credential would allow data exfiltration, resource destruction, and privilege escalation.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static credentials\", \"description\": \"A static IAM access key is created for the svc_deploy user with no rotation mechanism, producing permanent credentials that grant full ec2/s3/lambda/cloudwatch access. If leaked, the key remains valid indefinitely; IAM roles or short-lived STS credentials should be used instead.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"secret exposed as output\", \"description\": \"The access key's encrypted_secret is exposed via the svc_deploy_key_material output, and the accompanying output svc_deploy_username contributes to making these credentials retrievable from state/outputs. This places secret material in Terraform state and any output consumer, widening the credential's exposure.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"no MFA requirement\", \"description\": \"The svc_deploy IAM user has no MFA enforcement (no aws_iam_user_login_profile or MFA policy), so access is protected only by the static access key and any console password, weakening access control for an account holding broad permissions.\", \"severity\": \"low\", \"cwe\": \"CWE-308\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1398,
+      "output_tokens": 483,
+      "latency_s": 2.873,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.000331
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000331
+}

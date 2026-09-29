@@ -1,0 +1,96 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__iam.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:13:36Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user.svc_deploy",
+      "issue_category": "wildcard IAM policy permissions",
+      "description": "The policy attached via aws_iam_user_policy.svc_deploy_policy grants this user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \"*\", giving it full control over almost the entire account's compute and storage services with no resource scoping or condition constraints.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "wildcard IAM policy permissions",
+      "description": "The inline policy allows all actions across EC2, S3, Lambda, and CloudWatch on all resources (Resource \"*\"), so any compromise of the user immediately yields broad administrative capabilities including data exfiltration and destruction of workloads.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-269"
+    },
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "long-lived access key credentials",
+      "description": "This user is designed to authenticate with a static IAM access key (aws_iam_access_key.svc_deploy_key) rather than a federated or assumed role, so the deploy identity relies on long-lived credentials that cannot be scoped by session and are difficult to rotate.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived access key credentials",
+      "description": "A static, non-expiring access key pair is created for the svc_deploy user; combined with the wildcard policy, these long-lived secret credentials grant full account-wide EC2/S3/Lambda/CloudWatch access if leaked.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "svc_deploy_key_material",
+      "issue_category": "secret exposure in output",
+      "description": "This output emits the access key's encrypted_secret value; the encrypted form is still reversible with the PGP key held by the operator, and outputs are written to state and displayed in CI logs, exposing the credential material to anyone with access to plan/apply output or the state backend.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-522"
+    },
+    {
+      "resource": "svc_deploy_username",
+      "issue_category": "information disclosure in output",
+      "description": "This output publishes the IAM username of the deployment identity, revealing the account naming scheme (local.env_prefix-svc-deploy) to anyone who can read Terraform outputs or state, which aids targeted attacks against the account.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-200"
+    }
+  ],
+  "input_tokens": 1126,
+  "output_tokens": 666,
+  "latency_s": 3.296,
+  "attempts": 1,
+  "schema_problems": [
+    "review: finding[4] resource 'svc_deploy_key_material' is not type.name",
+    "review: finding[5] resource 'svc_deploy_username' is not type.name"
+  ],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user.svc_deploy\", \"issue_category\": \"wildcard IAM policy permissions\", \"description\": \"The policy attached via aws_iam_user_policy.svc_deploy_policy grants this user ec2:*, s3:*, lambda:*, and cloudwatch:* on Resource \\\"*\\\", giving it full control over almost the entire account's compute and storage services with no resource scoping or condition constraints.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"wildcard IAM policy permissions\", \"description\": \"The inline policy allows all actions across EC2, S3, Lambda, and CloudWatch on all resources (Resource \\\"*\\\"), so any compromise of the user immediately yields broad administrative capabilities including data exfiltration and destruction of workloads.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-269\"}, {\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"long-lived access key credentials\", \"description\": \"This user is designed to authenticate with a static IAM access key (aws_iam_access_key.svc_deploy_key) rather than a federated or assumed role, so the deploy identity relies on long-lived credentials that cannot be scoped by session and are difficult to rotate.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived access key credentials\", \"description\": \"A static, non-expiring access key pair is created for the svc_deploy user; combined with the wildcard policy, these long-lived secret credentials grant full account-wide EC2/S3/Lambda/CloudWatch access if leaked.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"svc_deploy_key_material\", \"issue_category\": \"secret exposure in output\", \"description\": \"This output emits the access key's encrypted_secret value; the encrypted form is still reversible with the PGP key held by the operator, and outputs are written to state and displayed in CI logs, exposing the credential material to anyone with access to plan/apply output or the state backend.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-522\"}, {\"resource\": \"svc_deploy_username\", \"issue_category\": \"information disclosure in output\", \"description\": \"This output publishes the IAM username of the deployment identity, revealing the account naming scheme (local.env_prefix-svc-deploy) to anyone who can read Terraform outputs or state, which aids targeted attacks against the account.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-200\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1126,
+      "output_tokens": 666,
+      "latency_s": 3.296,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000344
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000344
+}

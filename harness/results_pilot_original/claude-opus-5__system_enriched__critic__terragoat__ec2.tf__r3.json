@@ -1,0 +1,150 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat__ec2.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "ec2.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T18:59:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as plaintext static credentials. User data is retrievable unauthenticated from the instance metadata service by anyone achieving SSRF or code execution on the host, and is stored in cleartext in Terraform state and the EC2 API.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "IMDSv1 permitted (no metadata_options)",
+      "description": "No metadata_options block is set, so the instance defaults to http_tokens = \"optional\" (IMDSv1). Combined with the credentials embedded in user_data and internet-facing exposure, a single SSRF in the web application yields the static AWS keys and any role credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "unencrypted root volume",
+      "description": "No root_block_device with encrypted = true is specified, so unless the AMI or account default enforces it the root EBS volume is created unencrypted, leaving data at rest (including the user_data-derived files) unprotected.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.web_host",
+      "issue_category": "internet-exposed compute instance",
+      "description": "The instance is launched into aws_subnet.web_subnet, which has map_public_ip_on_launch = true and a 0.0.0.0/0 route to the internet gateway, and is protected only by a security group open to the world on 22 and 80. It is directly reachable from the internet while holding hard-coded credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted SSH ingress",
+      "description": "Ingress on TCP 22 is allowed from 0.0.0.0/0, exposing SSH on an internet-facing instance to credential brute force and remote exploitation from any source.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group.web-node",
+      "issue_category": "unrestricted egress to internet",
+      "description": "Egress allows all protocols and ports to 0.0.0.0/0, giving a compromised host unimpeded outbound channels for command-and-control and data exfiltration, including exfiltration of the credentials present in user data.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_ebs_volume.web_host_storage",
+      "issue_category": "missing encryption at rest",
+      "description": "encrypted = true is not set (it is explicitly commented out), so the volume attached to the web host stores data unencrypted and any snapshot derived from it inherits that state.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_ebs_snapshot.example_snapshot",
+      "issue_category": "unencrypted snapshot of volume",
+      "description": "The snapshot is taken from the unencrypted aws_ebs_volume.web_host_storage and is therefore unencrypted itself; snapshots can be copied or shared to other accounts, widening exposure of the plaintext data.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "missing encryption at rest",
+      "description": "The VPC flow log destination bucket has no server-side encryption configuration resource, so network telemetry that may reveal internal topology and traffic patterns is stored without an explicitly enforced encryption configuration.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.flowbucket",
+      "issue_category": "no public access block or TLS-only policy",
+      "description": "No aws_s3_bucket_public_access_block or bucket policy denying non-TLS (aws:SecureTransport = false) requests is defined for the log bucket, leaving it vulnerable to accidental public ACL/policy grants and cleartext access to security logs.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_subnet.web_subnet",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true means every instance launched here receives a public IP and, via the 0.0.0.0/0 route to the internet gateway, is directly addressable from the internet with no private-subnet boundary.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_subnet.web_subnet2",
+      "issue_category": "automatic public IP assignment",
+      "description": "map_public_ip_on_launch = true combined with the shared route table routing 0.0.0.0/0 to the internet gateway makes any workload placed in this subnet internet-facing by default.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 14780,
+  "output_tokens": 3364,
+  "latency_s": 37.985,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_instance.web_host\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script exports AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY as plaintext static credentials. User data is retrievable unauthenticated from the instance metadata service by anyone achieving SSRF or code execution on the host, and is stored in cleartext in Terraform state and the EC2 API.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"IMDSv1 permitted (no metadata_options)\", \"description\": \"No metadata_options block is set, so the instance defaults to http_tokens = \\\"optional\\\" (IMDSv1). Combined with the credentials embedded in user_data and internet-facing exposure, a single SSRF in the web application yields the static AWS keys and any role credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"unencrypted root volume\", \"description\": \"No root_block_device with encrypted = true is specified, so unless the AMI or account default enforces it the root EBS volume is created unencrypted, leaving data at rest (including the user_data-derived files) unprotected.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.web_host\", \"issue_category\": \"internet-exposed compute instance\", \"description\": \"The instance is launched into aws_subnet.web_subnet, which has map_public_ip_on_launch = true and a 0.0.0.0/0 route to the internet gateway, and is protected only by a security group open to the world on 22 and 80. It is directly reachable from the internet while holding hard-coded credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted SSH ingress\", \"description\": \"Ingress on TCP 22 is allowed from 0.0.0.0/0, exposing SSH on an internet-facing instance to credential brute force and remote exploitation from any source.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group.web-node\", \"issue_category\": \"unrestricted egress to internet\", \"description\": \"Egress allows all protocols and ports to 0.0.0.0/0, giving a compromised host unimpeded outbound channels for command-and-control and data exfiltration, including exfiltration of the credentials present in user data.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_ebs_volume.web_host_storage\", \"issue_category\": \"missing encryption at rest\", \"description\": \"encrypted = true is not set (it is explicitly commented out), so the volume attached to the web host stores data unencrypted and any snapshot derived from it inherits that state.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_ebs_snapshot.example_snapshot\", \"issue_category\": \"unencrypted snapshot of volume\", \"description\": \"The snapshot is taken from the unencrypted aws_ebs_volume.web_host_storage and is therefore unencrypted itself; snapshots can be copied or shared to other accounts, widening exposure of the plaintext data.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The VPC flow log destination bucket has no server-side encryption configuration resource, so network telemetry that may reveal internal topology and traffic patterns is stored without an explicitly enforced encryption configuration.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.flowbucket\", \"issue_category\": \"no public access block or TLS-only policy\", \"description\": \"No aws_s3_bucket_public_access_block or bucket policy denying non-TLS (aws:SecureTransport = false) requests is defined for the log bucket, leaving it vulnerable to accidental public ACL/policy grants and cle",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 6442,
+      "output_tokens": 1539,
+      "latency_s": 18.497,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.070685
+    },
+    {
+      "step": "critique",
+      "input_tokens": 8338,
+      "output_tokens": 1825,
+      "latency_s": 19.488,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.087315
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.158
+}

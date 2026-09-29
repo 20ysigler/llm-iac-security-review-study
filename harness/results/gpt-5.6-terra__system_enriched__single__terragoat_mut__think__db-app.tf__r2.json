@@ -1,0 +1,85 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-22T02:07:03Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public network endpoint. Although the shown security-group ingress is VPC-scoped, exposing the database to a public address weakens network segmentation and makes any future or unshown security-group error externally exploitable.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted database storage",
+      "description": "The RDS instance explicitly sets storage_encrypted = false, so database storage and associated automated backups are not encrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "unenforced database transport encryption",
+      "description": "The custom MySQL 8.0 parameter group does not set require_secure_transport=ON. RDS MySQL therefore permits non-TLS database sessions by default, and the supplied application connects without TLS options, allowing credentials and application data to traverse the VPC in cleartext.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext database credential exposure",
+      "description": "User data interpolates the database username and password into a PHP configuration file on the instance. The script does not restrict the file mode (normally 0644 under the default umask), so the credential is retained in plaintext and may be read by local users/processes; the rendered secret is also present in instance user data and Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly broad instance permissions",
+      "description": "The EC2-assumable application role is granted s3:*, ec2:*, and rds:* on every resource. Compromise of a workload using this instance profile would grant broad control of compute, database, and storage resources, including actions that can expose or destroy data and enable further privilege escalation.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3010,
+  "output_tokens": 1215,
+  "latency_s": 20.214,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 4,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, assigning it a public network endpoint. Although the shown security-group ingress is VPC-scoped, exposing the database to a public address weakens network segmentation and makes any future or unshown security-group error externally exploitable.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"unencrypted database storage\",\"description\":\"The RDS instance explicitly sets storage_encrypted = false, so database storage and associated automated backups are not encrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_db_parameter_group.catalog_db_params\",\"issue_category\":\"unenforced database transport encryption\",\"description\":\"The custom MySQL 8.0 parameter group does not set require_secure_transport=ON. RDS MySQL therefore permits non-TLS database sessions by default, and the supplied application connects without TLS options, allowing credentials and application data to traverse the VPC in cleartext.\",\"severity\":\"medium\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"plaintext database credential exposure\",\"description\":\"User data interpolates the database username and password into a PHP configuration file on the instance. The script does not restrict the file mode (normally 0644 under the default umask), so the credential is retained in plaintext and may be read by local users/processes; the rendered secret is also present in instance user data and Terraform state.\",\"severity\":\"high\",\"cwe\":\"CWE-522\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly broad instance permissions\",\"description\":\"The EC2-assumable application role is granted s3:*, ec2:*, and rds:* on every resource. Compromise of a workload using this instance profile would grant broad control of compute, database, and storage resources, including actions that can expose or destroy data and enable further privilege escalation.\",\"severity\":\"high\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3010,
+      "output_tokens": 1215,
+      "latency_s": 20.214,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.0206
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.0206
+}

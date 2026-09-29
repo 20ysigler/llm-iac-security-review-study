@@ -1,0 +1,41 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat__think__kms.tf__r4",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "kms.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T03:54:11Z",
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "KMS key rotation disabled",
+      "description": "The customer-managed KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Long-lived key material increases the window of exposure if the key is ever compromised and violates common cryptographic key-lifecycle requirements for regulated data such as audit logs.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_kms_key.logs_key",
+      "issue_category": "short key deletion window",
+      "description": "deletion_window_in_days is set to the minimum of 7 days, giving only a brief period to detect and cancel a malicious or accidental key deletion; once the key is destroyed all data encrypted with it (including the log bucket objects) becomes permanently unrecoverable, so this is a destructive-action exposure rather than a pure availability concern.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    }
+  ],
+  "input_tokens": 1873,
+  "output_tokens": 651,
+  "latency_s": 10.441,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"KMS key rotation disabled\", \"description\": \"The customer-managed KMS key used to encrypt the logs bucket does not set enable_key_rotation, so it defaults to false and the key material is never automatically rotated. Long-lived key material increases the window of exposure if the key is ever compromised and violates common cryptographic key-lifecycle requirements for regulated data such as audit logs.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_kms_key.logs_key\", \"issue_category\": \"short key deletion window\", \"description\": \"deletion_window_in_days is set to the minimum of 7 days, giving only a brief period to detect and cancel a malicious or accidental key deletion; once the key is destroyed all data encrypted with it (including the log bucket objects) becomes permanently unrecoverable, so this is a destructive-action exposure rather than a pure availability concern.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}]}",
+  "cost_usd": 0.02564
+}

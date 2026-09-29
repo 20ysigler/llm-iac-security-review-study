@@ -1,0 +1,73 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:30:59Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration, so all objects (including the customer-master.xlsx file uploaded by aws_s3_bucket_object.data_object) are stored unencrypted at rest, exposing sensitive customer data if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "unrestricted public access",
+      "description": "The configuration explicitly comments that this bucket is public while it stores customer master data; no public-read ACL or bucket policy is present in this file, so if the comment reflects the deployed state the customer-master.xlsx object is readable by any unauthenticated party.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "missing encryption at rest",
+      "description": "The object upload does not set server_side_encryption and targets aws_s3_bucket.data, which has no default encryption, so the customer-master.xlsx file (sensitive customer data) is stored in cleartext at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration, so financial data stored here is unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration, so operations data stored here is unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration (confirmed by the inline comment), so data-science objects are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2603,
+  "output_tokens": 4030,
+  "latency_s": 33.014,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration, so all objects (including the customer-master.xlsx file uploaded by aws_s3_bucket_object.data_object) are stored unencrypted at rest, exposing sensitive customer data if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"unrestricted public access\", \"description\": \"The configuration explicitly comments that this bucket is public while it stores customer master data; no public-read ACL or bucket policy is present in this file, so if the comment reflects the deployed state the customer-master.xlsx object is readable by any unauthenticated party.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The object upload does not set server_side_encryption and targets aws_s3_bucket.data, which has no default encryption, so the customer-master.xlsx file (sensitive customer data) is stored in cleartext at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration, so financial data stored here is unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration, so operations data stored here is unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration (confirmed by the inline comment), so data-science objects are stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001493
+}

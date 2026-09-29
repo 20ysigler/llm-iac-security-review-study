@@ -1,0 +1,57 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat__think__db-app.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-08-17T04:22:44Z",
+  "resolved_model": "deepseek-v4-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the RDS MySQL database and its automated backups are stored unencrypted at rest. Any attacker who gains access to the underlying storage or snapshots can read the data in plaintext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.default",
+      "issue_category": "public database exposure",
+      "description": "publicly_accessible is set to true, which assigns the RDS instance a public IP address and places it in the public web subnets. Although the security group limits 3306 ingress to the VPC CIDR today, this creates unnecessary internet-facing attack surface for a database that should be reachable only from application tiers in private subnets.",
+      "severity": "high",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.ec2policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The EC2 instance role grants s3:*, ec2:*, and rds:* on Resource \"*\", i.e. full administrative access to all S3, EC2, and RDS resources in the account. Compromise of the EC2 instance (or any code running on it) escalates to account-wide data access and infrastructure control, violating least privilege.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.db_app",
+      "issue_category": "hard-coded credentials in startup script",
+      "description": "The EC2 user_data embeds the RDS database password in plaintext (define('DB_PASSWORD', '${var.password}');) into the instance's bootstrap script. The password is stored in the launch configuration/user data, is retrievable via instance metadata and the EC2 console, and is written to disk on the instance, leaking database credentials to anyone with read access.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 4837,
+  "output_tokens": 3369,
+  "latency_s": 27.508,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.default\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the RDS MySQL database and its automated backups are stored unencrypted at rest. Any attacker who gains access to the underlying storage or snapshots can read the data in plaintext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.default\", \"issue_category\": \"public database exposure\", \"description\": \"publicly_accessible is set to true, which assigns the RDS instance a public IP address and places it in the public web subnets. Although the security group limits 3306 ingress to the VPC CIDR today, this creates unnecessary internet-facing attack surface for a database that should be reachable only from application tiers in private subnets.\", \"severity\": \"high\", \"cwe\": \"CWE-668\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.ec2policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The EC2 instance role grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", i.e. full administrative access to all S3, EC2, and RDS resources in the account. Compromise of the EC2 instance (or any code running on it) escalates to account-wide data access and infrastructure control, violating least privilege.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.db_app\", \"issue_category\": \"hard-coded credentials in startup script\", \"description\": \"The EC2 user_data embeds the RDS database password in plaintext (define('DB_PASSWORD', '${var.password}');) into the instance's bootstrap script. The password is stored in the launch configuration/user data, is retrievable via instance metadata and the EC2 console, and is written to disk on the instance, leaking database credentials to anyone with read access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "cost_usd": 0.001621
+}

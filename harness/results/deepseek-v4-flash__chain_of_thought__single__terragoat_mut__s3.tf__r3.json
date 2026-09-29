@@ -1,0 +1,115 @@
+{
+  "run_id": "deepseek-v4-flash__chain_of_thought__single__terragoat_mut__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:14:18Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "Logging to non-log-delivery bucket",
+      "description": "Server access logging is configured, but the target bucket aws_s3_bucket.audit_trail.id is not referenced with the required log-delivery dependency (depends_on / aws_s3_bucket_acl with log-delivery-write); more importantly, the logging target is set using the bucket id attribute instead of the bucket ARN/name expected by the S3 logging API, so logging may silently fail and access events to model artifacts go unrecorded.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket holds vendor/HR report data (seed object vendor-roster.xlsx) but has no server_side_encryption_configuration block, so objects are stored with only S3 default-managed encryption rather than an explicit, auditable KMS key, and there is no deny-if-unencrypted bucket policy.",
+      "severity": "high",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing access logging",
+      "description": "The bucket containing sensitive report data has no logging block, so read access to the vendor roster and other reports is not recorded, removing an audit trail for the most sensitive data in this file.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket, so account- or bucket-level ACLs and policies could expose the bucket publicly with no guardrail blocking public access.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger export bucket has no server-side encryption configuration, leaving financial export data protected only by S3 defaults with no customer-managed KMS key.",
+      "severity": "high",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing access logging",
+      "description": "No logging block is defined, so access to exported ledger data is not audited.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "Model artifact storage has no server-side encryption configuration, so artifacts (potentially containing sensitive or proprietary training data) are not explicitly encrypted with a controlled key.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "Runbooks bucket has no server-side encryption configuration; operational runbooks often contain credentials, internal endpoints, and recovery procedures that should be encrypted with a managed key.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing logging/versioning defenses",
+      "description": "The audit bucket uses acl = log-delivery-write, granting the S3 log-delivery system write access to this bucket; if any other logging target is malicious or the ACL is broadened, log data could be overwritten, and the bucket lacks a bucket policy enforcing TLS or preventing log tampering.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "object uploaded without explicit encryption",
+      "description": "The seed object is uploaded to a bucket that has no default encryption configuration, so this vendor roster object may be stored without server-side encryption under a managed key.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1393,
+  "output_tokens": 903,
+  "latency_s": 4.807,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"Logging to non-log-delivery bucket\", \"description\": \"Server access logging is configured, but the target bucket aws_s3_bucket.audit_trail.id is not referenced with the required log-delivery dependency (depends_on / aws_s3_bucket_acl with log-delivery-write); more importantly, the logging target is set using the bucket id attribute instead of the bucket ARN/name expected by the S3 logging API, so logging may silently fail and access events to model artifacts go unrecorded.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket holds vendor/HR report data (seed object vendor-roster.xlsx) but has no server_side_encryption_configuration block, so objects are stored with only S3 default-managed encryption rather than an explicit, auditable KMS key, and there is no deny-if-unencrypted bucket policy.\", \"severity\": \"high\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing access logging\", \"description\": \"The bucket containing sensitive report data has no logging block, so read access to the vendor roster and other reports is not recorded, removing an audit trail for the most sensitive data in this file.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket, so account- or bucket-level ACLs and policies could expose the bucket publicly with no guardrail blocking public access.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger export bucket has no server-side encryption configuration, leaving financial export data protected only by S3 defaults with no customer-managed KMS key.\", \"severity\": \"high\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing access logging\", \"description\": \"No logging block is defined, so access to exported ledger data is not audited.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Model artifact storage has no server-side encryption configuration, so artifacts (potentially containing sensitive or proprietary training data) are not explicitly encrypted with a controlled key.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Runbooks bucket has no server-side encryption configuration; operational runbooks often contain credentials, internal endpoints, and recovery procedures that should be encrypted with a managed key.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing logging/versioning defenses\", \"description\": \"The audit bucket uses acl = log-delivery-write, granting the S3 log-delivery system write access to this bucket; if any other logging target is malicious or the ACL is broadened, log data could be overwritten, and the bucket lacks a bucket policy enforcing TLS or preventing log tampering.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"object uploaded without explicit encryption\", \"description\": \"The seed object is uploaded to a bucket that has no default encryption configuration, so this vendor roster object may be stored without server-side encryption under a managed key.\", \"severity\": \"medium\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1393,
+      "output_tokens": 903,
+      "latency_s": 4.807,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.000448
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000448
+}

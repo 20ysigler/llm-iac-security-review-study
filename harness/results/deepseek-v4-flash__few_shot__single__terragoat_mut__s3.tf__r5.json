@@ -1,0 +1,143 @@
+{
+  "run_id": "deepseek-v4-flash__few_shot__single__terragoat_mut__s3.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:12:38Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with S3-managed keys (SSE-S3) or, depending on defaults, without explicit encryption controls and no customer-managed KMS key. Sensitive report data lacks the auditability and key-rotation control that KMS encryption provides.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with reports_archive, and the bucket does not declare an explicit private ACL, so account- or bucket-level policy changes or legacy ACL defaults could expose the report archive to anonymous read access.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true allows the bucket and all archived reports to be irreversibly deleted (including non-empty buckets) by anyone with apply rights or a compromised pipeline, destroying the audit/recovery copy of report data.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket holds financial ledger data but has no server_side_encryption_configuration, and no public access block is defined for it. Ledger exports remain unencrypted with a customer-managed key and are not explicitly protected from future public exposure.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true permits unrecoverable deletion of the financial ledger bucket and its contents, undermining retention and auditability of ledger data.",
+      "severity": "medium",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket stores model artifacts with no server_side_encryption_configuration block and no public access block, so artifacts rely only on default encryption and are not protected against policy-driven public exposure.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true allows the model artifact bucket and its versioned contents to be deleted destructively, removing trained model provenance data.",
+      "severity": "low",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket contains operational runbooks (often including credentials, hostnames, and recovery procedures) yet defines no server_side_encryption_configuration and no public access block, leaving sensitive operational documentation without KMS encryption or explicit anti-public-exposure controls.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true allows destructive deletion of the runbooks bucket, which may remove critical incident-response documentation.",
+      "severity": "low",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "excessive log delivery ACL permissions",
+      "description": "The audit_trail bucket is configured with acl = \"log-delivery-write\", a legacy canned ACL that grants write access to the AWS Log Delivery group. Applying a canned ACL to an audit bucket weakens access control on the tamper-evident audit store and depends on Object Ownership settings to remain safe.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force_destroy enabled",
+      "description": "force_destroy = true on the audit trail bucket allows the entire audit log history to be irreversibly deleted, defeating the purpose of a tamper-evident audit store and enabling an attacker with apply access to erase evidence.",
+      "severity": "high",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload",
+      "description": "The reports_seed_object uploads a vendor roster spreadsheet with no server-side encryption parameters and no kms_key_id, so the object is written using only default bucket encryption (or none if the bucket lacks a default), exposing vendor PII to storage-layer access without a customer-managed key.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "no read access logging or ownership controls",
+      "description": "The seed object is placed directly into the reports_archive bucket without an associated kms key or explicit ACL restriction, and the referenced bucket has no public access block, so the vendor roster may be readable if bucket policy defaults change.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1665,
+  "output_tokens": 1263,
+  "latency_s": 6.13,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, so objects are stored with S3-managed keys (SSE-S3) or, depending on defaults, without explicit encryption controls and no customer-managed KMS key. Sensitive report data lacks the auditability and key-rotation control that KMS encryption provides.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with reports_archive, and the bucket does not declare an explicit private ACL, so account- or bucket-level policy changes or legacy ACL defaults could expose the report archive to anonymous read access.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true allows the bucket and all archived reports to be irreversibly deleted (including non-empty buckets) by anyone with apply rights or a compromised pipeline, destroying the audit/recovery copy of report data.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket holds financial ledger data but has no server_side_encryption_configuration, and no public access block is defined for it. Ledger exports remain unencrypted with a customer-managed key and are not explicitly protected from future public exposure.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true permits unrecoverable deletion of the financial ledger bucket and its contents, undermining retention and auditability of ledger data.\", \"severity\": \"medium\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket stores model artifacts with no server_side_encryption_configuration block and no public access block, so artifacts rely only on default encryption and are not protected against policy-driven public exposure.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true allows the model artifact bucket and its versioned contents to be deleted destructively, removing trained model provenance data.\", \"severity\": \"low\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket contains operational runbooks (often including credentials, hostnames, and recovery procedures) yet defines no server_side_encryption_configuration and no public access block, leaving sensitive operational documentation without KMS encryption or explicit anti-public-exposure controls.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"force_destroy enabled\", \"description\": \"force_destroy = true allows destructive deletion of the runbooks bucket, which may remove critical incident-response documentation.\", \"severity\": \"low\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"excessive log delivery ACL permissions\", \"description\": \"The audit_trail bucket is configured with acl = \\\"log-delivery-write\\\", a legacy canned ACL that grants write access to the AWS Log Delivery group. Applying a canned ACL to an audit bucket weakens access control on the tamper-evident audit store and depends on Object Ownership settings to remain safe.\", \"severity\": \"low\", \"confide",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1665,
+      "output_tokens": 1263,
+      "latency_s": 6.13,
+      "n_findings": 13,
+      "error": "",
+      "cost_usd": 0.000587
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000587
+}

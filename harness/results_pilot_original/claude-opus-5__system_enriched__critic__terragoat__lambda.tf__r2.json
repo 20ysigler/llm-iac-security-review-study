@@ -1,0 +1,86 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat__lambda.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-08-23T19:03:25Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "hard-coded credentials in environment variables",
+      "description": "A long-lived AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables in the Terraform source. They are exposed to anyone with repository read access, Terraform state access, or lambda:GetFunctionConfiguration, and are readable in the console/API.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "environment variables not encrypted with CMK",
+      "description": "No kms_key_arn is set for the environment block, so the secret-bearing variables are protected only by the default AWS-managed key with no key-policy-level access restriction, and remain retrievable in cleartext by any principal with basic Lambda read permissions.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_lambda_function.analysis_lambda",
+      "issue_category": "deprecated end-of-life runtime",
+      "description": "The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1104"
+    },
+    {
+      "resource": "aws_iam_role.iam_for_lambda",
+      "issue_category": "missing confused-deputy trust conditions",
+      "description": "The assume-role policy grants sts:AssumeRole to the lambda.amazonaws.com service principal with no aws:SourceArn or aws:SourceAccount condition, so the role is not scoped to this specific function or account.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 6058,
+  "output_tokens": 1499,
+  "latency_s": 18.739,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"hard-coded credentials in environment variables\", \"description\": \"A long-lived AWS access key ID and secret access key are embedded in plaintext as Lambda environment variables in the Terraform source. They are exposed to anyone with repository read access, Terraform state access, or lambda:GetFunctionConfiguration, and are readable in the console/API.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"environment variables not encrypted with CMK\", \"description\": \"No kms_key_arn is set for the environment block, so the secret-bearing variables are protected only by the default AWS-managed key with no key-policy-level access restriction, and remain retrievable in cleartext by any principal with basic Lambda read permissions.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_lambda_function.analysis_lambda\", \"issue_category\": \"deprecated end-of-life runtime\", \"description\": \"The function uses the nodejs12.x runtime, which is end-of-life and no longer receives security patches from AWS, leaving the execution environment exposed to unpatched vulnerabilities.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-1104\"}, {\"resource\": \"aws_iam_role.iam_for_lambda\", \"issue_category\": \"missing confused-deputy trust conditions\", \"description\": \"The assume-role policy grants sts:AssumeRole to the lambda.amazonaws.com service principal with no aws:SourceArn or aws:SourceAccount condition, so the role is not scoped to this specific function or account.\", \"severity\": \"low\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2507,
+      "output_tokens": 842,
+      "latency_s": 11.002,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.033585
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3551,
+      "output_tokens": 657,
+      "latency_s": 7.737,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.03418
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.067765
+}

@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__iam.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "iam.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-29T01:35:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500,
+    "providers_sha": "342eb33830a57597"
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_iam_user_policy.svc_deploy_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \"*\", giving the deploy user full control of every EC2, S3, Lambda and CloudWatch resource in the account. This violates least privilege: the identity can read/modify/delete all stored data (s3:*), manipulate compute (ec2:*, lambda:*), and tamper with logging (cloudwatch:*) across the whole account, and lambda:* combined with ec2:* provides privilege-escalation paths (e.g. creating a function with an existing privileged role).",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.svc_deploy_key_material",
+      "issue_category": "credential material exposed via output",
+      "description": "This output emits IAM access key material. Outputs are not marked sensitive and are written to Terraform state and displayed in plan/apply logs and CI output, so the credential is exposed to anyone with state or log access. The key is not tied to a pgp_key, so secret material associated with this key is stored unprotected in state.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_access_key.svc_deploy_key",
+      "issue_category": "long-lived static access credentials",
+      "description": "A static, long-lived IAM access key is created for the deploy user. Because it is attached to the broadly privileged svc_deploy_policy, compromise of this single key yields account-wide control of EC2, S3, Lambda and CloudWatch. Static keys have no expiry or rotation and persist in Terraform state, unlike short-lived role credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 1291,
+  "output_tokens": 3084,
+  "latency_s": 14.788,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_iam_user_policy.svc_deploy_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants ec2:*, s3:*, lambda:* and cloudwatch:* on Resource \\\"*\\\", giving the deploy user full control of every EC2, S3, Lambda and CloudWatch resource in the account. This violates least privilege: the identity can read/modify/delete all stored data (s3:*), manipulate compute (ec2:*, lambda:*), and tamper with logging (cloudwatch:*) across the whole account, and lambda:* combined with ec2:* provides privilege-escalation paths (e.g. creating a function with an existing privileged role).\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"output.svc_deploy_key_material\", \"issue_category\": \"credential material exposed via output\", \"description\": \"This output emits IAM access key material. Outputs are not marked sensitive and are written to Terraform state and displayed in plan/apply logs and CI output, so the credential is exposed to anyone with state or log access. The key is not tied to a pgp_key, so secret material associated with this key is stored unprotected in state.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"medium\"}, {\"resource\": \"aws_iam_access_key.svc_deploy_key\", \"issue_category\": \"long-lived static access credentials\", \"description\": \"A static, long-lived IAM access key is created for the deploy user. Because it is attached to the broadly privileged svc_deploy_policy, compromise of this single key yields account-wide control of EC2, S3, Lambda and CloudWatch. Static keys have no expiry or rotation and persist in Terraform state, unlike short-lived role credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1291,
+      "output_tokens": 3084,
+      "latency_s": 14.788,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.001044
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001044
+}

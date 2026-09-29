@@ -1,0 +1,70 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__critic__terragoat_mut__lambda.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "lambda.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-26T04:11:19Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "hard-coded credentials in configuration",
+      "description": "AWS access key and secret key are embedded in Lambda environment variables in cleartext as static values, so the long-lived credentials are exposed to anyone with read access to the function configuration (console, API, CI logs, Terraform state) and cannot be rotated without redeploying. They should be supplied via Secrets Manager or SSM Parameter Store and referenced dynamically.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_lambda_function.analytics_fn",
+      "issue_category": "deprecated runtime version",
+      "description": "The function runs on nodejs12.x, which is past end-of-life and no longer receives security patches, leaving known vulnerabilities in the runtime and bundled dependencies unpatched. CWE-1104 is the legacy mapping; CWE-1275/CWE-477 more precisely describe use of an unsupported runtime, but the reported mapping is substantiated.",
+      "severity": "medium",
+      "cwe": "CWE-1104",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 2838,
+  "output_tokens": 515,
+  "latency_s": 4.248,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"hard-coded credentials in configuration\", \"description\": \"AWS access key and secret key are embedded in Lambda environment variables in cleartext as static values, so the long-lived credentials are exposed to anyone with read access to the function configuration (console, API, CI logs, Terraform state) and cannot be rotated without redeploying. They should be supplied via Secrets Manager or SSM Parameter Store and referenced dynamically.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_lambda_function.analytics_fn\", \"issue_category\": \"deprecated runtime version\", \"description\": \"The function runs on nodejs12.x, which is past end-of-life and no longer receives security patches, leaving known vulnerabilities in the runtime and bundled dependencies unpatched. CWE-1104 is the legacy mapping; CWE-1275/CWE-477 more precisely describe use of an unsupported runtime, but the reported mapping is substantiated.\", \"severity\": \"medium\", \"cwe\": \"CWE-1104\", \"confidence\": \"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1263,
+      "output_tokens": 231,
+      "latency_s": 2.206,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.000242
+    },
+    {
+      "step": "critique",
+      "input_tokens": 1575,
+      "output_tokens": 284,
+      "latency_s": 2.042,
+      "n_findings": 2,
+      "error": "",
+      "cost_usd": 0.0003
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.000542
+}

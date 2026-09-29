@@ -1,0 +1,65 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat__s3.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat",
+  "file": "s3.tf",
+  "repetition": 4,
+  "temperature": null,
+  "timestamp": "2026-08-16T23:46:36Z",
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "public bucket access / no encryption",
+      "description": "This bucket is explicitly noted as public with no ACL restricting access, and has no server-side encryption configured, meaning any object stored (including the customer-master.xlsx uploaded to it) can potentially be read by unauthenticated users and is stored unencrypted at rest.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.data",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects are stored without encryption at rest, risking data exposure if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket_object.data_object",
+      "issue_category": "sensitive data in public/unencrypted bucket",
+      "description": "A customer master data file (customer-master.xlsx) is uploaded to the aws_s3_bucket.data bucket, which is public and unencrypted, exposing potentially sensitive customer data to unauthorized access.",
+      "severity": "critical",
+      "cwe": "CWE-200"
+    },
+    {
+      "resource": "aws_s3_bucket.financials",
+      "issue_category": "missing encryption at rest",
+      "description": "The financials bucket, likely containing sensitive financial data, has no server_side_encryption_configuration, leaving data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.operations",
+      "issue_category": "missing encryption at rest",
+      "description": "The operations bucket has no server_side_encryption_configuration block, leaving stored data unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.data_science",
+      "issue_category": "missing encryption at rest",
+      "description": "The data_science bucket has no server_side_encryption_configuration block, leaving stored data unencrypted at rest despite likely containing sensitive analytical data.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 4033,
+  "output_tokens": 793,
+  "latency_s": 6.807,
+  "attempts": 1,
+  "schema_problems": [],
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"public bucket access / no encryption\", \"description\": \"This bucket is explicitly noted as public with no ACL restricting access, and has no server-side encryption configured, meaning any object stored (including the customer-master.xlsx uploaded to it) can potentially be read by unauthenticated users and is stored unencrypted at rest.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.data\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects are stored without encryption at rest, risking data exposure if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket_object.data_object\", \"issue_category\": \"sensitive data in public/unencrypted bucket\", \"description\": \"A customer master data file (customer-master.xlsx) is uploaded to the aws_s3_bucket.data bucket, which is public and unencrypted, exposing potentially sensitive customer data to unauthorized access.\", \"severity\": \"critical\", \"cwe\": \"CWE-200\"}, {\"resource\": \"aws_s3_bucket.financials\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The financials bucket, likely containing sensitive financial data, has no server_side_encryption_configuration, leaving data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.operations\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The operations bucket has no server_side_encryption_configuration block, leaving stored data unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.data_science\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The data_science bucket has no server_side_encryption_configuration block, leaving stored data unencrypted at rest despite likely containing sensitive analytical data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "cost_usd": 0.015996
+}
