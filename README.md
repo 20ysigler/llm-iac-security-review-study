@@ -59,7 +59,7 @@ harness/                     the code
   mutate_corpus.py             the corpus rewrite (seed 20260908); validate_mutation.py checks it against Checkov
   results/                     the 1,080 raw run files, one per model x context x pattern x file x repetition (README.md describes the fields)
   scored/                      the 36 per-configuration summaries (pooled counts, per-run counts, bootstrap intervals)
-  results_superseded/          the DeepSeek reasoning-on runs at 4,096 and 8,000 output tokens, replaced by the 16,000-token rerun (see RESULTS.md)
+  results_superseded/          the DeepSeek reasoning-on runs at 4,096 and 8,000 output tokens, replaced by the 16,000-token rerun, and the 180 runs on the first mutated corpus before the mutator fix (READMEs inside; see RESULTS.md)
   results_pilot_original/      the 1,050 pilot runs on the original, unmutated TerraGoat files (README.md inside)
   fp_review/                   the 177 rejected claims of the model comparison with the AI first-pass and the author's verdicts
 data/
