@@ -1,0 +1,93 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__s3.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:53Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid public-read ACL",
+      "description": "The bucket ACL is set to an unrecognized value 'lcatalogopts-delivery-write' rather than 'private'. Beyond being invalid, this loosens the ACL away from the secure default and the intended log-delivery pattern; the correct value would be 'log-delivery-write' with the bucket owner controlling access.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "reports_archive stores vendor/company report data with no server_side_encryption_configuration block, so objects are stored unencrypted under S3 defaults. There is no SSE-KMS or AES256 configuration to protect data at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "ledger_exports holds financial ledger exports and is created without any server_side_encryption_configuration block, leaving stored financial data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts has versioning and logging configured but no server_side_encryption_configuration block, so stored model artifacts are not encrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks has versioning enabled but no server_side_encryption_configuration block, so runbook content is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing access logging",
+      "description": "audit_trail is the designated log destination for other buckets but does not itself have logging configured, and no bucket policy restricts access to the log delivery principal. As the integrity record for the account, its access should be logged and constrained by policy.",
+      "severity": "medium",
+      "cwe": "CWE-778",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1541,
+  "output_tokens": 608,
+  "latency_s": 3.347,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid public-read ACL\", \"description\": \"The bucket ACL is set to an unrecognized value 'lcatalogopts-delivery-write' rather than 'private'. Beyond being invalid, this loosens the ACL away from the secure default and the intended log-delivery pattern; the correct value would be 'log-delivery-write' with the bucket owner controlling access.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"reports_archive stores vendor/company report data with no server_side_encryption_configuration block, so objects are stored unencrypted under S3 defaults. There is no SSE-KMS or AES256 configuration to protect data at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ledger_exports holds financial ledger exports and is created without any server_side_encryption_configuration block, leaving stored financial data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts has versioning and logging configured but no server_side_encryption_configuration block, so stored model artifacts are not encrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks has versioning enabled but no server_side_encryption_configuration block, so runbook content is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing access logging\", \"description\": \"audit_trail is the designated log destination for other buckets but does not itself have logging configured, and no bucket policy restricts access to the log delivery principal. As the integrity record for the account, its access should be logged and constrained by policy.\", \"severity\": \"medium\", \"cwe\": \"CWE-778\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1541,
+      "output_tokens": 608,
+      "latency_s": 3.347,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000386
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000386
+}

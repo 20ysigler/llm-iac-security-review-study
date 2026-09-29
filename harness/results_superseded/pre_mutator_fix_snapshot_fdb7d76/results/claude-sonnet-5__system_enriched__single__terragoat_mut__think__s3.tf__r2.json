@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:35:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket (which stores reports and vendor data) are stored without SSE enforced by Terraform, relying on account-level defaults that may not exist.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores ledger/financial export data but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "Versioning and access logging are configured, but no server_side_encryption_configuration is set, so model artifacts are stored unencrypted.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is present, leaving operational runbooks (which may contain sensitive operational/credential procedures) unencrypted at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/misconfigured canned ACL",
+      "description": "The acl value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL (the valid log-delivery grant is 'log-delivery-write'). This malformed value indicates the bucket's intended access control was not correctly applied, risking either deployment failure or, if resolved differently than intended, unintended write/read grants to this audit-log bucket.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing S3 public access block",
+      "description": "None of the buckets in this configuration (reports_archive, ledger_exports, model_artifacts, ops_runbooks, audit_trail) have an associated aws_s3_bucket_public_access_block resource, so there is no account/bucket-level guardrail preventing a future or accidental bucket policy or ACL change from making these buckets publicly accessible.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "missing enforcement of encryption in transit",
+      "description": "No bucket policy denies non-TLS requests (e.g., aws:SecureTransport condition), so clients could interact with the audit-trail bucket over plain HTTP, allowing sensitive audit log data to be transmitted in cleartext.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 2440,
+  "output_tokens": 5109,
+  "latency_s": 49.625,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket (which stores reports and vendor data) are stored without SSE enforced by Terraform, relying on account-level defaults that may not exist.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores ledger/financial export data but has no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Versioning and access logging are configured, but no server_side_encryption_configuration is set, so model artifacts are stored unencrypted.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is present, leaving operational runbooks (which may contain sensitive operational/credential procedures) unencrypted at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/misconfigured canned ACL\", \"description\": \"The acl value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL (the valid log-delivery grant is 'log-delivery-write'). This malformed value indicates the bucket's intended access control was not correctly applied, risking either deployment failure or, if resolved differently than intended, unintended write/read grants to this audit-log bucket.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing S3 public access block\", \"description\": \"None of the buckets in this configuration (reports_archive, ledger_exports, model_artifacts, ops_runbooks, audit_trail) have an associated aws_s3_bucket_public_access_block resource, so there is no account/bucket-level guardrail preventing a future or accidental bucket policy or ACL change from making these buckets publicly accessible.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"missing enforcement of encryption in transit\", \"description\": \"No bucket policy denies non-TLS requests (e.g., aws:SecureTransport condition), so clients could interact with the audit-trail bucket over plain HTTP, allowing sensitive audit log data to be transmitted in cleartext.\", \"severity\": \"low\", \"confidence\": \"low\", \"cwe\": \"CWE-319\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2440,
+      "output_tokens": 5109,
+      "latency_s": 49.625,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.05597
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.05597
+}

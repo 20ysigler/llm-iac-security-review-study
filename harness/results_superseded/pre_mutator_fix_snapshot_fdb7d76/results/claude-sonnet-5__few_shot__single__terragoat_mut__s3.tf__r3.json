@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__s3.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:47:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing bucket encryption and access controls",
+      "description": "This bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest by default, and it also lacks an explicit ACL or public access block, leaving it potentially exposed to default/public access depending on account settings.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing versioning",
+      "description": "No versioning block is defined, meaning objects like the seeded vendor roster file can be overwritten or deleted without recovery, which combined with force_destroy increases risk of irreversible data loss and tampering.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores financial ledger export data but has no server_side_encryption_configuration, so sensitive data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "No versioning is enabled for ledger export data, and force_destroy is true, increasing the risk of accidental or malicious permanent data loss for financial records.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest, increasing exposure risk if the bucket is ever misconfigured for public access or accessed by unauthorized IAM principals.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbooks (which may contain sensitive infrastructure details) are stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive canned ACL",
+      "description": "The ACL value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; if Terraform coerces or this is intended to be 'log-delivery-write', it grants broad write/read-acp permissions to the S3 log delivery group, which combined with force_destroy and its role as an audit trail sink is a significant integrity risk for the audit log bucket.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "destructive operation permissions",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted via Terraform without a recovery mechanism such as versioning, increasing risk of accidental or malicious permanent data loss.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "The vendor roster spreadsheet is uploaded to a bucket (reports_archive) that lacks server-side encryption configuration and has no explicit private ACL or public access block, risking exposure of potentially sensitive vendor data.",
+      "severity": "medium"
+    }
+  ],
+  "input_tokens": 2729,
+  "output_tokens": 1245,
+  "latency_s": 11.546,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing bucket encryption and access controls\", \"description\": \"This bucket has no server_side_encryption_configuration block, so objects are stored unencrypted at rest by default, and it also lacks an explicit ACL or public access block, leaving it potentially exposed to default/public access depending on account settings.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing versioning\", \"description\": \"No versioning block is defined, meaning objects like the seeded vendor roster file can be overwritten or deleted without recovery, which combined with force_destroy increases risk of irreversible data loss and tampering.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores financial ledger export data but has no server_side_encryption_configuration, so sensitive data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing versioning\", \"description\": \"No versioning is enabled for ledger export data, and force_destroy is true, increasing the risk of accidental or malicious permanent data loss for financial records.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest, increasing exposure risk if the bucket is ever misconfigured for public access or accessed by unauthorized IAM principals.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbooks (which may contain sensitive infrastructure details) are stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive canned ACL\", \"description\": \"The ACL value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; if Terraform coerces or this is intended to be 'log-delivery-write', it grants broad write/read-acp permissions to the S3 log delivery group, which combined with force_destroy and its role as an audit trail sink is a significant integrity risk for the audit log bucket.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"destructive operation permissions\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted via Terraform without a recovery mechanism such as versioning, increasing risk of accidental or malicious permanent data loss.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"The vendor roster spreadsheet is uploaded to a bucket (reports_archive) that lacks server-side encryption configuration and has no explicit private ACL or public access block, risking exposure of potentially sensitive vendor data.\", \"severity\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2729,
+      "output_tokens": 1245,
+      "latency_s": 11.546,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.017908
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.017908
+}

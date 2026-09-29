@@ -1,0 +1,93 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__s3.tf__r5",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:34:00Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket stores financial ledger exports but defines no server_side_encryption_configuration, so objects are not encrypted under an operator-controlled key. Data at rest is left to provider defaults rather than an explicit SSE-KMS/SSE-S3 policy.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block, leaving report data unencrypted at rest under any explicitly managed key.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket defines versioning and logging but no server_side_encryption_configuration, so model artifacts are stored without explicitly configured encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket has no server_side_encryption_configuration block, storing operational runbooks without explicitly configured encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload",
+      "description": "This object uploads vendor-roster.xlsx into reports_archive, which has no default encryption configured, and the object itself sets no server_side_encryption; a vendor roster likely containing third-party/PII data is therefore stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "non-private access control",
+      "description": "The audit_trail bucket sets acl = \"lcatalogopts-delivery-write\", which is not a valid S3 canned ACL and is not \"private\". Applying a non-default, unrecognized ACL to the bucket holding audit logs risks an unintended/unpredictable access grant on security-relevant data.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 1561,
+  "output_tokens": 3816,
+  "latency_s": 16.412,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket stores financial ledger exports but defines no server_side_encryption_configuration, so objects are not encrypted under an operator-controlled key. Data at rest is left to provider defaults rather than an explicit SSE-KMS/SSE-S3 policy.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block, leaving report data unencrypted at rest under any explicitly managed key.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket defines versioning and logging but no server_side_encryption_configuration, so model artifacts are stored without explicitly configured encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket has no server_side_encryption_configuration block, storing operational runbooks without explicitly configured encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object upload\", \"description\": \"This object uploads vendor-roster.xlsx into reports_archive, which has no default encryption configured, and the object itself sets no server_side_encryption; a vendor roster likely containing third-party/PII data is therefore stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"non-private access control\", \"description\": \"The audit_trail bucket sets acl = \\\"lcatalogopts-delivery-write\\\", which is not a valid S3 canned ACL and is not \\\"private\\\". Applying a non-default, unrecognized ACL to the bucket holding audit logs risks an unintended/unpredictable access grant on security-relevant data.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1561,
+      "output_tokens": 3816,
+      "latency_s": 16.412,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.001287
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001287
+}

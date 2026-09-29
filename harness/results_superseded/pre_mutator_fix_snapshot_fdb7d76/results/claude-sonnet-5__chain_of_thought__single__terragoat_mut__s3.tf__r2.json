@@ -1,0 +1,129 @@
+{
+  "run_id": "claude-sonnet-5__chain_of_thought__single__terragoat_mut__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "chain_of_thought",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:51:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default (unless account-level default encryption is enforced elsewhere), risking exposure of sensitive report data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no bucket ACL / public access controls",
+      "description": "The bucket has no acl attribute set and no public access block configuration, leaving it to default settings and potentially allowing public access if bucket policies or account settings are not strictly controlled.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no versioning",
+      "description": "Versioning is not enabled for this bucket, meaning that once data is deleted or overwritten (aided by force_destroy = true), there is no recovery path, which can facilitate data loss or tampering.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket that stores ledger/financial export data, exposing sensitive financial data to unauthorized access if the underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no versioning",
+      "description": "Versioning is not enabled, combined with force_destroy = true, increasing risk of irrecoverable data loss or tampering of ledger records.",
+      "severity": "low",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, leaving model artifacts stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, leaving potentially sensitive operational runbook data stored without encryption.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive ACL",
+      "description": "The acl value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if Terraform coerces or a similar misconfigured canned ACL like 'log-delivery-write' is intended, it can grant broad write/read permissions to arbitrary log delivery groups, risking unauthorized access or ACL evaluation errors. This unusual value should be reviewed as it may unintentionally expose the audit bucket.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "sensitive data uploaded without encryption enforcement",
+      "description": "This object (vendor roster spreadsheet, potentially containing PII/vendor sensitive data) is uploaded to a bucket lacking server-side encryption configuration and has no server_side_encryption or kms_key_id parameter set on the object itself, so it is stored unencrypted.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled on sensitive bucket",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted in a single terraform destroy/apply operation without safeguards, increasing risk of accidental or malicious irreversible data loss.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "force_destroy enabled on sensitive bucket",
+      "description": "force_destroy = true on a bucket holding ledger/financial exports allows irreversible bulk deletion of sensitive financial records without additional protection.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 2320,
+  "output_tokens": 1623,
+  "latency_s": 13.66,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects in this bucket are stored unencrypted by default (unless account-level default encryption is enforced elsewhere), risking exposure of sensitive report data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no bucket ACL / public access controls\", \"description\": \"The bucket has no acl attribute set and no public access block configuration, leaving it to default settings and potentially allowing public access if bucket policies or account settings are not strictly controlled.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no versioning\", \"description\": \"Versioning is not enabled for this bucket, meaning that once data is deleted or overwritten (aided by force_destroy = true), there is no recovery path, which can facilitate data loss or tampering.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket that stores ledger/financial export data, exposing sensitive financial data to unauthorized access if the underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no versioning\", \"description\": \"Versioning is not enabled, combined with force_destroy = true, increasing risk of irrecoverable data loss or tampering of ledger records.\", \"severity\": \"low\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, leaving model artifacts stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, leaving potentially sensitive operational runbook data stored without encryption.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive ACL\", \"description\": \"The acl value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if Terraform coerces or a similar misconfigured canned ACL like 'log-delivery-write' is intended, it can grant broad write/read permissions to arbitrary log delivery groups, risking unauthorized access or ACL evaluation errors. This unusual value should be reviewed as it may unintentionally expose the audit bucket.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"sensitive data uploaded without encryption enforcement\", \"description\": \"This object (vendor roster spreadsheet, potentially containing PII/vendor sensitive data) is uploaded to a bucket lacking server-side encryption configuration and has no server_side_encryption or kms_key_id parameter set on the object itself, so it is stored unencrypted.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled on sensitive bucket\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted in a single terraform destroy/apply operation without safeguards, increasing risk of accidental or malicious irreversible data loss.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"force_destroy enabled on sensitive bucket\", \"description\": \"force_d",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2320,
+      "output_tokens": 1623,
+      "latency_s": 13.66,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.02087
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02087
+}

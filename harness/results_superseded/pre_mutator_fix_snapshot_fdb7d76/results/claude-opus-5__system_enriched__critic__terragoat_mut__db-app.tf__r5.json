@@ -1,0 +1,134 @@
+{
+  "run_id": "claude-opus-5__system_enriched__critic__terragoat_mut__db-app.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:43:15Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS MySQL instance sets storage_encrypted = false, so the database storage and its snapshots are written without KMS encryption, exposing stored application data if the underlying storage or a snapshot is accessed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the RDS instance a public endpoint, exposing the MySQL service and its 'admin' master login to the internet instead of keeping it private to the VPC.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "master credentials from plaintext variable",
+      "description": "The master password is passed directly from var.password rather than Secrets Manager or the managed master password feature, so the cleartext secret is persisted in Terraform state and is interpolated into EC2 user data; the master username is also the predictable default 'admin'.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded secrets in user data",
+      "description": "user_data interpolates the RDS master username and password into /var/www/inc/dbinfo.inc. EC2 user data is readable from the instance metadata service by any process or SSRF-capable web application on the host, leaking the database master credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block with http_tokens = \"required\" is set, leaving IMDSv1 enabled on an instance running a public-facing PHP application, so an SSRF can retrieve the instance-profile credentials and the secret-bearing user data.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root volume",
+      "description": "No root_block_device with encrypted = true is declared, so the EBS volume holding the credential file dbinfo.inc may be stored unencrypted unless account-level default EBS encryption is in force.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\" to the EC2 instance role. Compromise of the internet-facing web server, or theft of its instance-profile credentials via IMDSv1/SSRF, yields near-full control of S3, EC2 and RDS, including privilege-escalation paths and snapshot exfiltration.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL port 3306 is opened to the whole VPC CIDR rather than to the application server's security group, letting any workload in the VPC reach the database directly; combined with publicly_accessible = true this is the only network control on the instance.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and ports outbound to 0.0.0.0/0, providing an unrestricted path for data exfiltration or command-and-control traffic.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "web app served over plaintext HTTP",
+      "description": "The bootstrap script installs and starts httpd serving the employee data form with no TLS configuration or certificate, so form submissions and query results traverse the network in cleartext; the instance is also exposed via its public DNS output.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    }
+  ],
+  "input_tokens": 13782,
+  "output_tokens": 3317,
+  "latency_s": 38.107,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The RDS MySQL instance sets storage_encrypted = false, so the database storage and its snapshots are written without KMS encryption, exposing stored application data if the underlying storage or a snapshot is accessed.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true gives the RDS instance a public endpoint, exposing the MySQL service and its 'admin' master login to the internet instead of keeping it private to the VPC.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"master credentials from plaintext variable\", \"description\": \"The master password is passed directly from var.password rather than Secrets Manager or the managed master password feature, so the cleartext secret is persisted in Terraform state and is interpolated into EC2 user data; the master username is also the predictable default 'admin'.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded secrets in user data\", \"description\": \"user_data interpolates the RDS master username and password into /var/www/inc/dbinfo.inc. EC2 user data is readable from the instance metadata service by any process or SSRF-capable web application on the host, leaking the database master credentials.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"No metadata_options block with http_tokens = \\\"required\\\" is set, leaving IMDSv1 enabled on an instance running a public-facing PHP application, so an SSRF can retrieve the instance-profile credentials and the secret-bearing user data.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root volume\", \"description\": \"No root_block_device with encrypted = true is declared, so the EBS volume holding the credential file dbinfo.inc may be stored unencrypted unless account-level default EBS encryption is in force.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to the EC2 instance role. Compromise of the internet-facing web server, or theft of its instance-profile credentials via IMDSv1/SSRF, yields near-full control of S3, EC2 and RDS, including privilege-escalation paths and snapshot exfiltration.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad database ingress\", \"description\": \"MySQL port 3306 is opened to the whole VPC CIDR rather than to the application server's security group, letting any workload in the VPC reach the database directly; combined with publicly_accessible = true this is the only network control on the instance.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group permits all protocols and ports outbound to 0.0.0.0/0, providing an unrestricted path for data exfiltration or command-and-control traffic.\", \"severity\": \"low\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"web app served over plaintext HTTP\", \"description\": \"The bootstrap script installs and starts httpd serving the employee data form with no TLS configuration or certificate, so form submissions and query",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5839,
+      "output_tokens": 1797,
+      "latency_s": 23.205,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.07412
+    },
+    {
+      "step": "critique",
+      "input_tokens": 7943,
+      "output_tokens": 1520,
+      "latency_s": 14.902,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.077715
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.151835
+}

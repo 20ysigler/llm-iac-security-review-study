@@ -1,0 +1,93 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:29:45Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, giving the database a publicly routable IP address and exposing the MySQL service to the internet path, increasing the attack surface for a database holding application data and credentials.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the database storage, snapshots, and backups are not encrypted at rest, violating standard data-protection requirements for regulated workloads.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance. This is a massive violation of least privilege and, combined with the instance being a network-reachable web server, creates a serious privilege-escalation and lateral-movement risk if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The database master password (var.password) and other DB connection details are interpolated in plaintext into the instance user_data script, which is stored in the EC2 API/console and retrievable via the instance metadata service by anyone with sufficient IAM/instance access, exposing the RDS admin credential in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "plaintext credential handling",
+      "description": "The master password is passed directly via the password argument sourced from a variable and reused/exposed in the app server's user_data, meaning the credential travels and is stored in cleartext across multiple resources rather than being managed via a secrets manager or Secrets Manager-integrated RDS credential rotation.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0) on all ports, which removes network segmentation controls and could facilitate data exfiltration if the database or its host is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 5781,
+  "output_tokens": 2613,
+  "latency_s": 27.135,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, giving the database a publicly routable IP address and exposing the MySQL service to the internet path, increasing the attack surface for a database holding application data and credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the database storage, snapshots, and backups are not encrypted at rest, violating standard data-protection requirements for regulated workloads.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance. This is a massive violation of least privilege and, combined with the instance being a network-reachable web server, creates a serious privilege-escalation and lateral-movement risk if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The database master password (var.password) and other DB connection details are interpolated in plaintext into the instance user_data script, which is stored in the EC2 API/console and retrievable via the instance metadata service by anyone with sufficient IAM/instance access, exposing the RDS admin credential in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"plaintext credential handling\", \"description\": \"The master password is passed directly via the password argument sourced from a variable and reused/exposed in the app server's user_data, meaning the credential travels and is stored in cleartext across multiple resources rather than being managed via a secrets manager or Secrets Manager-integrated RDS credential rotation.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, 0.0.0.0/0) on all ports, which removes network segmentation controls and could facilitate data exfiltration if the database or its host is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5781,
+      "output_tokens": 2613,
+      "latency_s": 27.135,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.037692
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.037692
+}

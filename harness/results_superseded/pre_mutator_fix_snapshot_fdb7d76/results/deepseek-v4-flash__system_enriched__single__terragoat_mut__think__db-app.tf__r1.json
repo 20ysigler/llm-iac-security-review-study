@@ -1,0 +1,101 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:28:18Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true gives the RDS instance a public endpoint, exposing the database to the internet and materially widening the attack surface (the sibling ingress rule only limits sources to the VPC CIDR, so any misconfiguration or SG change immediately exposes port 3306).",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false means the database storage, snapshots and automated backups are all unencrypted on disk, so anyone with access to the underlying storage or a snapshot can read the catalog data directly.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The role attached to the web-facing EC2 instance grants s3:*, ec2:* and rds:* on Resource \"*\", i.e. full control of the account's storage, compute and database. A compromise of this publicly reachable instance yields account-wide control, including the ability to read/delete all data and to create or modify roles and instances for persistence.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in user data",
+      "description": "The user_data script writes the RDS master username, password (var.password) and endpoint in cleartext into /var/www/inc/dbinfo.inc. user_data is readable via the instance metadata service by any process or SSRF on the host, and the file sits under the web document root tree, so the DB credentials can be disclosed to an attacker and then used against the database.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "Inbound TCP/3306 is allowed from the entire VPC CIDR rather than only from the application security group, so every host in the VPC (including any other compromised workload) can reach the MySQL listener, undermining network segmentation around the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress allows all protocols to 0.0.0.0/0, so a compromised database host can exfiltrate data to any internet destination and reach internal services without restriction.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "predictable master username",
+      "description": "The RDS master account uses the well-known username \"admin\", which removes the username guesswork from credential attacks and offers no benefit over a non-obvious account name.",
+      "severity": "low",
+      "cwe": "CWE-521",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3626,
+  "output_tokens": 3107,
+  "latency_s": 13.437,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true gives the RDS instance a public endpoint, exposing the database to the internet and materially widening the attack surface (the sibling ingress rule only limits sources to the VPC CIDR, so any misconfiguration or SG change immediately exposes port 3306).\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false means the database storage, snapshots and automated backups are all unencrypted on disk, so anyone with access to the underlying storage or a snapshot can read the catalog data directly.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The role attached to the web-facing EC2 instance grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", i.e. full control of the account's storage, compute and database. A compromise of this publicly reachable instance yields account-wide control, including the ability to read/delete all data and to create or modify roles and instances for persistence.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in user data\", \"description\": \"The user_data script writes the RDS master username, password (var.password) and endpoint in cleartext into /var/www/inc/dbinfo.inc. user_data is readable via the instance metadata service by any process or SSRF on the host, and the file sits under the web document root tree, so the DB credentials can be disclosed to an attacker and then used against the database.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"Inbound TCP/3306 is allowed from the entire VPC CIDR rather than only from the application security group, so every host in the VPC (including any other compromised workload) can reach the MySQL listener, undermining network segmentation around the database.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress allows all protocols to 0.0.0.0/0, so a compromised database host can exfiltrate data to any internet destination and reach internal services without restriction.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"predictable master username\", \"description\": \"The RDS master account uses the well-known username \\\"admin\\\", which removes the username guesswork from credential attacks and offers no benefit over a non-obvious account name.\", \"severity\": \"low\", \"cwe\": \"CWE-521\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3626,
+      "output_tokens": 3107,
+      "latency_s": 13.437,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.001378
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001378
+}

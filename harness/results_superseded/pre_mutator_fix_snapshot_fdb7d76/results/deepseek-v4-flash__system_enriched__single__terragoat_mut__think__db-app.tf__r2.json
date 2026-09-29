@@ -1,0 +1,93 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__think__db-app.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:28:29Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database exposed to public network",
+      "description": "The RDS instance sets publicly_accessible = true, assigning it a public IP and making it reachable from outside the VPC. Combined with the hardcoded master credentials, this exposes the database to internet-wide attack surface.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the catalog database, its snapshots and its backups are stored unencrypted. Anyone with access to the underlying storage or to a snapshot can read the data in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy attached to the EC2 app role grants s3:*, ec2:* and rds:* on Resource \"*\". Because the app runs on an internet-facing instance, compromise of that instance yields full control of S3 data, EC2 estate and the RDS database \u2014 a broad privilege-escalation and data-exfiltration path.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hardcoded credentials in user data",
+      "description": "The user_data script interpolates the database password (var.password), username and endpoint into /var/www/inc/dbinfo.inc. user_data is retrievable via the instance metadata service and is stored in logs/state, so the DB credential is exposed to anyone who can read instance metadata or the file on disk.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR block rather than being scoped to the application security group, so any host in the VPC (including any compromised instance) can reach the database directly.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "weak master account identifier",
+      "description": "The database master account is hardcoded as username = \"admin\", a well-known default identifier that reduces the effort required for credential-guessing against a database that is also publicly accessible.",
+      "severity": "low",
+      "cwe": "CWE-521",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3626,
+  "output_tokens": 2394,
+  "latency_s": 10.614,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database exposed to public network\", \"description\": \"The RDS instance sets publicly_accessible = true, assigning it a public IP and making it reachable from outside the VPC. Combined with the hardcoded master credentials, this exposes the database to internet-wide attack surface.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the catalog database, its snapshots and its backups are stored unencrypted. Anyone with access to the underlying storage or to a snapshot can read the data in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy attached to the EC2 app role grants s3:*, ec2:* and rds:* on Resource \\\"*\\\". Because the app runs on an internet-facing instance, compromise of that instance yields full control of S3 data, EC2 estate and the RDS database \u2014 a broad privilege-escalation and data-exfiltration path.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hardcoded credentials in user data\", \"description\": \"The user_data script interpolates the database password (var.password), username and endpoint into /var/www/inc/dbinfo.inc. user_data is retrievable via the instance metadata service and is stored in logs/state, so the DB credential is exposed to anyone who can read instance metadata or the file on disk.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR block rather than being scoped to the application security group, so any host in the VPC (including any compromised instance) can reach the database directly.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"weak master account identifier\", \"description\": \"The database master account is hardcoded as username = \\\"admin\\\", a well-known default identifier that reduces the effort required for credential-guessing against a database that is also publicly accessible.\", \"severity\": \"low\", \"cwe\": \"CWE-521\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3626,
+      "output_tokens": 2394,
+      "latency_s": 10.614,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.001178
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.001178
+}

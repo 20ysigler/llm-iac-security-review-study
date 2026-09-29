@@ -1,0 +1,158 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:48:47Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "insecure character set / weak default parameters",
+      "description": "The parameter group sets character_set_client and character_set_server to 'utf8' rather than 'utf8mb4', and does not enforce any transport security related parameters (e.g. require_secure_transport). While not a direct vulnerability by itself, combined with the DB instance this does not enforce encrypted client connections, leaving data transmitted in cleartext by default under MySQL's default configuration.",
+      "severity": "low",
+      "confidence": "low",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The DB password (var.password) and DB endpoint/username are embedded in plaintext in the instance user_data script, which is stored unencrypted in the EC2 instance metadata and accessible via the instance metadata service or console, exposing database credentials to anyone with access to describe the instance.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "references undefined public network resources",
+      "description": "The instance attaches to aws_security_group.portal_sg and aws_subnet.portal_subnet_a, resources not defined in the reviewed configuration set, suggesting it may be placed in a different, potentially public-facing network/security group than the intended catalog_db_sg, increasing risk of unintended public exposure of the web/app server.",
+      "severity": "medium",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "lack of transport encryption for DB connection",
+      "description": "The generated PHP application connects to the MySQL database using mysqli_connect without enforcing SSL/TLS, resulting in cleartext transmission of credentials and data between the app server and the database.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is set to false, meaning the RDS instance data, including catalog data and backups, is stored unencrypted, violating encryption-at-rest requirements.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance to the public internet and significantly increasing the attack surface for a data store holding sensitive catalog information.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded/plaintext credential handling",
+      "description": "The database password is sourced from a variable and passed in cleartext via the password attribute, with username hard-coded to 'admin'; combined with publicly_accessible=true, this creates a real exposure risk if the variable value is weak, checked into version control, or logged in state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress rule allows all protocols and all ports to 0.0.0.0/0, providing no network egress restriction from the database security group, which aids data exfiltration if the instance is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "Inbound rule opens port 3306 to the entire VPC CIDR block rather than restricting access to the specific application security group or host, widening the network path to the database beyond least privilege, and is especially risky combined with the database being publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\") to the application role, violating least privilege and enabling privilege escalation or broad account compromise if the attached instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "output.catalog_app_public_dns",
+      "issue_category": "exposure of public network information",
+      "description": "Outputting the application server's public DNS name highlights that the instance is provisioned with a public address, increasing discoverability of the instance as an attack target when combined with permissive security group and IAM configurations.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 12346,
+  "output_tokens": 1846,
+  "latency_s": 21.171,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2802,
+      "output_tokens": 255,
+      "latency_s": 4.496,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.008154
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4157,
+      "output_tokens": 488,
+      "latency_s": 5.416,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.013194
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3091,
+      "output_tokens": 1069,
+      "latency_s": 9.978,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.016872
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2296,
+      "output_tokens": 34,
+      "latency_s": 1.281,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004932
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.043152
+}

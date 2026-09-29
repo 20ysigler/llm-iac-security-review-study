@@ -1,0 +1,113 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__s3.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:43:58Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket does not define a server_side_encryption_configuration block, meaning objects are stored without enforced encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block / no ACL restriction",
+      "description": "No ACL is specified and no public access block is configured, leaving the bucket potentially subject to default or overly permissive access settings.",
+      "severity": "medium",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket stores financial ledger export data but has no server_side_encryption_configuration, leaving sensitive data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing versioning",
+      "description": "Versioning is not enabled on this sensitive ledger data bucket, though this is more of a data integrity concern tied to accidental overwrite/deletion protection relevant to security posture (retained since it affects ability to recover from unauthorized modification).",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so stored model artifacts are not encrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, leaving operational runbook data (which may contain sensitive operational details) unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive ACL",
+      "description": "The ACL value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if this typo actually resolves to a permissive setting such as log-delivery-write or fails closed to a more permissive default, it can unintentionally grant broader write/read access than intended to the audit trail bucket, which is especially risky for an audit log store.",
+      "severity": "high",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force destroy enabled",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted without additional protection, increasing risk of accidental or malicious data loss for archived reports.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted object upload / plaintext sensitive data",
+      "description": "The uploaded object is placed into a bucket without server-side encryption enforced and without specifying server_side_encryption on the object itself, so a vendor roster file (potentially containing sensitive vendor/PII data) is stored in plaintext.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2144,
+  "output_tokens": 1257,
+  "latency_s": 11.441,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket does not define a server_side_encryption_configuration block, meaning objects are stored without enforced encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block / no ACL restriction\", \"description\": \"No ACL is specified and no public access block is configured, leaving the bucket potentially subject to default or overly permissive access settings.\", \"severity\": \"medium\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket stores financial ledger export data but has no server_side_encryption_configuration, leaving sensitive data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing versioning\", \"description\": \"Versioning is not enabled on this sensitive ledger data bucket, though this is more of a data integrity concern tied to accidental overwrite/deletion protection relevant to security posture (retained since it affects ability to recover from unauthorized modification).\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so stored model artifacts are not encrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, leaving operational runbook data (which may contain sensitive operational details) unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive ACL\", \"description\": \"The ACL value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if this typo actually resolves to a permissive setting such as log-delivery-write or fails closed to a more permissive default, it can unintentionally grant broader write/read access than intended to the audit trail bucket, which is especially risky for an audit log store.\", \"severity\": \"high\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force destroy enabled\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted without additional protection, increasing risk of accidental or malicious data loss for archived reports.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted object upload / plaintext sensitive data\", \"description\": \"The uploaded object is placed into a bucket without server-side encryption enforced and without specifying server_side_encryption on the object itself, so a vendor roster file (potentially containing sensitive vendor/PII data) is stored in plaintext.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2144,
+      "output_tokens": 1257,
+      "latency_s": 11.441,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.016858
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.016858
+}

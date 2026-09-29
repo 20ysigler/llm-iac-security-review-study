@@ -1,0 +1,108 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__db-app.tf__r4",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:52:44Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, leaving the RDS instance's data unencrypted at rest, violating the CIS/AWS recommendation that encryption be the default state for stored data.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the database instance to connections from the public internet rather than restricting it to the private network layer.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is passed via var.password directly into the resource and also embedded into the EC2 instance's user_data in plaintext, exposing it to anyone with describe permissions on the instance and to the Terraform state file.",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext secret in user data",
+      "description": "The user_data script embeds the database password (var.password) and connection details in plaintext, which is retrievable by anyone with EC2 describe-instance-attribute permissions, a much broader audience than the intended secret store.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \"*\"), providing far more privilege than the application instance requires and effectively granting broad administrative capability across these services.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, creating a potential data exfiltration path with no egress restriction.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "backup/monitoring disabled affecting security posture",
+      "description": "backup_retention_period is set to 0, disabling automated backups; combined with skip_final_snapshot=true this removes recovery options relevant to resilience against ransomware/data-destruction incidents.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "default administrative username",
+      "description": "The database uses the default master username \"admin\", a well-known default credential name that should not persist into deployed infrastructure.",
+      "severity": "low",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 7281,
+  "output_tokens": 1144,
+  "latency_s": 10.599,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, leaving the RDS instance's data unencrypted at rest, violating the CIS/AWS recommendation that encryption be the default state for stored data.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the database instance to connections from the public internet rather than restricting it to the private network layer.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is passed via var.password directly into the resource and also embedded into the EC2 instance's user_data in plaintext, exposing it to anyone with describe permissions on the instance and to the Terraform state file.\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext secret in user data\", \"description\": \"The user_data script embeds the database password (var.password) and connection details in plaintext, which is retrievable by anyone with EC2 describe-instance-attribute permissions, a much broader audience than the intended secret store.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (Resource: \\\"*\\\"), providing far more privilege than the application instance requires and effectively granting broad administrative capability across these services.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, creating a potential data exfiltration path with no egress restriction.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"backup/monitoring disabled affecting security posture\", \"description\": \"backup_retention_period is set to 0, disabling automated backups; combined with skip_final_snapshot=true this removes recovery options relevant to resilience against ransomware/data-destruction incidents.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"default administrative username\", \"description\": \"The database uses the default master username \\\"admin\\\", a well-known default credential name that should not persist into deployed infrastructure.\", \"severity\": \"low\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7281,
+      "output_tokens": 1144,
+      "latency_s": 10.599,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.026002
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026002
+}

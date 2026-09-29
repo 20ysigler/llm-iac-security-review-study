@@ -1,0 +1,112 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__s3.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:02:02Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined, so objects stored in this bucket (including the seeded vendor-roster.xlsx) are not encrypted at rest by default.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access restriction",
+      "description": "No ACL is set and no aws_s3_bucket_public_access_block resource is associated with this bucket, leaving it reliant on default/account-level settings rather than an explicit access restriction for a reports archive bucket.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket stores sensitive financial ledger export data but has no server_side_encryption_configuration block, meaning data at rest is unencrypted.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has versioning and logging configured but lacks a server_side_encryption_configuration block, leaving model artifact data unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so operational runbook data, which may contain sensitive operational details, is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive ACL",
+      "description": "The acl value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if it resolves to or was intended as a permissive log-delivery write ACL, combined with the absence of any bucket policy restrictions this may allow unintended write access to the audit trail bucket used for security logging, undermining audit log integrity.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive file upload",
+      "description": "The object is uploaded into a bucket without server-side encryption configured, and no server_side_encryption or kms_key_id argument is specified on the object itself, so the vendor roster file is stored in cleartext.",
+      "severity": "low",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 10110,
+  "output_tokens": 3339,
+  "latency_s": 28.675,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined, so objects stored in this bucket (including the seeded vendor-roster.xlsx) are not encrypted at rest by default.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access restriction\", \"description\": \"No ACL is set and no aws_s3_bucket_public_access_block resource is associated with this bucket, leaving it reliant on default/account-level settings rather than an explicit access restriction for a reports archive bucket.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket stores sensitive financial ledger export data but has no server_side_encryption_configuration block, meaning data at rest is unencrypted.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has versioning and logging configured but lacks a server_side_encryption_configuration block, leaving model artifact data unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so operational runbook data, which may contain sensitive operational details, is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive ACL\", \"description\": \"The acl value 'lcatalogopts-delivery-write' is not a valid canned S3 ACL; if it resolves to or was intended as a permissive log-delivery write ACL, combined with the absence of any bucket policy restrictions this may allow unintended write access to the audit trail bucket used for security logging, undermining audit log integrity.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive file upload\", \"description\": \"The object is uploaded into a bucket without server-side encryption configured, and no server_side_encryption or kms_key_id argument is specified on the object itself, so the vendor roster file is stored in cleartext.\", \"severity\": \"low\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 2566,
+      "output_tokens": 1156,
+      "latency_s": 10.521,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.016692
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 2566,
+      "output_tokens": 1143,
+      "latency_s": 10.349,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.016562
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 4978,
+      "output_tokens": 1040,
+      "latency_s": 7.805,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.020356
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.05361
+}

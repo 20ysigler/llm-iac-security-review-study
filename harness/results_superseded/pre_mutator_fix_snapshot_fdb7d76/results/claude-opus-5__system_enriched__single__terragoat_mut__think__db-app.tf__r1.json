@@ -1,0 +1,133 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__db-app.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:28:39Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "The RDS instance sets publicly_accessible = true, giving it a public IP address and a publicly resolvable endpoint (also exported via the catalog_db_endpoint output). This exposes the MySQL listener to the internet and makes the database reachable by anything that can reach AWS public address space, relying on a single security group as the only control.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables KMS encryption for the RDS volume, automated snapshots and backups, so all catalog data (including the EMPLOYEES name/address records written by the app) is stored in cleartext on the underlying storage.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script interpolates the RDS master username and var.password into /var/www/inc/dbinfo.inc. EC2 user data is stored unencrypted, is readable by any process on the instance via the instance metadata service (http://169.254.169.254/latest/user-data) and by any principal holding ec2:DescribeInstanceAttribute, so an SSRF or low-privilege shell on the host yields master database credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\" to the role assumed by the web server. ec2:* alone permits privilege escalation (launching instances with other roles via iam:PassRole-adjacent flows, modifying security groups, creating snapshots), rds:* permits reading or restoring any database snapshot in the account, and s3:* permits reading or deleting every bucket. This is a full account-compromise path from a single web server exploit.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block is specified, so the instance defaults to allowing IMDSv1 (http_tokens = \"optional\"). Combined with the near-administrative role attached via catalog_app_profile and a PHP application accepting user input, a single SSRF vulnerability is sufficient to exfiltrate the role's temporary credentials and the plaintext user data containing the DB password.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device or ebs_block_device block sets encrypted = true, so the instance's volume \u2014 which persists /var/www/inc/dbinfo.inc containing the database master password \u2014 is written to unencrypted EBS storage.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext transmission of data",
+      "description": "The bootstrap script installs and enables httpd serving the form over plain HTTP with no TLS configuration or certificate. Employee name and address data submitted through the POST form, and any session data, traverse the network in cleartext to an instance that is publicly addressable.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "TLS not enforced for DB connections",
+      "description": "Neither the instance nor aws_db_parameter_group.catalog_db_params sets require_secure_transport = ON, and the PHP client calls mysqli_connect with no SSL context. Credentials and query results between the application and a publicly accessible database can therefore be transmitted unencrypted.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "predictable master username",
+      "description": "The master user is hard-coded to \"admin\", a well-known default that removes the username-guessing barrier for credential stuffing and brute-force attacks against an instance that is exposed publicly. The password is additionally sourced from var.password and will be written in plaintext to Terraform state.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad ingress CIDR",
+      "description": "Port 3306 is opened to the entire VPC CIDR rather than to the application instance's security group. Any resource in any subnet of portal_vpc \u2014 including future or compromised workloads \u2014 can reach the database directly instead of only the intended app tier.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group permits all protocols and ports outbound to 0.0.0.0/0. A database host has no legitimate need for arbitrary internet egress, and this rule removes a control that would otherwise limit data exfiltration or command-and-control traffic after a compromise.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 5713,
+  "output_tokens": 2962,
+  "latency_s": 34.411,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"The RDS instance sets publicly_accessible = true, giving it a public IP address and a publicly resolvable endpoint (also exported via the catalog_db_endpoint output). This exposes the MySQL listener to the internet and makes the database reachable by anything that can reach AWS public address space, relying on a single security group as the only control.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables KMS encryption for the RDS volume, automated snapshots and backups, so all catalog data (including the EMPLOYEES name/address records written by the app) is stored in cleartext on the underlying storage.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script interpolates the RDS master username and var.password into /var/www/inc/dbinfo.inc. EC2 user data is stored unencrypted, is readable by any process on the instance via the instance metadata service (http://169.254.169.254/latest/user-data) and by any principal holding ec2:DescribeInstanceAttribute, so an SSRF or low-privilege shell on the host yields master database credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to the role assumed by the web server. ec2:* alone permits privilege escalation (launching instances with other roles via iam:PassRole-adjacent flows, modifying security groups, creating snapshots), rds:* permits reading or restoring any database snapshot in the account, and s3:* permits reading or deleting every bucket. This is a full account-compromise path from a single web server exploit.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"No metadata_options block is specified, so the instance defaults to allowing IMDSv1 (http_tokens = \\\"optional\\\"). Combined with the near-administrative role attached via catalog_app_profile and a PHP application accepting user input, a single SSRF vulnerability is sufficient to exfiltrate the role's temporary credentials and the plaintext user data containing the DB password.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device or ebs_block_device block sets encrypted = true, so the instance's volume \\u2014 which persists /var/www/inc/dbinfo.inc containing the database master password \\u2014 is written to unencrypted EBS storage.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"cleartext transmission of data\", \"description\": \"The bootstrap script installs and enables httpd serving the form over plain HTTP with no TLS configuration or certificate. Employee name and address data submitted through the POST form, and any session data, traverse the network in cleartext to an instance that is publicly addressable.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"TLS not enforced for DB connections\", \"description\": \"Neither the instance nor aws_db_parameter_group.catalog_db_params sets require_secure_transport = ON, and the PHP client calls mysqli_connect with no SSL context. Credentials and query results between the application and a publicly accessible database can",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5713,
+      "output_tokens": 2962,
+      "latency_s": 34.411,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.102615
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.102615
+}

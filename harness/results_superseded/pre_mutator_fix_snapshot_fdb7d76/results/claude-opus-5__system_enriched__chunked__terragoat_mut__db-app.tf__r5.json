@@ -1,0 +1,184 @@
+{
+  "run_id": "claude-opus-5__system_enriched__chunked__terragoat_mut__db-app.tf__r5",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:56:01Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_parameter_group.catalog_db_params",
+      "issue_category": "missing TLS enforcement for database",
+      "description": "The MySQL parameter group does not set require_secure_transport = ON (or otherwise enforce SSL/TLS), so clients can connect to the catalog database over unencrypted channels, allowing credentials and data in transit to be intercepted.",
+      "severity": "medium",
+      "confidence": "low",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credentials in user data",
+      "description": "The database password (var.password) and username are interpolated directly into the EC2 user_data script, which is stored unencrypted in the instance metadata service and visible to anyone who can call the EC2 DescribeInstanceAttribute API or reach IMDS from the instance (including via SSRF in the PHP app it deploys).",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root volume",
+      "description": "No root_block_device/ebs_block_device encryption is configured, so the instance's EBS volume may be created unencrypted, leaving the credentials file (/var/www/inc/dbinfo.inc) and any cached data at rest in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 enabled by default",
+      "description": "No metadata_options block is specified, so IMDSv1 (token-optional) remains enabled. Combined with the attached instance profile (catalog_app_profile) and a public-facing PHP application, this creates an easy SSRF-to-credential-theft path.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext transmission of data",
+      "description": "The user_data provisions only plain HTTP (httpd on port 80) with no TLS configuration, and the deployed form submits employee PII (name, address) unencrypted over the network.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The generated PHP connects to RDS with mysqli_connect without enabling TLS (no mysqli_ssl_set / MYSQLI_CLIENT_SSL), so the database credentials and query data traverse the VPC in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance sets storage_encrypted = false, so the database storage and its snapshots are stored unencrypted. Catalog data and any sensitive content are exposed if underlying storage or a snapshot is accessed.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true assigns the RDS instance a public endpoint reachable from the internet, exposing MySQL to untrusted networks and relying solely on the security group for protection.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "credentials supplied via variable",
+      "description": "The master password is taken from var.password and the master username is hard-coded as 'admin', a predictable account name; if the variable is defaulted or committed to tfvars the credential ends up in source control and in Terraform state in cleartext.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "no IAM database authentication",
+      "description": "iam_database_authentication_enabled is not set, so access depends entirely on a static master password with no IAM-managed, rotatable authentication path for a publicly reachable database.",
+      "severity": "low",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline role policy grants s3:*, ec2:* and rds:* on Resource \"*\". This role is attached to the EC2 instance profile for the publicly reachable app server, so any compromise of that instance yields near-full control of S3, EC2 and RDS in the account, including snapshotting or modifying the database.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all protocols and ports outbound to 0.0.0.0/0, permitting unrestricted data exfiltration or command-and-control traffic from a compromised database host.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad ingress scope",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR rather than only the application security group, allowing any instance in the VPC to reach the database directly; combined with publicly_accessible = true this widens the exposed attack surface.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "output.catalog_app_public_dns",
+      "issue_category": "exposure of endpoint information",
+      "description": "The output publishes the public DNS name of the application server, confirming and advertising an internet-reachable endpoint for the stack; combined with the publicly accessible database this aids reconnaissance.",
+      "severity": "informational",
+      "confidence": "low",
+      "cwe": "CWE-200"
+    }
+  ],
+  "input_tokens": 12074,
+  "output_tokens": 2197,
+  "latency_s": 28.826,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2734,
+      "output_tokens": 190,
+      "latency_s": 3.183,
+      "n_findings": 1,
+      "error": "",
+      "cost_usd": 0.01842
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4089,
+      "output_tokens": 797,
+      "latency_s": 10.056,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.04037
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3023,
+      "output_tokens": 1176,
+      "latency_s": 13.516,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.044515
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2228,
+      "output_tokens": 34,
+      "latency_s": 2.071,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.01199
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.115295
+}

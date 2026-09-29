@@ -1,0 +1,80 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__single__terragoat_mut__think__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:29:18Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, which will assign it a publicly routable endpoint. Combined with credentials stored in cleartext and a database engine that would otherwise only need to be reachable from the application tier, this substantially increases the internet-facing attack surface for the data store.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the underlying EBS storage for the RDS instance is not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised or improperly disposed of.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance. This violates least privilege and, if the instance (which also embeds DB credentials in user data) is compromised, allows an attacker to escalate to broad control over S3, EC2, and RDS resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script writes the RDS master password (var.password) directly into a file on the instance and embeds it in plaintext in the launch configuration, which is retrievable via the EC2 instance metadata service and console by anyone with sufficient IAM or instance access, exposing database credentials.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic to any destination (0.0.0.0/0) on all ports and protocols, which removes network-based constraints on data exfiltration or command-and-control traffic if the database or an attached instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 5781,
+  "output_tokens": 2264,
+  "latency_s": 22.95,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"The RDS instance sets publicly_accessible = true, which will assign it a publicly routable endpoint. Combined with credentials stored in cleartext and a database engine that would otherwise only need to be reachable from the application tier, this substantially increases the internet-facing attack surface for the data store.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the underlying EBS storage for the RDS instance is not encrypted, exposing data at rest to unauthorized access if the underlying storage is compromised or improperly disposed of.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance. This violates least privilege and, if the instance (which also embeds DB credentials in user data) is compromised, allows an attacker to escalate to broad control over S3, EC2, and RDS resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script writes the RDS master password (var.password) directly into a file on the instance and embeds it in plaintext in the launch configuration, which is retrievable via the EC2 instance metadata service and console by anyone with sufficient IAM or instance access, exposing database credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic to any destination (0.0.0.0/0) on all ports and protocols, which removes network-based constraints on data exfiltration or command-and-control traffic if the database or an attached instance is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5781,
+      "output_tokens": 2264,
+      "latency_s": 22.95,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.034202
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.034202
+}

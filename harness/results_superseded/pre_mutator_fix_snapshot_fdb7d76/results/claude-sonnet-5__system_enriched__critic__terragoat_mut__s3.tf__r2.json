@@ -1,0 +1,96 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:46:13Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is defined for this bucket, and no ACL is set (defaults to private but unconfirmed), meaning report data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket stores ledger export data (likely financial/sensitive) without any server_side_encryption_configuration, meaning data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored unencrypted at rest despite having versioning and logging enabled.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket lacks a server_side_encryption_configuration block, leaving operational runbook content (potentially containing sensitive operational details or credentials) unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid ACL value",
+      "description": "The acl value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; this appears to be a typo for 'log-delivery-write' and will likely cause apply-time failure or unintended access behavior, undermining the intended access control for this sensitive audit trail bucket.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "plaintext upload to unencrypted bucket",
+      "description": "This object is uploaded into aws_s3_bucket.reports_archive, which has no server-side encryption configured, meaning the vendor roster file (potentially containing sensitive vendor/PII data) is stored unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 6373,
+  "output_tokens": 2022,
+  "latency_s": 17.246,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is defined for this bucket, and no ACL is set (defaults to private but unconfirmed), meaning report data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket stores ledger export data (likely financial/sensitive) without any server_side_encryption_configuration, meaning data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored unencrypted at rest despite having versioning and logging enabled.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket lacks a server_side_encryption_configuration block, leaving operational runbook content (potentially containing sensitive operational details or credentials) unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid ACL value\", \"description\": \"The acl value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; this appears to be a typo for 'log-delivery-write' and will likely cause apply-time failure or unintended access behavior, undermining the intended access control for this sensitive audit trail bucket.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"plaintext upload to unencrypted bucket\", \"description\": \"This object is uploaded into aws_s3_bucket.reports_archive, which has no server-side encryption configured, meaning the vendor roster file (potentially containing sensitive vendor/PII data) is stored unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2566,
+      "output_tokens": 1116,
+      "latency_s": 10.582,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.016292
+    },
+    {
+      "step": "critique",
+      "input_tokens": 3807,
+      "output_tokens": 906,
+      "latency_s": 6.664,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.016674
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.032966
+}

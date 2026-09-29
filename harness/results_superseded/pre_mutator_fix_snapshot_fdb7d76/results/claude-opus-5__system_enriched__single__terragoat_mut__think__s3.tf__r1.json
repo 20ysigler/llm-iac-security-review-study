@@ -1,0 +1,141 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__s3.tf__r1",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:38:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "This bucket has no server_side_encryption_configuration block, so report data \u2014 including the seeded vendor roster object \u2014 is stored without enforced server-side encryption. Any actor obtaining object-level read access or raw storage access reads the data in cleartext.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block is associated with this bucket and no ACL is declared, so future ACL or bucket-policy changes can silently make the bucket and its objects publicly readable with no account-level guardrail to stop it.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger export bucket declares no server_side_encryption_configuration, leaving financial export data unencrypted at rest despite the private ACL. The ACL controls access paths but provides no protection for the stored bytes.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "no public access block",
+      "description": "No aws_s3_bucket_public_access_block guards this bucket, so the private ACL is the only barrier to exposure and can be overridden by any later policy or ACL change.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "Model artifacts are stored without any server-side encryption configuration. Note the asymmetry: this bucket forwards its access logs to the KMS-encrypted audit_trail bucket, yet the artifacts themselves \u2014 the more sensitive asset \u2014 are unprotected at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined. Operational runbooks routinely contain internal hostnames, escalation procedures, and occasionally embedded credentials, making unencrypted storage a meaningful disclosure risk.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "malformed non-private bucket ACL",
+      "description": "The ACL is set to the invalid value 'lcatalogopts-delivery-write', an apparent corruption of the canned ACL 'log-delivery-write'. A malformed or misunderstood ACL on the bucket that anchors audit integrity means the intended write-only log-delivery grant is not reliably expressed, and the value should be corrected to a known canned ACL rather than left to chance.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "no public access block",
+      "description": "The bucket holding audit logs for the environment has no aws_s3_bucket_public_access_block attached. Audit trails are high-value targets for attackers seeking to confirm or erase their activity, and this bucket lacks the account-level guardrail against accidental public exposure.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "A vendor roster spreadsheet is uploaded with no kms_key_id or server_side_encryption argument into reports_archive, a bucket that itself has no default encryption. The object is therefore stored in cleartext, and vendor rosters commonly contain contact and contractual data subject to confidentiality obligations.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "cleartext transmission permitted",
+      "description": "No bucket policy denies requests where aws:SecureTransport is false, so this bucket accepts plaintext HTTP requests carrying financial ledger data. The same gap applies across all buckets in this file, but is most consequential here.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing object versioning",
+      "description": "Unlike the other buckets in this file, reports_archive has no versioning block. Without version history, objects such as the seeded vendor roster can be overwritten or deleted with no recoverable prior state, removing a key defence against destructive or ransomware-style tampering.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-693"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing object versioning",
+      "description": "No versioning is enabled on the ledger export bucket, so financial records can be silently overwritten or deleted with no prior version retained for forensic comparison.",
+      "severity": "low",
+      "confidence": "high",
+      "cwe": "CWE-693"
+    }
+  ],
+  "input_tokens": 2372,
+  "output_tokens": 3344,
+  "latency_s": 40.477,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"This bucket has no server_side_encryption_configuration block, so report data \\u2014 including the seeded vendor roster object \\u2014 is stored without enforced server-side encryption. Any actor obtaining object-level read access or raw storage access reads the data in cleartext.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block is associated with this bucket and no ACL is declared, so future ACL or bucket-policy changes can silently make the bucket and its objects publicly readable with no account-level guardrail to stop it.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger export bucket declares no server_side_encryption_configuration, leaving financial export data unencrypted at rest despite the private ACL. The ACL controls access paths but provides no protection for the stored bytes.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"no public access block\", \"description\": \"No aws_s3_bucket_public_access_block guards this bucket, so the private ACL is the only barrier to exposure and can be overridden by any later policy or ACL change.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Model artifacts are stored without any server-side encryption configuration. Note the asymmetry: this bucket forwards its access logs to the KMS-encrypted audit_trail bucket, yet the artifacts themselves \\u2014 the more sensitive asset \\u2014 are unprotected at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined. Operational runbooks routinely contain internal hostnames, escalation procedures, and occasionally embedded credentials, making unencrypted storage a meaningful disclosure risk.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"malformed non-private bucket ACL\", \"description\": \"The ACL is set to the invalid value 'lcatalogopts-delivery-write', an apparent corruption of the canned ACL 'log-delivery-write'. A malformed or misunderstood ACL on the bucket that anchors audit integrity means the intended write-only log-delivery grant is not reliably expressed, and the value should be corrected to a known canned ACL rather than left to chance.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"no public access block\", \"description\": \"The bucket holding audit logs for the environment has no aws_s3_bucket_public_access_block attached. Audit trails are high-value targets for attackers seeking to confirm or erase their activity, and this bucket lacks the account-level guardrail against accidental public exposure.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"A vendor roster spreadsheet is uploaded with no kms_key_id or server_side_encryption argument into reports_archive, a bucket that itself has no default encryption. The object is therefore stored in cleartext, and vendor rosters commonly contain contact and contractual data subject to confidentiality obligations.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ledger_exp",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2372,
+      "output_tokens": 3344,
+      "latency_s": 40.477,
+      "n_findings": 12,
+      "error": "",
+      "cost_usd": 0.09546
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.09546
+}

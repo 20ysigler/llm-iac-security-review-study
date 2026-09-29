@@ -1,0 +1,92 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__s3.tf__r2",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:49Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "public ACL / broken access control",
+      "description": "The audit_trail bucket sets acl = \"lcatalogopts-delivery-write\", an invalid/foreign canned ACL value rather than \"private\". If the provider normalizes it (historically AWS treated unrecognized canned ACLs as public-read), the audit bucket storing log data becomes readable by the public, exposing audit records.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "reports_archive has no server_side_encryption_configuration and no default encryption, so objects (including the vendor-roster spreadsheet seeded into it) are stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "ledger_exports holds financial ledger exports but defines no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "model_artifacts has versioning and logging but no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "ops_runbooks stores operational runbooks without any server_side_encryption_configuration, leaving its contents unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no versioning or logging",
+      "description": "reports_archive has neither versioning nor access logging configured, unlike the other buckets, so object overwrites/deletions and access to archived reports are not recoverable or auditable.",
+      "severity": "low",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1541,
+  "output_tokens": 573,
+  "latency_s": 2.851,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"public ACL / broken access control\", \"description\": \"The audit_trail bucket sets acl = \\\"lcatalogopts-delivery-write\\\", an invalid/foreign canned ACL value rather than \\\"private\\\". If the provider normalizes it (historically AWS treated unrecognized canned ACLs as public-read), the audit bucket storing log data becomes readable by the public, exposing audit records.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"reports_archive has no server_side_encryption_configuration and no default encryption, so objects (including the vendor-roster spreadsheet seeded into it) are stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ledger_exports holds financial ledger exports but defines no server_side_encryption_configuration, leaving sensitive financial data unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"model_artifacts has versioning and logging but no server_side_encryption_configuration, so model artifacts are stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"ops_runbooks stores operational runbooks without any server_side_encryption_configuration, leaving its contents unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no versioning or logging\", \"description\": \"reports_archive has neither versioning nor access logging configured, unlike the other buckets, so object overwrites/deletions and access to archived reports are not recoverable or auditable.\", \"severity\": \"low\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1541,
+      "output_tokens": 573,
+      "latency_s": 2.851,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.000376
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000376
+}

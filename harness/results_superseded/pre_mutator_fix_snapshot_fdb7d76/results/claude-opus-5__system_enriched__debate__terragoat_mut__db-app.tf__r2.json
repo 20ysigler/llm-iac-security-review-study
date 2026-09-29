@@ -1,0 +1,143 @@
+{
+  "run_id": "claude-opus-5__system_enriched__debate__terragoat_mut__db-app.tf__r2",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T21:03:30Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database instance",
+      "description": "publicly_accessible = true gives the MySQL instance a public endpoint reachable from outside the VPC, exposing the data tier to untrusted networks and defeating network segmentation.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false disables KMS encryption of the RDS volume and its snapshots, leaving stored data unencrypted on disk.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "master credentials in variable and state",
+      "description": "The master password comes from var.password and the master username is the privileged default 'admin'; the password is persisted in cleartext Terraform state and reused verbatim in EC2 user data instead of being managed via Secrets Manager or manage_master_user_password.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "transport encryption not enforced",
+      "description": "The custom parameter group does not set require_secure_transport and the application connects with plain mysqli_connect, so credentials and query data can traverse the network in cleartext \u2014 especially significant given the instance is publicly accessible.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-319"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script interpolates the RDS master username and password into /var/www/inc/dbinfo.inc. EC2 user data is readable from the instance metadata service by any local process or SSRF vector, disclosing the database master credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "IMDSv1 not disabled",
+      "description": "No metadata_options block is set, so IMDSv1 remains available on a host running an unauthenticated PHP application; an SSRF or RCE can retrieve the instance profile credentials (which hold wildcard s3/ec2/rds permissions) and the plaintext user_data containing the DB password.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-1188"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted root EBS volume",
+      "description": "No root_block_device with encrypted = true is declared, so the volume holding the plaintext DB credential include file may be unencrypted depending on the AMI and account default.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:* and rds:* on Resource \"*\" to the role attached to the internet-reachable web server, so compromise of that host yields near-total control of S3, EC2 and RDS in the account, including data exfiltration and privilege-escalation paths.",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "database ingress open to whole VPC",
+      "description": "Port 3306 is allowed from the entire VPC CIDR rather than from the application security group, so any workload in the VPC can reach the database directly, violating least privilege.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "Egress permits all protocols and ports to 0.0.0.0/0 from the database security group, allowing unrestricted outbound traffic and data exfiltration from a compromised database tier.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 21166,
+  "output_tokens": 4598,
+  "latency_s": 49.338,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database instance\", \"description\": \"publicly_accessible = true gives the MySQL instance a public endpoint reachable from outside the VPC, exposing the data tier to untrusted networks and defeating network segmentation.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false disables KMS encryption of the RDS volume and its snapshots, leaving stored data unencrypted on disk.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"master credentials in variable and state\", \"description\": \"The master password comes from var.password and the master username is the privileged default 'admin'; the password is persisted in cleartext Terraform state and reused verbatim in EC2 user data instead of being managed via Secrets Manager or manage_master_user_password.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"transport encryption not enforced\", \"description\": \"The custom parameter group does not set require_secure_transport and the application connects with plain mysqli_connect, so credentials and query data can traverse the network in cleartext \\u2014 especially significant given the instance is publicly accessible.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-319\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script interpolates the RDS master username and password into /var/www/inc/dbinfo.inc. EC2 user data is readable from the instance metadata service by any local process or SSRF vector, disclosing the database master credentials.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"IMDSv1 not disabled\", \"description\": \"No metadata_options block is set, so IMDSv1 remains available on a host running an unauthenticated PHP application; an SSRF or RCE can retrieve the instance profile credentials (which hold wildcard s3/ec2/rds permissions) and the plaintext user_data containing the DB password.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-1188\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unencrypted root EBS volume\", \"description\": \"No root_block_device with encrypted = true is declared, so the volume holding the plaintext DB credential include file may be unencrypted depending on the AMI and account default.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to the role attached to the internet-reachable web server, so compromise of that host yields near-total control of S3, EC2 and RDS in the account, including data exfiltration and privilege-escalation paths.\", \"severity\": \"critical\", \"confidence\": \"high\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"database ingress open to whole VPC\", \"description\": \"Port 3306 is allowed from the entire VPC CIDR rather than from the application security group, so any workload in the VPC can reach the database directly, violating least privilege.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"Egress permits all protocols and ports to 0.0.0.0/0 from the database security group, allowing unrestricted outbound traffic and data exfiltration from a compromised database tier.\", \"severity\": \"medium\", \"confidence\": \"high\",",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 5839,
+      "output_tokens": 1456,
+      "latency_s": 16.127,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.065595
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 5839,
+      "output_tokens": 1681,
+      "latency_s": 19.494,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.07122
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 9488,
+      "output_tokens": 1461,
+      "latency_s": 13.717,
+      "n_findings": 10,
+      "error": "",
+      "cost_usd": 0.083965
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.22078
+}

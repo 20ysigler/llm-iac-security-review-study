@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-opus-5__system_enriched__single__terragoat_mut__think__s3.tf__r3",
+  "model": "claude-opus-5",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:39:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-opus-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, so objects (including the seeded vendor roster spreadsheet) are stored without enforced SSE-KMS/SSE-S3 default encryption. Unlike the audit_trail bucket, no KMS key is applied here.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "no public access block or ACL",
+      "description": "This bucket declares neither an ACL nor an accompanying aws_s3_bucket_public_access_block, so nothing prevents a later ACL or bucket policy from granting public read/write to the vendor data it stores. None of the buckets in this file have a public access block, but this one has no ACL restriction at all.",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger export bucket has no server_side_encryption_configuration, so financial ledger data is stored without default encryption at rest.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "Versioning and access logging are configured, but no default server-side encryption is defined, so model artifacts and any training data they embed are persisted unencrypted.",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is set. Operational runbooks frequently contain hostnames, escalation procedures, and occasionally embedded credentials, and are stored here in cleartext at rest.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "tamperable audit log storage",
+      "description": "This bucket is the logging target for model_artifacts and holds audit records, yet force_destroy = true allows the entire log history to be deleted with a single terraform destroy, and there is no object lock or MFA delete to protect log integrity. Its ACL value 'lcatalogopts-delivery-write' is also not a valid canned ACL (apparently a corrupted 'log-delivery-write'), so the intended log-delivery grant is not reliably applied.",
+      "severity": "medium",
+      "confidence": "medium",
+      "cwe": "CWE-732"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "unencrypted sensitive object upload",
+      "description": "A vendor roster spreadsheet is uploaded with no kms_key_id or server_side_encryption argument into reports_archive, a bucket that also lacks default encryption, so this potentially sensitive third-party data lands in S3 entirely unencrypted.",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": "CWE-311"
+    }
+  ],
+  "input_tokens": 2372,
+  "output_tokens": 3117,
+  "latency_s": 37.615,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, so objects (including the seeded vendor roster spreadsheet) are stored without enforced SSE-KMS/SSE-S3 default encryption. Unlike the audit_trail bucket, no KMS key is applied here.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"no public access block or ACL\", \"description\": \"This bucket declares neither an ACL nor an accompanying aws_s3_bucket_public_access_block, so nothing prevents a later ACL or bucket policy from granting public read/write to the vendor data it stores. None of the buckets in this file have a public access block, but this one has no ACL restriction at all.\", \"severity\": \"high\", \"confidence\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger export bucket has no server_side_encryption_configuration, so financial ledger data is stored without default encryption at rest.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"Versioning and access logging are configured, but no default server-side encryption is defined, so model artifacts and any training data they embed are persisted unencrypted.\", \"severity\": \"high\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is set. Operational runbooks frequently contain hostnames, escalation procedures, and occasionally embedded credentials, and are stored here in cleartext at rest.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"tamperable audit log storage\", \"description\": \"This bucket is the logging target for model_artifacts and holds audit records, yet force_destroy = true allows the entire log history to be deleted with a single terraform destroy, and there is no object lock or MFA delete to protect log integrity. Its ACL value 'lcatalogopts-delivery-write' is also not a valid canned ACL (apparently a corrupted 'log-delivery-write'), so the intended log-delivery grant is not reliably applied.\", \"severity\": \"medium\", \"confidence\": \"medium\", \"cwe\": \"CWE-732\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"unencrypted sensitive object upload\", \"description\": \"A vendor roster spreadsheet is uploaded with no kms_key_id or server_side_encryption argument into reports_archive, a bucket that also lacks default encryption, so this potentially sensitive third-party data lands in S3 entirely unencrypted.\", \"severity\": \"medium\", \"confidence\": \"high\", \"cwe\": \"CWE-311\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2372,
+      "output_tokens": 3117,
+      "latency_s": 37.615,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.089785
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.089785
+}

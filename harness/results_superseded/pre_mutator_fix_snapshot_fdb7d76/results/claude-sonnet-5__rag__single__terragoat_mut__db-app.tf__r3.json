@@ -1,0 +1,108 @@
+{
+  "run_id": "claude-sonnet-5__rag__single__terragoat_mut__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "rag",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:52:34Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": "9f8a4f341067153f",
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access if the storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance to the public internet rather than restricting it to the private network layer.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credentials",
+      "description": "The database password is sourced from a variable and passed in plaintext into the resource, and combined with the default 'admin' username, no rotation or secrets manager integration is used; the password is also embedded into instance user_data (see aws_instance.catalog_app_server), making it broadly readable.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "secrets in instance user data",
+      "description": "The DB password, username, and endpoint are written into the EC2 instance's user_data script in plaintext, which is readable by anyone with ec2:DescribeInstanceAttribute permissions, greatly widening exposure of the credential beyond the secrets store.",
+      "severity": "high",
+      "cwe": "CWE-522",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and effectively granting broad administrative capability over these services to the EC2 instance role.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing a potential data exfiltration path.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption in transit enforcement",
+      "description": "No parameter or configuration enforces SSL/TLS for MySQL client connections (e.g., require_secure_transport), and the application user_data connects via mysqli_connect without SSL, leaving credentials and query data unencrypted in transit.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled backup retention undermining recovery-based security control",
+      "description": "backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, this also removes point-in-time recovery capability that could be needed after a security incident such as ransomware or data corruption.",
+      "severity": "low",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 7281,
+  "output_tokens": 1219,
+  "latency_s": 11.06,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access if the storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance to the public internet rather than restricting it to the private network layer.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credentials\", \"description\": \"The database password is sourced from a variable and passed in plaintext into the resource, and combined with the default 'admin' username, no rotation or secrets manager integration is used; the password is also embedded into instance user_data (see aws_instance.catalog_app_server), making it broadly readable.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"secrets in instance user data\", \"description\": \"The DB password, username, and endpoint are written into the EC2 instance's user_data script in plaintext, which is readable by anyone with ec2:DescribeInstanceAttribute permissions, greatly widening exposure of the credential beyond the secrets store.\", \"severity\": \"high\", \"cwe\": \"CWE-522\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants wildcard actions (s3:*, ec2:*, rds:*) on all resources (*), violating least privilege and effectively granting broad administrative capability over these services to the EC2 instance role.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, providing a potential data exfiltration path.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption in transit enforcement\", \"description\": \"No parameter or configuration enforces SSL/TLS for MySQL client connections (e.g., require_secure_transport), and the application user_data connects via mysqli_connect without SSL, leaving credentials and query data unencrypted in transit.\", \"severity\": \"medium\", \"cwe\": \"CWE-319\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled backup retention undermining recovery-based security control\", \"description\": \"backup_retention_period is set to 0, disabling automated backups; while primarily an availability concern, this also removes point-in-time recovery capability that could be needed after a security incident such as ransomware or data corruption.\", \"severity\": \"low\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 7281,
+      "output_tokens": 1219,
+      "latency_s": 11.06,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.026752
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.026752
+}

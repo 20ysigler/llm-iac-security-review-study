@@ -1,0 +1,117 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__db-app.tf__r3",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:08:36Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance sets storage_encrypted = false, so the underlying EBS volumes and any snapshots store data in cleartext, exposing the catalog database contents to anyone with access to the storage layer.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database publicly accessible",
+      "description": "publicly_accessible = true assigns the RDS instance a publicly resolvable address, making the endpoint reachable from the internet and removing the network boundary around the database.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credential exposure",
+      "description": "The database master password is passed inline as var.password and interpolated verbatim into the EC2 user_data script, where it is written into /var/www/inc/dbinfo.inc readable by the web application; user data is also retrievable from instance metadata. This leaks the credential to anyone who can read the script or the metadata service.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\", giving the EC2 app role full control over all S3 data, all EC2 resources and every RDS instance in the account, far beyond least privilege and enabling broad data access and privilege escalation.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols to 0.0.0.0/0, permitting the database security group's resources to send traffic anywhere, which facilitates data exfiltration and command-and-control.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group.catalog_db_sg",
+      "issue_category": "no inbound rule restricted",
+      "description": "The catalog database security group has no ingress rules defined; however the MySQL inbound rule (aws_security_group_rule.catalog_db_inbound) permits port 3306 from the entire VPC CIDR, so any workload in the VPC, including the internet-facing app server, can reach the database. This is a flat network boundary combined with publicly_accessible = true.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "credentials embedded in user data",
+      "description": "The EC2 user_data script embeds the RDS endpoint, DB username and DB password directly into the PHP include file, exposing live database credentials in instance metadata and on disk in a world-readable web path.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "public IP assignment",
+      "description": "The instance is launched into a subnet without any association of a non-public address requirement and its public DNS is exported by output catalog_app_public_dns, indicating the web server is internet-reachable while carrying an instance profile with wildcard S3/EC2/RDS permissions.",
+      "severity": "high",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "deprecated engine configuration",
+      "description": "The MySQL instance uses engine_version 8.0 with a fixed major version pinned and no minor version pinning or auto-upgrade, and multi_az = false combined with backup_retention_period = 0 leaves the database without redundancy or recoverable snapshots; the absence of backups is a data-availability exposure but is reported here only in relation to the unencrypted, publicly reachable instance.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3606,
+  "output_tokens": 991,
+  "latency_s": 4.87,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The RDS instance sets storage_encrypted = false, so the underlying EBS volumes and any snapshots store data in cleartext, exposing the catalog database contents to anyone with access to the storage layer.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database publicly accessible\", \"description\": \"publicly_accessible = true assigns the RDS instance a publicly resolvable address, making the endpoint reachable from the internet and removing the network boundary around the database.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credential exposure\", \"description\": \"The database master password is passed inline as var.password and interpolated verbatim into the EC2 user_data script, where it is written into /var/www/inc/dbinfo.inc readable by the web application; user data is also retrievable from instance metadata. This leaks the credential to anyone who can read the script or the metadata service.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\", giving the EC2 app role full control over all S3 data, all EC2 resources and every RDS instance in the account, far beyond least privilege and enabling broad data access and privilege escalation.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols to 0.0.0.0/0, permitting the database security group's resources to send traffic anywhere, which facilitates data exfiltration and command-and-control.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group.catalog_db_sg\", \"issue_category\": \"no inbound rule restricted\", \"description\": \"The catalog database security group has no ingress rules defined; however the MySQL inbound rule (aws_security_group_rule.catalog_db_inbound) permits port 3306 from the entire VPC CIDR, so any workload in the VPC, including the internet-facing app server, can reach the database. This is a flat network boundary combined with publicly_accessible = true.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"credentials embedded in user data\", \"description\": \"The EC2 user_data script embeds the RDS endpoint, DB username and DB password directly into the PHP include file, exposing live database credentials in instance metadata and on disk in a world-readable web path.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"public IP assignment\", \"description\": \"The instance is launched into a subnet without any association of a non-public address requirement and its public DNS is exported by output catalog_app_public_dns, indicating the web server is internet-reachable while carrying an instance profile with wildcard S3/EC2/RDS permissions.\", \"severity\": \"high\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"deprecated engine configuration\", \"description\": \"The MySQL instance uses engine_version 8.0 with a fixed major version pinned and no minor version pinning or auto-upgrade, and multi_az = false combined with backup_retention_period = 0 leaves the database without redundancy or recoverable snapshots; the absence of backups is a data-availability exposure but is reported here only in relation to the unencrypted, publicly reachable instance.\", \"severity\": \"low\", \"cwe\": \"CWE-110",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3606,
+      "output_tokens": 991,
+      "latency_s": 4.87,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000782
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000782
+}

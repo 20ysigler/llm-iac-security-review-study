@@ -1,0 +1,109 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__s3.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:09:47Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The reports_archive bucket has no server_side_encryption_configuration block and no ACL set, so objects are stored without a customer-controlled/default-defined SSE configuration. Any object written to the bucket relies on whatever default the platform applies and is not explicitly encrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The ledger_exports bucket stores ledger exports but declares no server_side_encryption_configuration, leaving stored financial data unprotected by an explicitly configured encryption-at-rest control.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "The model_artifacts bucket has versioning and logging configured but no server_side_encryption_configuration, so model artifacts are written without an explicitly configured encryption-at-rest setting.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The ops_runbooks bucket contains operational runbooks (which commonly embed credentials, endpoints, and internal procedures) but has no server_side_encryption_configuration configured.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "public ACL grants external write access",
+      "description": "audit_trail sets acl = \"lcatalogopts-delivery-write\", which is not a valid canned S3 ACL; the intended log-delivery-write grant gives an external log delivery group write access to the bucket holding audit records, allowing tampering with or injection into the audit trail.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "untrusted principal write access",
+      "description": "Granting write/delivery access to the audit bucket means the log delivery principal can add objects; without accompanying bucket policy conditions or object lock, integrity of the audit trail cannot be guaranteed against a compromised or misdirected delivery pipeline.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy allows data destruction",
+      "description": "force_destroy = true on reports_archive causes Terraform destroy to delete the bucket and all contained objects irreversibly, including the seeded vendor roster, removing the ability to recover or audit the retained data.",
+      "severity": "low",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "logging into unscoped audit bucket",
+      "description": "Access logging for model_artifacts targets aws_s3_bucket.audit_trail, the same bucket whose canned ACL already grants an external principal write access; combined with no SSE on the log source, log records are unprotected in transit of configuration and stored in a bucket whose access control is weakened.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 1541,
+  "output_tokens": 832,
+  "latency_s": 4.452,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The reports_archive bucket has no server_side_encryption_configuration block and no ACL set, so objects are stored without a customer-controlled/default-defined SSE configuration. Any object written to the bucket relies on whatever default the platform applies and is not explicitly encrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ledger_exports bucket stores ledger exports but declares no server_side_encryption_configuration, leaving stored financial data unprotected by an explicitly configured encryption-at-rest control.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The model_artifacts bucket has versioning and logging configured but no server_side_encryption_configuration, so model artifacts are written without an explicitly configured encryption-at-rest setting.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The ops_runbooks bucket contains operational runbooks (which commonly embed credentials, endpoints, and internal procedures) but has no server_side_encryption_configuration configured.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"public ACL grants external write access\", \"description\": \"audit_trail sets acl = \\\"lcatalogopts-delivery-write\\\", which is not a valid canned S3 ACL; the intended log-delivery-write grant gives an external log delivery group write access to the bucket holding audit records, allowing tampering with or injection into the audit trail.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"untrusted principal write access\", \"description\": \"Granting write/delivery access to the audit bucket means the log delivery principal can add objects; without accompanying bucket policy conditions or object lock, integrity of the audit trail cannot be guaranteed against a compromised or misdirected delivery pipeline.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy allows data destruction\", \"description\": \"force_destroy = true on reports_archive causes Terraform destroy to delete the bucket and all contained objects irreversibly, including the seeded vendor roster, removing the ability to recover or audit the retained data.\", \"severity\": \"low\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"logging into unscoped audit bucket\", \"description\": \"Access logging for model_artifacts targets aws_s3_bucket.audit_trail, the same bucket whose canned ACL already grants an external principal write access; combined with no SSE on the log source, log records are unprotected in transit of configuration and stored in a bucket whose access control is weakened.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 1541,
+      "output_tokens": 832,
+      "latency_s": 4.452,
+      "n_findings": 8,
+      "error": "",
+      "cost_usd": 0.000449
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000449
+}

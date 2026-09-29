@@ -1,0 +1,89 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__db-app.tf__r5",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 5,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:41:43Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted data at rest",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access via storage or snapshots.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network, significantly increasing attack surface especially combined with the broad ingress rule allowing the whole VPC CIDR.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data script embeds the database username and password (var.password) in plaintext, and user_data is stored in EC2 instance metadata and Terraform state in cleartext, allowing anyone with access to instance metadata or state to retrieve the database credentials.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource \"*\", giving the EC2 instance role full administrative control over S3, EC2, and RDS services, violating least privilege and enabling significant privilege escalation if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "The security group rule allows inbound MySQL (3306) traffic from the entire VPC CIDR block rather than restricting it to only the application server's specific security group, broadening the network attack surface within the VPC; combined with publicly_accessible=true on the DB instance, this significantly increases exposure since the DB is reachable from the internet and permits connections from any host in the VPC.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 13144,
+  "output_tokens": 2007,
+  "latency_s": 18.72,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted data at rest\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's underlying storage is not encrypted, exposing data at rest to unauthorized access via storage or snapshots.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private VPC network, significantly increasing attack surface especially combined with the broad ingress rule allowing the whole VPC CIDR.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data script embeds the database username and password (var.password) in plaintext, and user_data is stored in EC2 instance metadata and Terraform state in cleartext, allowing anyone with access to instance metadata or state to retrieve the database credentials.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", giving the EC2 instance role full administrative control over S3, EC2, and RDS services, violating least privilege and enabling significant privilege escalation if the instance is compromised.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network ingress\", \"description\": \"The security group rule allows inbound MySQL (3306) traffic from the entire VPC CIDR block rather than restricting it to only the application server's specific security group, broadening the network attack surface within the VPC; combined with publicly_accessible=true on the DB instance, this significantly increases exposure since the DB is reachable from the internet and permits connections from any host in the VPC.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5907,
+      "output_tokens": 1205,
+      "latency_s": 11.339,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.023864
+    },
+    {
+      "step": "critique",
+      "input_tokens": 7237,
+      "output_tokens": 802,
+      "latency_s": 7.381,
+      "n_findings": 5,
+      "error": "",
+      "cost_usd": 0.022494
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.046358
+}

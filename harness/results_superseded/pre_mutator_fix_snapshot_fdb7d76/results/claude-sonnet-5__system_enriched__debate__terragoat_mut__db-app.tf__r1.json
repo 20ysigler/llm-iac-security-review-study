@@ -1,0 +1,119 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__debate__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "debate",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:52:56Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet, significantly increasing attack surface for a data store holding credentials and customer data, especially combined with the broad ingress rule and lack of encryption.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded/plaintext credentials",
+      "description": "The database password is supplied via var.password directly into the resource and is also embedded in plaintext within the EC2 user_data script, risking exposure through Terraform state, instance metadata, or logs; the lifecycle ignore_changes on password further indicates the plaintext value is not rotated through a secrets manager.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The user_data script embeds the RDS database username and password in cleartext, writing them to /var/www/inc/dbinfo.inc during boot; this data is retrievable via the EC2 instance metadata service or DescribeInstanceAttribute API by anyone with sufficient access, and is also stored unencrypted in Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance profile, giving any compromised instance using this role near-full administrative control over S3, EC2, and RDS, far exceeding least privilege for an application server.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "The ingress rule allows TCP 3306 access from the entire VPC CIDR block rather than being scoped to the specific application server's security group, unnecessarily broadening network reachability to the database beyond what the app tier requires; this is compounded by the database also being publicly_accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive for a database tier and could facilitate data exfiltration if the instance is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 20167,
+  "output_tokens": 3531,
+  "latency_s": 33.313,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning data at rest in the RDS instance is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet, significantly increasing attack surface for a data store holding credentials and customer data, especially combined with the broad ingress rule and lack of encryption.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded/plaintext credentials\", \"description\": \"The database password is supplied via var.password directly into the resource and is also embedded in plaintext within the EC2 user_data script, risking exposure through Terraform state, instance metadata, or logs; the lifecycle ignore_changes on password further indicates the plaintext value is not rotated through a secrets manager.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The user_data script embeds the RDS database username and password in cleartext, writing them to /var/www/inc/dbinfo.inc during boot; this data is retrievable via the EC2 instance metadata service or DescribeInstanceAttribute API by anyone with sufficient access, and is also stored unencrypted in Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The inline policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance profile, giving any compromised instance using this role near-full administrative control over S3, EC2, and RDS, far exceeding least privilege for an application server.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network ingress\", \"description\": \"The ingress rule allows TCP 3306 access from the entire VPC CIDR block rather than being scoped to the specific application server's security group, unnecessarily broadening network reachability to the database beyond what the app tier requires; this is compounded by the database also being publicly_accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The database security group allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which is overly permissive for a database tier and could facilitate data exfiltration if the instance is compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "reviewer_a",
+      "input_tokens": 5907,
+      "output_tokens": 1172,
+      "latency_s": 11.954,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.023534
+    },
+    {
+      "step": "reviewer_b",
+      "input_tokens": 5907,
+      "output_tokens": 1161,
+      "latency_s": 11.955,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.023424
+    },
+    {
+      "step": "reconciler",
+      "input_tokens": 8353,
+      "output_tokens": 1198,
+      "latency_s": 9.404,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.028686
+    }
+  ],
+  "n_calls": 3,
+  "chunks": 0,
+  "cost_usd": 0.075644
+}

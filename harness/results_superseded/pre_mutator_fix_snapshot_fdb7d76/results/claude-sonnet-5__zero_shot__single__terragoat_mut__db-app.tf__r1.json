@@ -1,0 +1,101 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:40:22Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible = true exposes the RDS instance to the public internet, significantly increasing attack surface for a database holding application data and credentials.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled encryption at rest",
+      "description": "storage_encrypted = false means the database storage is not encrypted at rest, risking exposure of sensitive data if underlying storage is compromised.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hardcoded/plaintext credential reference",
+      "description": "The database password is sourced from var.password and passed in plaintext into the resource and into user_data, risking credential leakage via state files, logs, and instance metadata.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "plaintext credentials in user data",
+      "description": "The user_data script embeds the DB username and password in plaintext, which is retrievable via the EC2 instance metadata service by anyone with access to the instance or metadata endpoint, and may also be stored in CloudTrail/logs.",
+      "severity": "high",
+      "cwe": "CWE-200",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on all resources (\"Resource\": \"*\"), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services, including data exfiltration or resource destruction.",
+      "severity": "critical",
+      "cwe": "CWE-269",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which can facilitate data exfiltration if the database or associated resources are compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "disabled deletion protection / final snapshot",
+      "description": "skip_final_snapshot = true combined with publicly accessible and unencrypted storage increases risk that sensitive data could be lost or exposed without recovery options during deletion.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "low"
+    }
+  ],
+  "input_tokens": 5485,
+  "output_tokens": 1084,
+  "latency_s": 9.701,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible = true exposes the RDS instance to the public internet, significantly increasing attack surface for a database holding application data and credentials.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled encryption at rest\", \"description\": \"storage_encrypted = false means the database storage is not encrypted at rest, risking exposure of sensitive data if underlying storage is compromised.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hardcoded/plaintext credential reference\", \"description\": \"The database password is sourced from var.password and passed in plaintext into the resource and into user_data, risking credential leakage via state files, logs, and instance metadata.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"medium\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"plaintext credentials in user data\", \"description\": \"The user_data script embeds the DB username and password in plaintext, which is retrievable via the EC2 instance metadata service by anyone with access to the instance or metadata endpoint, and may also be stored in CloudTrail/logs.\", \"severity\": \"high\", \"cwe\": \"CWE-200\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on all resources (\\\"Resource\\\": \\\"*\\\"), violating least privilege and allowing the EC2 instance role to perform virtually any action on these services, including data exfiltration or resource destruction.\", \"severity\": \"critical\", \"cwe\": \"CWE-269\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0 from the database security group, which can facilitate data exfiltration if the database or associated resources are compromised.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"disabled deletion protection / final snapshot\", \"description\": \"skip_final_snapshot = true combined with publicly accessible and unencrypted storage increases risk that sensitive data could be lost or exposed without recovery options during deletion.\", \"severity\": \"low\", \"cwe\": \"CWE-284\", \"confidence\": \"low\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5485,
+      "output_tokens": 1084,
+      "latency_s": 9.701,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.02181
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.02181
+}

@@ -1,0 +1,141 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__chunked__terragoat_mut__db-app.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "chunked",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:47:27Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The database password (var.password) and username are embedded in plaintext within the instance user_data script, which is stored unencrypted in the EC2 instance metadata service and is readable by anyone with ec2:DescribeInstanceAttribute permissions or access to the instance metadata endpoint. This exposes database credentials to any process or user with access to the instance or appropriate IAM permissions.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "SQL injection vulnerability in deployed application",
+      "description": "The AddEmployee function properly escapes input, but the deployed PHP application uses mysqli_real_escape_string inconsistently and the overall application design (embedded in user_data) is a legacy tutorial pattern with known weaknesses; more critically, credentials and application code are baked into instance metadata rather than managed securely via a secrets manager.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "public network exposure of app server",
+      "description": "The instance is deployed with an output aws_app_public_dns (implying a public IP/DNS) and attached to security group aws_security_group.portal_sg (defined outside this excerpt), placing a server that connects directly to the database with embedded credentials on a publicly reachable network path, increasing the blast radius if the instance or its security group is misconfigured.",
+      "severity": "medium",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, making the RDS instance reachable from the public internet subject to security group rules, significantly increasing attack surface for a database holding application data.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the database storage is not encrypted at rest, exposing data if underlying storage is compromised or snapshots are exposed.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The database password is sourced from var.password with no indication of secrets-manager integration, and combined with a static admin username, this risks credential exposure via state files or variable definitions.",
+      "severity": "medium",
+      "cwe": "CWE-798",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The inline policy grants s3:*, ec2:*, and rds:* on Resource '*', giving the application role broad administrative privileges far beyond what a catalog application needs, violating least privilege and enabling privilege escalation if the instance is compromised.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The security group rule allows all outbound traffic (protocol -1, all ports) to 0.0.0.0/0, which combined with a publicly accessible database increases the risk of data exfiltration if the instance or database is compromised.",
+      "severity": "low",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad network ingress",
+      "description": "Inbound MySQL access on port 3306 is allowed from the entire VPC CIDR block rather than scoped to specific application security groups or hosts, which combined with publicly_accessible=true on the DB instance widens the effective exposure of the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 12346,
+  "output_tokens": 1549,
+  "latency_s": 18.625,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": []}",
+  "steps": [
+    {
+      "step": "chunk_1",
+      "input_tokens": 2802,
+      "output_tokens": 34,
+      "latency_s": 2.11,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.005944
+    },
+    {
+      "step": "chunk_2",
+      "input_tokens": 4157,
+      "output_tokens": 568,
+      "latency_s": 6.91,
+      "n_findings": 3,
+      "error": "",
+      "cost_usd": 0.013994
+    },
+    {
+      "step": "chunk_3",
+      "input_tokens": 3091,
+      "output_tokens": 913,
+      "latency_s": 8.422,
+      "n_findings": 6,
+      "error": "",
+      "cost_usd": 0.015312
+    },
+    {
+      "step": "chunk_4",
+      "input_tokens": 2296,
+      "output_tokens": 34,
+      "latency_s": 1.183,
+      "n_findings": 0,
+      "error": "",
+      "cost_usd": 0.004932
+    }
+  ],
+  "n_calls": 4,
+  "chunks": 4,
+  "cost_usd": 0.040182
+}

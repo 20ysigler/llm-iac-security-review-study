@@ -1,0 +1,133 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__db-app.tf__r4",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 4,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:08:42Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database publicly accessible",
+      "description": "The RDS instance has publicly_accessible set to true, giving the MySQL database a publicly resolvable endpoint reachable from the internet. Combined with the port 3306 ingress rule and the admin username, this turns the database into a directly attackable surface.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted is explicitly set to false, so the MySQL database, its automated snapshots, and any read replicas are stored unencrypted on the underlying volumes. Data at rest is readable by anyone with access to the storage layer or to snapshot copies.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The EC2 instance's user_data embeds the database password via ${var.password} and writes it in cleartext into /var/www/inc/dbinfo.inc, which is served from the Apache docroot tree. User data is also readable from instance metadata (169.254.169.254) by any process or SSRF on the instance, and the password is committed to Terraform state.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "cleartext credentials on disk",
+      "description": "The startup script writes DB username and password into a PHP include file under /var/www and never restricts it to a non-served path or removes it. Anything able to read the web filesystem (or exploit the app) obtains the database credentials in cleartext.",
+      "severity": "high",
+      "cwe": "CWE-312",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource \"*\", so the EC2 role can read every S3 bucket, terminate or reconfigure any EC2 instance, and modify or delete any RDS database in the account. This is full account-level control over three services and has no least-privilege boundary.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_instance_profile.catalog_app_profile",
+      "issue_category": "privilege escalation path",
+      "description": "This instance profile carries the wildcarded s3:*/ec2:*/rds:* policy onto the EC2 instance. Any code execution or SSRF on the instance retrieves credentials from the instance metadata service and gains full control of EC2, S3, and RDS resources account-wide.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The egress rule allows all protocols to 0.0.0.0/0, permitting the database security group's members to reach any destination. This enables data exfiltration and outbound command-and-control from any workload associated with the group.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "broad database ingress",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR rather than to the catalog application security group, so any instance in the VPC (including any future or compromised workload) can reach the database. Combined with publicly_accessible = true this extends the reachable attack surface.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "cleartext database transmission",
+      "description": "The MySQL instance has no TLS-enforcing parameter (such as require_secure_transport) and the sample application connects with mysqli_connect over plain TCP, so credentials and query data travel unencrypted even though the endpoint is public.",
+      "severity": "medium",
+      "cwe": "CWE-319",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "full administrative database user",
+      "description": "The database master username is the generic \"admin\" account, the highest-privilege account on the instance, and it is the same credential distributed to the application. There is no application-level least-privilege database user, so any application compromise yields full DBA control.",
+      "severity": "medium",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "sensitive endpoint exposure",
+      "description": "The catalog_db_endpoint output exports the database hostname as a Terraform output, which is stored in state and visible to anyone with read access to the workspace. Publicly exposing the endpoint identifier lowers the effort required to target the database.",
+      "severity": "low",
+      "cwe": "CWE-200",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3606,
+  "output_tokens": 1226,
+  "latency_s": 5.837,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database publicly accessible\", \"description\": \"The RDS instance has publicly_accessible set to true, giving the MySQL database a publicly resolvable endpoint reachable from the internet. Combined with the port 3306 ingress rule and the admin username, this turns the database into a directly attackable surface.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted is explicitly set to false, so the MySQL database, its automated snapshots, and any read replicas are stored unencrypted on the underlying volumes. Data at rest is readable by anyone with access to the storage layer or to snapshot copies.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The EC2 instance's user_data embeds the database password via ${var.password} and writes it in cleartext into /var/www/inc/dbinfo.inc, which is served from the Apache docroot tree. User data is also readable from instance metadata (169.254.169.254) by any process or SSRF on the instance, and the password is committed to Terraform state.\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"cleartext credentials on disk\", \"description\": \"The startup script writes DB username and password into a PHP include file under /var/www and never restricts it to a non-served path or removes it. Anything able to read the web filesystem (or exploit the app) obtains the database credentials in cleartext.\", \"severity\": \"high\", \"cwe\": \"CWE-312\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource \\\"*\\\", so the EC2 role can read every S3 bucket, terminate or reconfigure any EC2 instance, and modify or delete any RDS database in the account. This is full account-level control over three services and has no least-privilege boundary.\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_instance_profile.catalog_app_profile\", \"issue_category\": \"privilege escalation path\", \"description\": \"This instance profile carries the wildcarded s3:*/ec2:*/rds:* policy onto the EC2 instance. Any code execution or SSRF on the instance retrieves credentials from the instance metadata service and gains full control of EC2, S3, and RDS resources account-wide.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The egress rule allows all protocols to 0.0.0.0/0, permitting the database security group's members to reach any destination. This enables data exfiltration and outbound command-and-control from any workload associated with the group.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"broad database ingress\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR rather than to the catalog application security group, so any instance in the VPC (including any future or compromised workload) can reach the database. Combined with publicly_accessible = true this extends the reachable attack surface.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"cleartext database transmission\", \"description\": \"The MySQL instance has no TLS-enforcing parameter (such as require_secure_transport) and the sample application connects with mysqli_connect over plain TCP, so credentials and query data travel unencrypted even though the endpoint is pu",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3606,
+      "output_tokens": 1226,
+      "latency_s": 5.837,
+      "n_findings": 11,
+      "error": "",
+      "cost_usd": 0.000848
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000848
+}

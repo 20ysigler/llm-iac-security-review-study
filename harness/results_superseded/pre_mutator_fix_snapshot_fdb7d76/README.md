@@ -1,0 +1,5 @@
+# Superseded runs on the first mutated corpus (study repository commit fdb7d76)
+
+The first mutated corpus, used for runs on 2026-09-20, carried a defect in `mutate_corpus.py`: a string-fragment rule matched inside `log-delivery-write` and turned the audit bucket's ACL in s3.tf into an invalid value, and sequential replacement double-substituted several identifier strings in db-app.tf. Two models flagged the invalid ACL as a finding. The rule was fixed (commit cb1cd74), the corpus regenerated and re-validated against Checkov (95 checks, unchanged), and every run on the two affected files (s3.tf and db-app.tf, 180 runs across the 18 configurations then existing) was redone; the other four files were byte-identical before and after and their runs stand (paper, Section 3.4.1; RESULTS.md, Corpus note).
+
+`results/` holds the run files as they stood at fdb7d76, `terragoat_mut/` the pre-fix versions of the affected corpus files, and `FILES_CHANGED_BY_cb1cd74.txt` the list of files the fix changed. These runs are not part of the 1,080 reported in the paper and are not read by `harness/verify_paper.py`.

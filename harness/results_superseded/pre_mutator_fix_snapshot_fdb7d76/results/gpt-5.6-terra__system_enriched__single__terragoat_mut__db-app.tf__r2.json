@@ -1,0 +1,77 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__db-app.tf__r2",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:00:11Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded database credential",
+      "description": "The database password is rendered into EC2 user data and written to /var/www/inc/dbinfo.inc. User data and the resulting file can be read by parties with instance, metadata-service, backup/image, or Terraform-state access, exposing reusable database credentials.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance sets publicly_accessible = true, assigning a public network endpoint. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes the database to internet-reachable network paths and expands the attack surface if security-group rules change or other paths are introduced.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The RDS instance explicitly sets storage_encrypted = false, leaving database storage, automated backups, snapshots, and replicas created from this instance unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive instance role",
+      "description": "This policy grants s3:*, ec2:*, and rds:* on every resource to the role attached to aws_instance.catalog_app_server. Compromise of that instance yields broad account-level control and data access, including likely privilege-escalation paths through EC2 and IAM-adjacent EC2 capabilities.",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3122,
+  "output_tokens": 361,
+  "latency_s": 5.304,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"hard-coded database credential\",\"description\":\"The database password is rendered into EC2 user data and written to /var/www/inc/dbinfo.inc. User data and the resulting file can be read by parties with instance, metadata-service, backup/image, or Terraform-state access, exposing reusable database credentials.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance sets publicly_accessible = true, assigning a public network endpoint. Although the shown security-group ingress is VPC-scoped, this unnecessarily exposes the database to internet-reachable network paths and expands the attack surface if security-group rules change or other paths are introduced.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The RDS instance explicitly sets storage_encrypted = false, leaving database storage, automated backups, snapshots, and replicas created from this instance unencrypted at rest.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive instance role\",\"description\":\"This policy grants s3:*, ec2:*, and rds:* on every resource to the role attached to aws_instance.catalog_app_server. Compromise of that instance yields broad account-level control and data access, including likely privilege-escalation paths through EC2 and IAM-adjacent EC2 capabilities.\",\"severity\":\"critical\",\"cwe\":\"CWE-732\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3122,
+      "output_tokens": 361,
+      "latency_s": 5.304,
+      "n_findings": 4,
+      "error": "",
+      "cost_usd": 0.010576
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.010576
+}

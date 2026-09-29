@@ -1,0 +1,115 @@
+{
+  "run_id": "claude-sonnet-5__zero_shot__single__terragoat_mut__s3.tf__r2",
+  "model": "claude-sonnet-5",
+  "context": "zero_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 2,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:43:24Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket has no server_side_encryption_configuration block, meaning objects stored in it are not encrypted at rest by default, risking exposure of sensitive report data.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing public access block / ACL",
+      "description": "No ACL is defined and there is no aws_s3_bucket_public_access_block resource, leaving the bucket at risk of defaulting to more permissive access than intended and allowing potential public exposure.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket does not configure server_side_encryption_configuration, so financial ledger export data is stored unencrypted at rest.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored without encryption at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "The bucket lacks a server_side_encryption_configuration block, leaving operational runbook data (potentially containing sensitive operational details) unencrypted at rest.",
+      "severity": "medium",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive ACL",
+      "description": "The acl value 'lcatalogopts-delivery-write' is not a valid canned ACL; if it fails open or is misapplied it can result in unintended write access to the audit trail bucket, which is critical for log integrity. It should be set to a well-known canned ACL such as 'private' or 'log-delivery-write'.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption at rest",
+      "description": "The uploaded object does not specify server_side_encryption or kms_key_id, and the destination bucket also lacks default encryption, so this file is stored unencrypted.",
+      "severity": "low",
+      "cwe": "CWE-311",
+      "confidence": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled on sensitive data",
+      "description": "force_destroy = true allows the bucket and all its contents to be deleted without a safeguard, which can lead to irreversible data loss and is a risk for buckets holding archival reports.",
+      "severity": "low",
+      "confidence": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force_destroy enabled on audit logs",
+      "description": "force_destroy = true on the audit trail bucket allows deletion of audit logs, undermining the integrity and non-repudiation guarantees expected of an audit log store.",
+      "severity": "medium",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 2144,
+  "output_tokens": 1269,
+  "latency_s": 10.788,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket has no server_side_encryption_configuration block, meaning objects stored in it are not encrypted at rest by default, risking exposure of sensitive report data.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing public access block / ACL\", \"description\": \"No ACL is defined and there is no aws_s3_bucket_public_access_block resource, leaving the bucket at risk of defaulting to more permissive access than intended and allowing potential public exposure.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket does not configure server_side_encryption_configuration, so financial ledger export data is stored unencrypted at rest.\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for this bucket, so model artifacts are stored without encryption at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The bucket lacks a server_side_encryption_configuration block, leaving operational runbook data (potentially containing sensitive operational details) unencrypted at rest.\", \"severity\": \"medium\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive ACL\", \"description\": \"The acl value 'lcatalogopts-delivery-write' is not a valid canned ACL; if it fails open or is misapplied it can result in unintended write access to the audit trail bucket, which is critical for log integrity. It should be set to a well-known canned ACL such as 'private' or 'log-delivery-write'.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"missing encryption at rest\", \"description\": \"The uploaded object does not specify server_side_encryption or kms_key_id, and the destination bucket also lacks default encryption, so this file is stored unencrypted.\", \"severity\": \"low\", \"cwe\": \"CWE-311\", \"confidence\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled on sensitive data\", \"description\": \"force_destroy = true allows the bucket and all its contents to be deleted without a safeguard, which can lead to irreversible data loss and is a risk for buckets holding archival reports.\", \"severity\": \"low\", \"confidence\": \"low\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"force_destroy enabled on audit logs\", \"description\": \"force_destroy = true on the audit trail bucket allows deletion of audit logs, undermining the integrity and non-repudiation guarantees expected of an audit log store.\", \"severity\": \"medium\", \"confidence\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2144,
+      "output_tokens": 1269,
+      "latency_s": 10.788,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.016978
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.016978
+}

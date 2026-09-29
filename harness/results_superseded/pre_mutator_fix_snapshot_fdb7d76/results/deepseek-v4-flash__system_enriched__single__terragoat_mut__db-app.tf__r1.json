@@ -1,0 +1,117 @@
+{
+  "run_id": "deepseek-v4-flash__system_enriched__single__terragoat_mut__db-app.tf__r1",
+  "model": "deepseek-v4-flash",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T01:08:28Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "deepseek-flash",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "database publicly accessible",
+      "description": "publicly_accessible = true exposes the MySQL instance on a public endpoint, so the database's reach is no longer bounded by the VPC network; combined with the instance's placement it materially widens the attack surface for credential-stuffing and exploit attempts.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "storage_encrypted = false leaves the entire catalog database volume, its snapshots and any replicas unencrypted on the underlying storage, so anyone with access to the storage layer or a snapshot copy can read the data (CWE-311).",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded database password",
+      "description": "The master password is taken from the var.password variable and referenced directly in the instance definition; the same value is embedded in plaintext into the EC2 instance's user_data via DB_PASSWORD, so the master credential is stored in cleartext in instance metadata, the user_data script, and Terraform state (CWE-798).",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user_data",
+      "description": "The instance user_data writes the DB master username, password and endpoint into /var/www/inc/dbinfo.inc as a PHP constant. user_data is retrievable from instance metadata and stored in Terraform state, and the file is served from the webroot, disclosing the database master credential (CWE-798).",
+      "severity": "critical",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:* and rds:* on Resource \"*\" to an EC2-assumable role. This is full service control, enabling data exfiltration, instance/role modification, and privilege escalation, far beyond what an application reading a catalog database requires (CWE-732, least privilege violation).",
+      "severity": "critical",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "full-database service permissions on compute",
+      "description": "The EC2 instance assumes catalog_app_role via catalog_app_profile, and that role's policy grants unrestricted S3/EC2/RDS actions. Because the instance is also the web front end for the database, any compromise of the web application yields full control of the account's storage, compute and database services.",
+      "severity": "high",
+      "cwe": "CWE-732",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted egress",
+      "description": "The DB security group permits all protocols to 0.0.0.0/0 (protocol -1, ports 0-0). This allows the database instance unrestricted outbound connectivity for exfiltration and outbound callbacks, removing any egress containment if the host is compromised.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "wide database ingress from VPC",
+      "description": "MySQL port 3306 is opened to the entire VPC CIDR, so every host in the VPC (including the internet-facing app instance and any future workload) can reach the database. Ingress should be restricted to the specific application security group rather than the whole network.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "final snapshot skipped",
+      "description": "skip_final_snapshot = true, with backup_retention_period = 0, means the database is destroyed without any retained snapshot. Beyond availability, this removes the forensic recovery path after a destructive event; note the primary issue here is the absence of retained backups/snapshots for a database holding application data.",
+      "severity": "low",
+      "cwe": "CWE-1104",
+      "confidence": "medium"
+    }
+  ],
+  "input_tokens": 3606,
+  "output_tokens": 1046,
+  "latency_s": 5.467,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"database publicly accessible\", \"description\": \"publicly_accessible = true exposes the MySQL instance on a public endpoint, so the database's reach is no longer bounded by the VPC network; combined with the instance's placement it materially widens the attack surface for credential-stuffing and exploit attempts.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"missing encryption at rest\", \"description\": \"storage_encrypted = false leaves the entire catalog database volume, its snapshots and any replicas unencrypted on the underlying storage, so anyone with access to the storage layer or a snapshot copy can read the data (CWE-311).\", \"severity\": \"high\", \"cwe\": \"CWE-311\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded database password\", \"description\": \"The master password is taken from the var.password variable and referenced directly in the instance definition; the same value is embedded in plaintext into the EC2 instance's user_data via DB_PASSWORD, so the master credential is stored in cleartext in instance metadata, the user_data script, and Terraform state (CWE-798).\", \"severity\": \"high\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user_data\", \"description\": \"The instance user_data writes the DB master username, password and endpoint into /var/www/inc/dbinfo.inc as a PHP constant. user_data is retrievable from instance metadata and stored in Terraform state, and the file is served from the webroot, disclosing the database master credential (CWE-798).\", \"severity\": \"critical\", \"cwe\": \"CWE-798\", \"confidence\": \"high\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:* and rds:* on Resource \\\"*\\\" to an EC2-assumable role. This is full service control, enabling data exfiltration, instance/role modification, and privilege escalation, far beyond what an application reading a catalog database requires (CWE-732, least privilege violation).\", \"severity\": \"critical\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"full-database service permissions on compute\", \"description\": \"The EC2 instance assumes catalog_app_role via catalog_app_profile, and that role's policy grants unrestricted S3/EC2/RDS actions. Because the instance is also the web front end for the database, any compromise of the web application yields full control of the account's storage, compute and database services.\", \"severity\": \"high\", \"cwe\": \"CWE-732\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_outbound\", \"issue_category\": \"unrestricted egress\", \"description\": \"The DB security group permits all protocols to 0.0.0.0/0 (protocol -1, ports 0-0). This allows the database instance unrestricted outbound connectivity for exfiltration and outbound callbacks, removing any egress containment if the host is compromised.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"wide database ingress from VPC\", \"description\": \"MySQL port 3306 is opened to the entire VPC CIDR, so every host in the VPC (including the internet-facing app instance and any future workload) can reach the database. Ingress should be restricted to the specific application security group rather than the whole network.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\", \"confidence\": \"high\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"final snapshot skipped\", \"description\": \"skip_final_snapshot = true, with backup_retention_period = 0, means the database is destroyed without any retained snapshot. Beyond availability, this removes the foren",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3606,
+      "output_tokens": 1046,
+      "latency_s": 5.467,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.000798
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.000798
+}

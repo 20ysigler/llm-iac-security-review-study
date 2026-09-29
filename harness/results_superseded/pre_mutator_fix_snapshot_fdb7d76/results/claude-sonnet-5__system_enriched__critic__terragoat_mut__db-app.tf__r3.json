@@ -1,0 +1,103 @@
+{
+  "run_id": "claude-sonnet-5__system_enriched__critic__terragoat_mut__db-app.tf__r3",
+  "model": "claude-sonnet-5",
+  "context": "system_enriched",
+  "pattern": "critic",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:41:07Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "unencrypted database storage",
+      "description": "storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.",
+      "severity": "high",
+      "cwe": "CWE-311"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private application tier.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "hard-coded credentials",
+      "description": "The master password is sourced from var.password and passed directly into the resource; combined with lifecycle ignore_changes on password, the value is stored in plaintext in the Terraform state and likely in variable definitions rather than a secrets manager, risking credential exposure.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "hard-coded credentials in user data",
+      "description": "The user_data script embeds the database username and password (var.password) in cleartext into /var/www/inc/dbinfo.inc, and user_data itself is stored in plaintext in instance metadata and Terraform state, exposing credentials to anyone with EC2 describe-instance-attribute access or state file access.",
+      "severity": "high",
+      "cwe": "CWE-798"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive IAM policy",
+      "description": "The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance, violating least privilege and allowing compromise of the public-facing app server to escalate into full control over S3, EC2, and RDS resources in the account.",
+      "severity": "critical",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad network ingress",
+      "description": "Inbound MySQL access on port 3306 is allowed from the entire VPC CIDR block rather than being scoped to only the application server's security group, increasing the database's lateral exposure within the network, especially since the database is also publicly accessible.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unrestricted database network exposure",
+      "description": "The app server is launched into a subnet with vpc_security_group_ids referencing portal_sg, and is the intended sole client of the database, yet the DB security group allows the whole VPC CIDR rather than being scoped to this instance/security group, widening the effective attack surface for the credentials it uses; combined with the DB being publicly_accessible, any instance or public path into the VPC CIDR range can reach the DB with the same credentials embedded on this host.",
+      "severity": "medium",
+      "cwe": "CWE-284"
+    }
+  ],
+  "input_tokens": 13040,
+  "output_tokens": 2279,
+  "latency_s": 19.729,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"unencrypted database storage\", \"description\": \"storage_encrypted is explicitly set to false, meaning the RDS instance's data at rest is not encrypted, violating encryption-at-rest requirements for sensitive data such as employee records.\", \"severity\": \"high\", \"cwe\": \"CWE-311\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"publicly accessible database\", \"description\": \"publicly_accessible is set to true, exposing the MySQL database instance directly to the internet rather than restricting it to the private application tier.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_db_instance.catalog_db\", \"issue_category\": \"hard-coded credentials\", \"description\": \"The master password is sourced from var.password and passed directly into the resource; combined with lifecycle ignore_changes on password, the value is stored in plaintext in the Terraform state and likely in variable definitions rather than a secrets manager, risking credential exposure.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"hard-coded credentials in user data\", \"description\": \"The user_data script embeds the database username and password (var.password) in cleartext into /var/www/inc/dbinfo.inc, and user_data itself is stored in plaintext in instance metadata and Terraform state, exposing credentials to anyone with EC2 describe-instance-attribute access or state file access.\", \"severity\": \"high\", \"cwe\": \"CWE-798\"}, {\"resource\": \"aws_iam_role_policy.catalog_app_policy\", \"issue_category\": \"overly permissive IAM policy\", \"description\": \"The policy grants s3:*, ec2:*, and rds:* on Resource '*' to the role assumed by the EC2 instance, violating least privilege and allowing compromise of the public-facing app server to escalate into full control over S3, EC2, and RDS resources in the account.\", \"severity\": \"critical\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_security_group_rule.catalog_db_inbound\", \"issue_category\": \"overly broad network ingress\", \"description\": \"Inbound MySQL access on port 3306 is allowed from the entire VPC CIDR block rather than being scoped to only the application server's security group, increasing the database's lateral exposure within the network, especially since the database is also publicly accessible.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}, {\"resource\": \"aws_instance.catalog_app_server\", \"issue_category\": \"unrestricted database network exposure\", \"description\": \"The app server is launched into a subnet with vpc_security_group_ids referencing portal_sg, and is the intended sole client of the database, yet the DB security group allows the whole VPC CIDR rather than being scoped to this instance/security group, widening the effective attack surface for the credentials it uses; combined with the DB being publicly_accessible, any instance or public path into the VPC CIDR range can reach the DB with the same credentials embedded on this host.\", \"severity\": \"medium\", \"cwe\": \"CWE-284\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 5907,
+      "output_tokens": 1101,
+      "latency_s": 10.651,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.022824
+    },
+    {
+      "step": "critique",
+      "input_tokens": 7133,
+      "output_tokens": 1178,
+      "latency_s": 9.078,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.026046
+    }
+  ],
+  "n_calls": 2,
+  "chunks": 0,
+  "cost_usd": 0.04887
+}

@@ -1,0 +1,101 @@
+{
+  "run_id": "gpt-5.6-terra__system_enriched__single__terragoat_mut__think__db-app.tf__r3",
+  "model": "gpt-5.6-terra",
+  "context": "system_enriched",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "db-app.tf",
+  "repetition": 3,
+  "temperature": null,
+  "reasoning": true,
+  "timestamp": "2026-09-20T21:28:48Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "gpt-5.6-terra",
+  "findings": [
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "publicly accessible database",
+      "description": "The RDS instance is configured with publicly_accessible = true, assigning it a public database endpoint despite the application and database being placed in the same VPC. Although the shown security-group ingress rule limits current source CIDRs, this unnecessarily exposes the database to public-network routing and makes future security-group mistakes externally exploitable.",
+      "severity": "medium",
+      "cwe": "CWE-668",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_db_instance.catalog_db",
+      "issue_category": "missing encryption at rest",
+      "description": "The database explicitly sets storage_encrypted = false, leaving database storage, snapshots, and automated backups unencrypted at rest at the RDS storage layer.",
+      "severity": "high",
+      "cwe": "CWE-311",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "database credential exposure",
+      "description": "The bootstrap user_data renders the database password into dbinfo.inc on the instance and includes it in EC2 user-data. This exposes a long-lived database credential to users or processes that can retrieve instance user data or read the deployed configuration file, rather than retrieving it from a managed secret store at runtime.",
+      "severity": "high",
+      "cwe": "CWE-798",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_iam_role_policy.catalog_app_policy",
+      "issue_category": "overly permissive instance permissions",
+      "description": "The EC2-assumable application role receives s3:*, ec2:*, and rds:* against every resource. Compromise of the application instance would grant broad control over account resources and can enable data access, destructive actions, and privilege-escalation paths.",
+      "severity": "critical",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_inbound",
+      "issue_category": "overly broad database ingress",
+      "description": "MySQL access is permitted from every address in the VPC CIDR rather than being restricted to the application security group or specific application hosts. Any compromised or unauthorized workload in the VPC can attempt to connect to the database.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_security_group_rule.catalog_db_outbound",
+      "issue_category": "unrestricted database egress",
+      "description": "The database security group permits all protocols and ports to 0.0.0.0/0. If the database or a database-side execution path is compromised, this removes an important network containment control and permits arbitrary outbound communications where routing permits.",
+      "severity": "medium",
+      "cwe": "CWE-284",
+      "confidence": "high"
+    },
+    {
+      "resource": "aws_instance.catalog_app_server",
+      "issue_category": "unencrypted database connection",
+      "description": "The application uses mysqli_connect without configuring TLS, and the database parameter group does not require secure transport. Database credentials and application data can therefore traverse the network in cleartext between the EC2 instance and RDS.",
+      "severity": "high",
+      "cwe": "CWE-319",
+      "confidence": "high"
+    }
+  ],
+  "input_tokens": 3034,
+  "output_tokens": 1081,
+  "latency_s": 15.15,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 2,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\":[{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"publicly accessible database\",\"description\":\"The RDS instance is configured with publicly_accessible = true, assigning it a public database endpoint despite the application and database being placed in the same VPC. Although the shown security-group ingress rule limits current source CIDRs, this unnecessarily exposes the database to public-network routing and makes future security-group mistakes externally exploitable.\",\"severity\":\"medium\",\"cwe\":\"CWE-668\",\"confidence\":\"high\"},{\"resource\":\"aws_db_instance.catalog_db\",\"issue_category\":\"missing encryption at rest\",\"description\":\"The database explicitly sets storage_encrypted = false, leaving database storage, snapshots, and automated backups unencrypted at rest at the RDS storage layer.\",\"severity\":\"high\",\"cwe\":\"CWE-311\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"database credential exposure\",\"description\":\"The bootstrap user_data renders the database password into dbinfo.inc on the instance and includes it in EC2 user-data. This exposes a long-lived database credential to users or processes that can retrieve instance user data or read the deployed configuration file, rather than retrieving it from a managed secret store at runtime.\",\"severity\":\"high\",\"cwe\":\"CWE-798\",\"confidence\":\"high\"},{\"resource\":\"aws_iam_role_policy.catalog_app_policy\",\"issue_category\":\"overly permissive instance permissions\",\"description\":\"The EC2-assumable application role receives s3:*, ec2:*, and rds:* against every resource. Compromise of the application instance would grant broad control over account resources and can enable data access, destructive actions, and privilege-escalation paths.\",\"severity\":\"critical\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_inbound\",\"issue_category\":\"overly broad database ingress\",\"description\":\"MySQL access is permitted from every address in the VPC CIDR rather than being restricted to the application security group or specific application hosts. Any compromised or unauthorized workload in the VPC can attempt to connect to the database.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_security_group_rule.catalog_db_outbound\",\"issue_category\":\"unrestricted database egress\",\"description\":\"The database security group permits all protocols and ports to 0.0.0.0/0. If the database or a database-side execution path is compromised, this removes an important network containment control and permits arbitrary outbound communications where routing permits.\",\"severity\":\"medium\",\"cwe\":\"CWE-284\",\"confidence\":\"high\"},{\"resource\":\"aws_instance.catalog_app_server\",\"issue_category\":\"unencrypted database connection\",\"description\":\"The application uses mysqli_connect without configuring TLS, and the database parameter group does not require secure transport. Database credentials and application data can therefore traverse the network in cleartext between the EC2 instance and RDS.\",\"severity\":\"high\",\"cwe\":\"CWE-319\",\"confidence\":\"high\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 3034,
+      "output_tokens": 1081,
+      "latency_s": 15.15,
+      "n_findings": 7,
+      "error": "",
+      "cost_usd": 0.01904
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.01904
+}

@@ -1,0 +1,99 @@
+{
+  "run_id": "claude-sonnet-5__few_shot__single__terragoat_mut__s3.tf__r1",
+  "model": "claude-sonnet-5",
+  "context": "few_shot",
+  "pattern": "single",
+  "corpus": "terragoat_mut",
+  "file": "s3.tf",
+  "repetition": 1,
+  "temperature": null,
+  "reasoning": false,
+  "timestamp": "2026-09-20T20:47:06Z",
+  "provenance": {
+    "prompts_sha": "8a683cfec1c99d66",
+    "schema_sha": "b7be5e6e1bf4c417",
+    "agents_sha": "4b6a2da7e6c54353",
+    "guidance_sha": null,
+    "chunk_chars": 2500
+  },
+  "resolved_model": "claude-sonnet-5",
+  "findings": [
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration block is set, so objects are stored unencrypted at rest by default (only SSE-S3 default may apply depending on account settings, but no explicit encryption or KMS enforcement is configured), and no ACL/public access block is defined, leaving the bucket's access posture ambiguous and potentially defaulting to less restrictive settings.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "missing bucket ACL/public access controls",
+      "description": "The bucket does not specify an ACL or aws_s3_bucket_public_access_block, so it could be left with permissive default access, exposing potentially sensitive reports data.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ledger_exports",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined for a bucket storing ledger/financial exports, meaning sensitive financial data is stored without enforced encryption at rest.",
+      "severity": "high"
+    },
+    {
+      "resource": "aws_s3_bucket.model_artifacts",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, so model artifacts are stored unencrypted at rest, increasing risk if the bucket contents are exposed or the storage layer is compromised.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.ops_runbooks",
+      "issue_category": "missing encryption at rest",
+      "description": "No server_side_encryption_configuration is defined, leaving operational runbooks (potentially containing sensitive operational/security details) unencrypted at rest.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "invalid/overly permissive canned ACL",
+      "description": "The ACL value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; if this were intended to be 'log-delivery-write', it grants broad write/read-acp permissions to the log delivery group, which combined with a typo could cause unpredictable access control behavior or apply failures that mask a permissive configuration. This bucket stores audit logs and should have tightly scoped access.",
+      "severity": "medium"
+    },
+    {
+      "resource": "aws_s3_bucket_object.reports_seed_object",
+      "issue_category": "missing encryption for uploaded object",
+      "description": "The object is uploaded without specifying server-side encryption (kms_key_id or server_side_encryption), and it inherits the bucket's lack of default encryption, meaning this vendor roster file (potentially containing PII/business data) is stored unencrypted.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.reports_archive",
+      "issue_category": "force_destroy enabled on sensitive bucket",
+      "description": "force_destroy = true allows the bucket and all its contents to be permanently deleted via a single terraform destroy/apply operation without additional safeguards, risking irreversible data loss of report data.",
+      "severity": "low"
+    },
+    {
+      "resource": "aws_s3_bucket.audit_trail",
+      "issue_category": "force_destroy enabled on audit log bucket",
+      "description": "force_destroy = true on the audit trail bucket allows deletion of compliance/audit logs, undermining tamper-resistance and non-repudiation guarantees expected of an audit trail.",
+      "severity": "medium"
+    }
+  ],
+  "input_tokens": 2729,
+  "output_tokens": 1319,
+  "latency_s": 12.111,
+  "attempts": 1,
+  "schema_problems": [],
+  "thinking_chars": 0,
+  "error": "",
+  "measurement_host": "linux/vm",
+  "raw_text": "{\"findings\": [{\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration block is set, so objects are stored unencrypted at rest by default (only SSE-S3 default may apply depending on account settings, but no explicit encryption or KMS enforcement is configured), and no ACL/public access block is defined, leaving the bucket's access posture ambiguous and potentially defaulting to less restrictive settings.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"missing bucket ACL/public access controls\", \"description\": \"The bucket does not specify an ACL or aws_s3_bucket_public_access_block, so it could be left with permissive default access, exposing potentially sensitive reports data.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ledger_exports\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined for a bucket storing ledger/financial exports, meaning sensitive financial data is stored without enforced encryption at rest.\", \"severity\": \"high\"}, {\"resource\": \"aws_s3_bucket.model_artifacts\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, so model artifacts are stored unencrypted at rest, increasing risk if the bucket contents are exposed or the storage layer is compromised.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.ops_runbooks\", \"issue_category\": \"missing encryption at rest\", \"description\": \"No server_side_encryption_configuration is defined, leaving operational runbooks (potentially containing sensitive operational/security details) unencrypted at rest.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"invalid/overly permissive canned ACL\", \"description\": \"The ACL value 'lcatalogopts-delivery-write' is not a valid S3 canned ACL; if this were intended to be 'log-delivery-write', it grants broad write/read-acp permissions to the log delivery group, which combined with a typo could cause unpredictable access control behavior or apply failures that mask a permissive configuration. This bucket stores audit logs and should have tightly scoped access.\", \"severity\": \"medium\"}, {\"resource\": \"aws_s3_bucket_object.reports_seed_object\", \"issue_category\": \"missing encryption for uploaded object\", \"description\": \"The object is uploaded without specifying server-side encryption (kms_key_id or server_side_encryption), and it inherits the bucket's lack of default encryption, meaning this vendor roster file (potentially containing PII/business data) is stored unencrypted.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.reports_archive\", \"issue_category\": \"force_destroy enabled on sensitive bucket\", \"description\": \"force_destroy = true allows the bucket and all its contents to be permanently deleted via a single terraform destroy/apply operation without additional safeguards, risking irreversible data loss of report data.\", \"severity\": \"low\"}, {\"resource\": \"aws_s3_bucket.audit_trail\", \"issue_category\": \"force_destroy enabled on audit log bucket\", \"description\": \"force_destroy = true on the audit trail bucket allows deletion of compliance/audit logs, undermining tamper-resistance and non-repudiation guarantees expected of an audit trail.\", \"severity\": \"medium\"}]}",
+  "steps": [
+    {
+      "step": "review",
+      "input_tokens": 2729,
+      "output_tokens": 1319,
+      "latency_s": 12.111,
+      "n_findings": 9,
+      "error": "",
+      "cost_usd": 0.018648
+    }
+  ],
+  "n_calls": 1,
+  "chunks": 0,
+  "cost_usd": 0.018648
+}
