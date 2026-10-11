@@ -3,9 +3,9 @@
 Regenerate harness/scored/<tag>.json for every configuration from the raw run
 files, without any API call. Same scoring path as run_experiment.py (files
 sorted, repetitions ascending, seeded bootstrap), so the output is identical to
-what the runner would have written. Used on 2026-09-27 to re-emit the summaries
-at six-decimal precision after the independent audit found seven double-rounded
-table cells; the run files and the config/provenance blocks are untouched.
+what the runner would have written. The summaries carry six-decimal precision
+so that the tables round once; the run files and their config and provenance
+blocks are never touched.
 
     python3 harness/rescore.py
 """

@@ -66,8 +66,9 @@ def build_provenance(guidance: str | None, chunk_chars: int) -> dict:
             (p.read_text() for p in (here / "agents").glob("*.py")), key=len))),
         "guidance_sha": _sha(guidance) if guidance else None,
         "chunk_chars": chunk_chars,
-        # added 2026-09-29: the provider code decides ceilings, endpoints, and
-        # tool settings, so its version belongs in the record too
+        # the provider code decides ceilings, endpoints, and tool settings, so
+        # its version belongs in the record too (absent from runs made before
+        # it was recorded)
         "providers_sha": _sha((here / "providers.py").read_text()),
     }
 

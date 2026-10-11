@@ -79,8 +79,8 @@ def _post(url: str, headers: dict, body: dict, timeout: int = 180) -> dict:
 def _retryable(exc: Exception) -> bool:
     if isinstance(exc, urllib.error.HTTPError):
         return exc.code in (408, 409, 429, 500, 502, 503, 504, 529)
-    # IncompleteRead: the connection dropped mid-response (seen once, DeepSeek,
-    # 2026-09-22). A transport failure, not a model failure, so retry it.
+    # IncompleteRead: the connection dropped mid-response. A transport
+    # failure, not a model failure, so retry it.
     return isinstance(exc, (urllib.error.URLError, TimeoutError, socket.timeout,
                             http.client.IncompleteRead, ConnectionError))
 
@@ -235,12 +235,9 @@ class OpenAICompatProvider(BaseProvider):
         if self.opts.get("reasoning") and self.opts.get("responses_api"):
             return self._invoke_responses(system, user, max_tokens)
         if self.opts.get("reasoning"):
-            # 2026-09-29: a ceiling chosen so that it does not bind. The
-            # September DeepSeek reasoning runs kept 4,096 and eight of 30
-            # truncated; a rerun at 8,000 (the Claude/GPT reasoning ceiling)
-            # still truncated one of 30. The reported arm uses 16,000; no
-            # Claude or GPT reasoning response came within half of its own
-            # 8,000 (RESULTS.md, "Reasoning-on output ceiling").
+            # A ceiling chosen so that it does not bind: DeepSeek's reasoning
+            # responses truncated at 4,096 and once at 8,000; none reached
+            # 16,000 (SUPPLEMENT.md, "Reasoning-on output ceilings").
             max_tokens = max(max_tokens, 16000)
         msgs = [{"role": "system", "content": system}]
         body = {"model": self.opts.get("model_slug", self.model), "messages": msgs}

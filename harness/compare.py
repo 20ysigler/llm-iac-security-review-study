@@ -71,10 +71,10 @@ def compare(tag_a: str, tag_b: str, iterations: int = 20000,
 def holm(pvals: dict) -> dict:
     """Holm step-down adjusted p-values for a family of tests {name: p}.
 
-    Added 2026-09-27 after the independent audit: the paper runs 35 paired
-    tests in four families (model comparison, reasoning, context, orchestration)
-    and reported raw bootstrap p-values only. Adjusted p = max over the
-    step-down sequence of (m - i) * p_(i), capped at 1.
+    The study runs 35 paired tests in four families (model comparison,
+    reasoning, context, orchestration); the paper reports raw bootstrap
+    p-values and SUPPLEMENT.md reports these adjusted values. Adjusted p = max
+    over the step-down sequence of (m - i) * p_(i), capped at 1.
     """
     items = sorted(pvals.items(), key=lambda kv: kv[1])
     m = len(items)

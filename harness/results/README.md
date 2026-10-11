@@ -8,7 +8,7 @@ One JSON file per run: `<model>__<context>__<pattern>__terragoat_mut[__think]__<
 | `model`, `context`, `pattern`, `corpus`, `file`, `repetition`, `reasoning` | the configuration |
 | `resolved_model` | the model identifier the API returned (`deepseek-flash` for every DeepSeek run) |
 | `timestamp` | UTC time the run finished |
-| `provenance` | hashes of `prompts.py`, `schema.py`, `agents/`, the guidance text, and (from 2026-09-29) `providers.py`; `chunk_chars` |
+| `provenance` | hashes of `prompts.py`, `schema.py`, `agents/`, the guidance text, and, in the DeepSeek reasoning-on runs, `providers.py`; `chunk_chars` |
 | `findings` | the claims the model returned, as parsed from the tool call: `resource`, `issue_category`, `description`, `severity`, optional `cwe` and `confidence` |
 | `raw_text` | the tool-call payload or text the model returned, before parsing |
 | `schema_problems` | schema validation messages, if any |
